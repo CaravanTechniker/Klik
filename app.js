@@ -1,7 +1,7 @@
 // Caravan TaM - offline PWA decision trees (SK/DE)
 // Data: in-memory JSON; later you can load external JSON files.
 
-const VERSION = "0.1.2";
+const VERSION = "0.1.3";
 
 const i18n = {
   sk: {
@@ -31,7 +31,11 @@ const i18n = {
     result: "Výsledok",
     safety: "Bezpečnosť",
     offline: "offline",
-  },
+    back: "Späť",
+    font: "Písmo",
+    all: "Všetko",
+
+  }},
   de: {
     faults: "Störungen",
     hint: "Wähle eine Störung oder suche. Funktioniert auch offline.",
@@ -102,7 +106,11 @@ let TREES = [
       r3:{type:"result", level:"danger", cause:{sk:"Riadiaca jednotka / relé nedodáva napätie (korózia, vlhkosť, porucha).", de:"Steuergerät/Relais liefert keine Spannung (Korrosion, Feuchtigkeit, Defekt)."},
           action:{sk:"Reset (odpojenie 1–2 min). Ak bez zmeny: výmena jednotky/relé + kontrola konektorov.", de:"Reset (1–2 Min stromlos). Wenn unverändert: Steuergerät/Relais ersetzen + Stecker prüfen."}}
     }
-  },
+    back: "Zurück",
+    font: "Schrift",
+    all: "Alle",
+
+  }},
   {
     id:"wasserpumpe_off",
     title:{sk:"Wasserpumpe OFF / netečie voda", de:"Wasserpumpe AUS / kein Wasser"},
@@ -178,6 +186,11 @@ let TREES = [
 const els = {
   langBtn: document.getElementById("langBtn"),
   resetBtn: document.getElementById("resetBtn"),
+  fontMinus: document.getElementById("fontMinus"),
+  fontPlus: document.getElementById("fontPlus"),
+  fontLabel: document.getElementById("fontLabel"),
+  tagChips: document.getElementById("tagChips"),
+  backBtn: document.getElementById("backBtn"),
   faultsH: document.getElementById("hFaults"),
   hint: document.getElementById("hHint"),
   search: document.getElementById("search"),
@@ -204,7 +217,33 @@ const els = {
 
 let currentTree = null;
 let currentNodeId = null;
+let activeTag = ""; // tag filter in list
 let path = []; // {nodeId, text, answerLabel, answerValue, timestamp}
+
+// --- FONT SIZE (A- / A+) ----------------------
+const FS_MIN = 0.8;
+const FS_MAX = 1.5;
+const FS_STEP = 0.1;
+
+let fontScale = parseFloat(localStorage.getItem("fontScale")) || 1.0;
+function applyFontScale(){
+  document.documentElement.style.setProperty("--fs", String(fontScale.toFixed(2)));
+  localStorage.setItem("fontScale", fontScale.toFixed(2));
+}
+applyFontScale();
+
+if(els.fontPlus){
+  els.fontPlus.addEventListener("click", ()=>{
+    fontScale = Math.min(FS_MAX, fontScale + FS_STEP);
+    applyFontScale();
+  });
+}
+if(els.fontMinus){
+  els.fontMinus.addEventListener("click", ()=>{
+    fontScale = Math.max(FS_MIN, fontScale - FS_STEP);
+    applyFontScale();
+  });
+}
 
 function setLang(newLang){
   LANG = newLang;
@@ -220,10 +259,14 @@ function setLang(newLang){
   els.copyBtn.textContent = t("copy");
   els.clearPathBtn.textContent = t("clearPath");
   els.resetBtn.textContent = t("reset");
+  if(els.fontLabel) els.fontLabel.textContent = t("font");
+  if(els.backBtn) els.backBtn.textContent = t("back");
   els.installBtn.textContent = t("install");
+  renderTagChips();
   renderFaultList();
   renderNode();
   updateProtocol();
+  updateBackBtn();
 }
 
 function textByLang(obj){
@@ -232,11 +275,40 @@ function textByLang(obj){
   return obj[LANG] || obj.sk || obj.de || "";
 }
 
+
+function getAllTags(){
+  const s = new Set();
+  (TREES||[]).forEach(t=> (t.tags||[]).forEach(tag=>s.add(tag)));
+  return Array.from(s).sort((a,b)=>a.localeCompare(b));
+}
+
+function renderTagChips(){
+  if(!els.tagChips) return;
+  els.tagChips.innerHTML = "";
+
+  const chips = [
+    {id:"", label:t("all")}
+  ].concat(getAllTags().map(tag=>({id:tag, label:tag})));
+
+  chips.forEach(c=>{
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip" + (activeTag===c.id ? " active" : "");
+    b.textContent = c.label;
+    b.addEventListener("click", ()=>{
+      activeTag = (activeTag===c.id) ? "" : c.id; // toggle
+      renderTagChips();
+      renderFaultList();
+    });
+    els.tagChips.appendChild(b);
+  });
+}
 function renderFaultList(){
   const q = (els.search.value || "").trim().toLowerCase();
   els.list.innerHTML = "";
   TREES
     .filter(tree => {
+      if(activeTag && !(tree.tags||[]).includes(activeTag)) return false;
       if(!q) return true;
       const hay = (textByLang(tree.title)+" "+textByLang(tree.subtitle)+" "+tree.tags.join(" ")).toLowerCase();
       return hay.includes(q);
@@ -260,6 +332,7 @@ function selectTree(id){
   els.diag.style.display = currentTree ? "block" : "none";
   renderNode();
   updateProtocol();
+  updateBackBtn();
 }
 
 function renderNode(){
@@ -299,7 +372,7 @@ function renderNode(){
       });
     } else {
       const yes = document.createElement("button");
-      yes.className = "btn primary";
+      yes.className = "btn ok";
       yes.textContent = t("yes");
       yes.addEventListener("click", ()=>advance(node.yes, t("yes"), "yes"));
       const no = document.createElement("button");
@@ -331,6 +404,7 @@ function renderNode(){
   }
 
   renderPath();
+  updateBackBtn();
 }
 
 function advance(nextId, answerLabel, answerValue){
@@ -348,6 +422,24 @@ function advance(nextId, answerLabel, answerValue){
   persistSession();
   renderNode();
   updateProtocol();
+}
+
+function updateBackBtn(){
+  if(!els.backBtn) return;
+  els.backBtn.disabled = !(path && path.length>0);
+}
+
+if(els.backBtn){
+  els.backBtn.addEventListener("click", ()=>{
+    if(!currentTree) return;
+    if(!path.length) return;
+    const last = path.pop();
+    currentNodeId = last.nodeId;
+    persistSession();
+    renderNode();
+    updateProtocol();
+    updateBackBtn();
+  });
 }
 
 function renderPath(){
@@ -458,6 +550,7 @@ els.resetBtn.addEventListener("click", ()=>{
   els.diagEmpty.style.display = "block";
   els.diag.style.display = "none";
   updateProtocol();
+  updateBackBtn();
 });
 els.copyBtn.addEventListener("click", async ()=>{
   try{
@@ -514,6 +607,7 @@ window.addEventListener("offline", updateOffline);
 
   restoreSession();
   setLang(LANG);
+  renderTagChips();
   renderFaultList();
   renderNode();
   updateProtocol();
@@ -928,7 +1022,8 @@ window.addEventListener("offline", updateOffline);
       try{ localStorage.setItem("tam_custom_trees", JSON.stringify(TREES)); }catch{}
 
       // refresh main UI
-      renderFaultList();
+      renderTagChips();
+  renderFaultList();
       alert("Uložené. Zoznam porúch aktualizovaný. (Uložené aj do tohto zariadenia)");
     });
   }

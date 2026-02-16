@@ -1,5 +1,5 @@
 // Caravan TaM service worker - offline first
-const CACHE = "caravan-tam-v012";
+const CACHE = "caravan-tam-v013";
 const ASSETS = [
   "./",
   "./index.html",
