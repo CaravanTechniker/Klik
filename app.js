@@ -1,429 +1,541 @@
-/* =========
-   SETTINGS
-   ========= */
-const ADMIN_PIN = "2468";
-const LS_LANG = "tam_lang";
-const LS_CUSTOM = "tam_custom_trees";
-const LS_TAGS = "tam_tags_on";
+/* app.js — Caravan TaM (PRO) */
+(() => {
+  "use strict";
 
-let LANG = (localStorage.getItem(LS_LANG) || "de"); // DE je priorita
-let TREES = [];
-let currentTree = null;
-let currentNodeId = null;
-let history = []; // stack of node ids
-let tagsOn = new Set(JSON.parse(localStorage.getItem(LS_TAGS) || "[]"));
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
-/* =========
-   HELPERS
-   ========= */
-function tr(obj){
-  if(!obj) return "";
-  if(typeof obj === "string") return obj;
-  return obj[LANG] || obj.de || obj.sk || "";
-}
+  const STORAGE = {
+    lang: "ctam_lang",
+    selectedTreeId: "ctam_selectedTreeId",
+    path: "ctam_path",
+    step: "ctam_step",
+    answers: "ctam_answers",
+    admin: "ctam_admin"
+  };
 
-function norm(s){
-  return (s||"").toString().toLowerCase().trim();
-}
+  // ---------- STATE ----------
+  const state = {
+    lang: localStorage.getItem(STORAGE.lang) || "de", // DE priorita
+    trees: [],
+    treeById: new Map(),
+    selectedTreeId: localStorage.getItem(STORAGE.selectedTreeId) || "",
+    path: safeJsonParse(localStorage.getItem(STORAGE.path), []),
+    stepNodeId: localStorage.getItem(STORAGE.step) || "",
+    answers: safeJsonParse(localStorage.getItem(STORAGE.answers), []),
+    filterTags: new Set()
+  };
 
-function allTagsForLang(tree){
-  // tree.tags môže byť:
-  // - pole stringov (staré)
-  // - alebo objekt {de:[...], sk:[...]}
-  if(!tree.tags) return [];
-  if(Array.isArray(tree.tags)) return tree.tags;
-  if(typeof tree.tags === "object"){
-    return tree.tags[LANG] || tree.tags.de || tree.tags.sk || [];
+  function safeJsonParse(s, fallback) {
+    try { return s ? JSON.parse(s) : fallback; } catch { return fallback; }
   }
-  return [];
-}
 
-function getTreeSearchText(tree){
-  const t = tr(tree.title);
-  const s = tr(tree.subtitle);
-  const tags = allTagsForLang(tree).join(" ");
-  return norm(`${t} ${s} ${tags}`);
-}
+  // ---------- HELPERS ----------
+  function pad2(n) { return String(n).padStart(2, "0"); }
 
-/* =========
-   LOAD DATA
-   ========= */
-async function loadTrees(){
-  // 1) custom (importované) stromy
-  try{
-    const local = localStorage.getItem(LS_CUSTOM);
-    if(local){
-      TREES = JSON.parse(local);
-      return;
+  function t(obj) {
+    if (!obj) return "";
+    if (typeof obj === "string") return obj;
+    return obj[state.lang] ?? obj.de ?? obj.sk ?? "";
+  }
+
+  function normalizeTags(tags) {
+    if (!Array.isArray(tags)) return [];
+    return tags
+      .map(x => String(x || "").trim())
+      .filter(Boolean);
+  }
+
+  function setLang(lang) {
+    state.lang = lang;
+    localStorage.setItem(STORAGE.lang, lang);
+    renderAll();
+  }
+
+  // ---------- LOAD CONTENT ----------
+  async function loadContent() {
+    // cache-bust pri fetchi (aby sa nepouzil starý JSON)
+    const url = `./content.json?ts=${Date.now()}`;
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error("content.json load failed");
+    const data = await res.json();
+
+    // content.json je pole stromov
+    if (!Array.isArray(data)) throw new Error("content.json invalid (expected array)");
+
+    state.trees = data;
+    state.treeById = new Map();
+    for (const tree of state.trees) state.treeById.set(tree.id, tree);
+
+    // default: ak nic nevybrate, vyber prvy strom
+    if (!state.selectedTreeId || !state.treeById.has(state.selectedTreeId)) {
+      state.selectedTreeId = state.trees[0]?.id || "";
+      localStorage.setItem(STORAGE.selectedTreeId, state.selectedTreeId);
     }
-  }catch{}
-
-  // 2) web content.json
-  const res = await fetch("content.json?ts="+Date.now(), { cache:"no-store" });
-  TREES = await res.json();
-}
-
-/* =========
-   UI TEXTS
-   ========= */
-function applyUiLanguage(){
-  document.documentElement.lang = (LANG === "de") ? "de" : "sk";
-
-  // header buttons
-  document.getElementById("deBtn").style.opacity = (LANG==="de") ? "1" : ".55";
-  document.getElementById("skBtn").style.opacity = (LANG==="sk") ? "1" : ".55";
-
-  // left card
-  document.getElementById("leftTitle").innerText = (LANG==="de") ? "Störungen" : "Poruchy";
-  document.getElementById("leftHint").innerText =
-    (LANG==="de") ? "Wähle eine Störung oder suche. Funktioniert auch offline."
-                  : "Vyber poruchu alebo hľadaj. Funguje aj offline.";
-
-  document.getElementById("search").placeholder =
-    (LANG==="de") ? "Suchen (trittstufe, wasserpumpe, 12V...)" : "Hľadať (trittstufe, wasserpumpe, 12V...)";
-
-  document.getElementById("tagsToggle").innerText = (LANG==="de") ? "Tags ▾" : "Tagy ▾";
-  document.getElementById("tagsReset").innerText = (LANG==="de") ? "Filter Reset" : "Filter Reset";
-
-  // right card
-  document.getElementById("rightTitle").innerText = (LANG==="de") ? "Diagnose" : "Diagnostika";
-  document.getElementById("rightHint").innerText =
-    (LANG==="de") ? "Wähle links eine Störung. Dann klicke JA / NEIN."
-                  : "Vyber poruchu vľavo. Potom klikaj ÁNO / NIE.";
-
-  document.getElementById("yesBtn").innerText = (LANG==="de") ? "JA" : "ÁNO";
-  document.getElementById("noBtn").innerText  = (LANG==="de") ? "NEIN" : "NIE";
-  document.getElementById("backBtn").innerText = (LANG==="de") ? "⟵ SCHRITT ZURÜCK" : "⟵ KROK SPÄŤ";
-
-  document.getElementById("protoTitle").innerText = (LANG==="de") ? "Protokoll" : "Protokol";
-  document.getElementById("copyProto").innerText = (LANG==="de") ? "Kopieren" : "Kopírovať";
-  document.getElementById("downloadProto").innerText = (LANG==="de") ? "TXT Download" : "Stiahnuť TXT";
-  document.getElementById("downloadContent").innerText = (LANG==="de") ? "content.json Download" : "Stiahnuť content.json";
-
-  // rerender
-  renderTagsBox();
-  renderTreeList();
-  renderNode();
-  updateProtocol();
-}
-
-/* =========
-   TAGS UI
-   ========= */
-function getAllUniqueTags(){
-  const set = new Set();
-  TREES.forEach(t=>{
-    allTagsForLang(t).forEach(x=> set.add(norm(x)));
-  });
-  return Array.from(set).filter(Boolean).sort();
-}
-
-function renderTagsBox(){
-  const box = document.getElementById("tagsBox");
-  box.innerHTML = "";
-
-  const tags = getAllUniqueTags();
-  if(!tags.length){
-    box.innerHTML = `<div class="muted">${(LANG==="de") ? "Keine Tags verfügbar." : "Tagy nie sú dostupné."}</div>`;
-    return;
   }
 
-  tags.forEach(tag=>{
-    const el = document.createElement("span");
-    el.className = "tag" + (tagsOn.has(tag) ? " on" : "");
-    el.innerText = "#" + tag;
-    el.onclick = ()=>{
-      if(tagsOn.has(tag)) tagsOn.delete(tag); else tagsOn.add(tag);
-      localStorage.setItem(LS_TAGS, JSON.stringify(Array.from(tagsOn)));
-      renderTagsBox();
+  // ---------- UI BUILD ----------
+  function buildHeader() {
+    $("#btnDE").classList.toggle("active", state.lang === "de");
+    $("#btnSK").classList.toggle("active", state.lang === "sk");
+
+    $("#btnDE").onclick = () => setLang("de");
+    $("#btnSK").onclick = () => setLang("sk");
+
+    $("#btnReset").onclick = hardReset;
+    $("#btnBack").onclick = stepBack;
+
+    $("#btnAdmin").onclick = adminMenu;
+  }
+
+  function hardReset() {
+    // vycisti vsetko, co ovplyvnuje UI
+    localStorage.removeItem(STORAGE.selectedTreeId);
+    localStorage.removeItem(STORAGE.path);
+    localStorage.removeItem(STORAGE.step);
+    localStorage.removeItem(STORAGE.answers);
+
+    state.selectedTreeId = state.trees[0]?.id || "";
+    state.path = [];
+    state.stepNodeId = "";
+    state.answers = [];
+
+    // pre istotu komplet reload (najspolahlivejsie aj na Fold/Chrome)
+    location.reload();
+  }
+
+  function stepBack() {
+    if (state.path.length === 0) return;
+    state.path.pop();
+    state.answers.pop();
+
+    const last = state.path[state.path.length - 1] || null;
+    state.stepNodeId = last?.nodeId || "";
+
+    persistProgress();
+    renderDiagnosis();
+    renderProtocol();
+  }
+
+  function persistProgress() {
+    localStorage.setItem(STORAGE.selectedTreeId, state.selectedTreeId);
+    localStorage.setItem(STORAGE.path, JSON.stringify(state.path));
+    localStorage.setItem(STORAGE.step, state.stepNodeId);
+    localStorage.setItem(STORAGE.answers, JSON.stringify(state.answers));
+  }
+
+  function selectTree(treeId) {
+    state.selectedTreeId = treeId;
+    state.path = [];
+    state.stepNodeId = "";
+    state.answers = [];
+    persistProgress();
+    renderDiagnosis();
+    renderProtocol();
+  }
+
+  // ---------- TREE LIST (ACCORDION + NUMBER) ----------
+  function getAllTags() {
+    const all = new Set();
+    for (const tree of state.trees) {
+      for (const tag of normalizeTags(tree.tags)) all.add(tag);
+    }
+    return Array.from(all).sort((a, b) => a.localeCompare(b));
+  }
+
+  function renderTagsFilter() {
+    const btn = $("#btnTags");
+    const menu = $("#tagsMenu");
+    const reset = $("#btnFilterReset");
+
+    const allTags = getAllTags();
+
+    btn.onclick = () => {
+      menu.classList.toggle("open");
+    };
+
+    reset.onclick = () => {
+      state.filterTags.clear();
+      menu.classList.remove("open");
       renderTreeList();
     };
-    box.appendChild(el);
-  });
-}
 
-/* =========
-   TREE LIST
-   ========= */
-function treeMatchesFilters(tree){
-  // tags filter
-  if(tagsOn.size){
-    const ttags = new Set(allTagsForLang(tree).map(norm));
-    for(const needed of tagsOn){
-      if(!ttags.has(needed)) return false;
+    menu.innerHTML = "";
+    for (const tag of allTags) {
+      const row = document.createElement("label");
+      row.className = "tagRow";
+
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = state.filterTags.has(tag);
+      cb.onchange = () => {
+        if (cb.checked) state.filterTags.add(tag);
+        else state.filterTags.delete(tag);
+        renderTreeList();
+      };
+
+      const span = document.createElement("span");
+      span.textContent = tag;
+
+      row.appendChild(cb);
+      row.appendChild(span);
+      menu.appendChild(row);
+    }
+
+    // klik mimo menu -> zavri
+    document.addEventListener("click", (e) => {
+      if (!menu.classList.contains("open")) return;
+      const inside = menu.contains(e.target) || btn.contains(e.target);
+      if (!inside) menu.classList.remove("open");
+    }, { passive: true });
+  }
+
+  function matchesFilter(tree) {
+    if (state.filterTags.size === 0) return true;
+    const tags = new Set(normalizeTags(tree.tags));
+    for (const need of state.filterTags) if (!tags.has(need)) return false;
+    return true;
+  }
+
+  function renderTreeList() {
+    const q = ($("#search").value || "").trim().toLowerCase();
+    const wrap = $("#trees");
+
+    wrap.innerHTML = "";
+
+    state.trees.forEach((tree, idx) => {
+      if (!matchesFilter(tree)) return;
+
+      const title = t(tree.title);
+      const subtitle = t(tree.subtitle);
+      const tags = normalizeTags(tree.tags);
+
+      const hay = `${title} ${subtitle} ${tags.join(" ")}`.toLowerCase();
+      if (q && !hay.includes(q)) return;
+
+      const num = pad2(idx + 1);
+
+      // accordion: <details>
+      const details = document.createElement("details");
+      details.className = "treeItem";
+      if (tree.id === state.selectedTreeId) details.open = true;
+
+      const summary = document.createElement("summary");
+      summary.className = "treeSummary";
+      summary.innerHTML = `<span class="treeNum">${num}</span><span class="treeTitle">${escapeHtml(title)}</span>`;
+
+      // klik na summary len rozklik, neprepina automaticky (prehladne)
+      // vyber spravime tlacidlom "Použiť"
+      const body = document.createElement("div");
+      body.className = "treeBody";
+
+      const sub = document.createElement("div");
+      sub.className = "treeSubtitle";
+      sub.textContent = subtitle || "";
+
+      const btnUse = document.createElement("button");
+      btnUse.className = "btnUse";
+      btnUse.textContent = state.lang === "de" ? "Auswählen" : "Vybrať";
+      btnUse.onclick = () => selectTree(tree.id);
+
+      body.appendChild(sub);
+      body.appendChild(btnUse);
+
+      details.appendChild(summary);
+      details.appendChild(body);
+
+      wrap.appendChild(details);
+    });
+  }
+
+  // ---------- DIAGNOSIS ENGINE ----------
+  function getSelectedTree() {
+    return state.treeById.get(state.selectedTreeId) || null;
+  }
+
+  function getNode(tree, nodeId) {
+    if (!tree || !tree.nodes) return null;
+    return tree.nodes[nodeId] || null;
+  }
+
+  function startNodeId(tree) {
+    return tree.start || "start";
+  }
+
+  function renderDiagnosis() {
+    const tree = getSelectedTree();
+    const errBox = $("#diagError");
+
+    if (!tree) {
+      errBox.textContent = state.lang === "de" ? "Kein Baum gewählt." : "Nie je vybraný strom.";
+      errBox.classList.remove("hidden");
+      $("#question").textContent = "";
+      return;
+    }
+
+    // nastav stepNodeId ak prazdny
+    if (!state.stepNodeId) {
+      state.stepNodeId = startNodeId(tree);
+      persistProgress();
+    }
+
+    const node = getNode(tree, state.stepNodeId);
+
+    if (!node) {
+      // toto je tvoja chyba "missing node"
+      errBox.textContent = state.lang === "de"
+        ? "Node fehlt im Baum. Prüfe content.json."
+        : "Chýba uzol v strome. Skontroluj content.json.";
+      errBox.classList.remove("hidden");
+
+      $("#question").textContent = "";
+      return;
+    }
+
+    errBox.classList.add("hidden");
+
+    // ak je to KONIEC / VÝSLEDOK (node.type === "result" alebo node.result)
+    if (node.type === "result" || node.result) {
+      const resultText = t(node.result || node.text);
+      $("#question").innerHTML = `<div class="resultTitle">${state.lang === "de" ? "Ergebnis" : "Výsledok"}</div>
+                                  <div class="resultText">${escapeHtml(resultText)}</div>`;
+      $("#btnYes").disabled = true;
+      $("#btnNo").disabled = true;
+      $("#btnBack").disabled = state.path.length === 0;
+      renderProtocol(true, resultText);
+      return;
+    }
+
+    $("#btnYes").disabled = false;
+    $("#btnNo").disabled = false;
+    $("#btnBack").disabled = state.path.length === 0;
+
+    const qText = t(node.question || node.text);
+    $("#question").textContent = qText || "";
+
+    $("#btnYes").textContent = state.lang === "de" ? "JA" : "ÁNO";
+    $("#btnNo").textContent = state.lang === "de" ? "NEIN" : "NIE";
+    $("#btnBack").textContent = state.lang === "de" ? "← SCHRITT ZURÜCK" : "← KROK SPÄŤ";
+
+    $("#btnYes").onclick = () => answer(tree, node, true);
+    $("#btnNo").onclick = () => answer(tree, node, false);
+
+    renderProtocol(false, "");
+  }
+
+  function answer(tree, node, yes) {
+    const nextId = yes ? node.yes : node.no;
+
+    state.path.push({
+      nodeId: state.stepNodeId,
+      q: t(node.question || node.text),
+      a: yes ? (state.lang === "de" ? "JA" : "ÁNO") : (state.lang === "de" ? "NEIN" : "NIE")
+    });
+
+    state.answers.push(yes);
+
+    state.stepNodeId = nextId || "";
+
+    persistProgress();
+    renderDiagnosis();
+  }
+
+  // ---------- PROTOCOL / EXPORT ----------
+  function renderProtocol(isResult = false, resultText = "") {
+    const tree = getSelectedTree();
+    const box = $("#protocol");
+
+    const now = new Date();
+    const dt = `${pad2(now.getDate())}.${pad2(now.getMonth() + 1)}.${now.getFullYear()} ${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`;
+
+    const title = tree ? t(tree.title) : "";
+    const tags = tree ? normalizeTags(tree.tags).join(", ") : "";
+
+    let lines = [];
+    lines.push(`${state.lang === "de" ? "Zeit" : "Čas"}: ${dt}`);
+    lines.push(`${state.lang === "de" ? "Sprache" : "Jazyk"}: ${state.lang.toUpperCase()}`);
+    lines.push(`${state.lang === "de" ? "Störung" : "Porucha"}: ${title}`);
+    if (tags) lines.push(`${state.lang === "de" ? "Tags" : "Tagy"}: ${tags}`);
+    lines.push("");
+    lines.push(state.lang === "de" ? "Schritte:" : "Kroky:");
+
+    state.path.forEach((p, i) => {
+      lines.push(`${i + 1}. ${p.q}  [${p.a}]`);
+    });
+
+    if (isResult) {
+      lines.push("");
+      lines.push(state.lang === "de" ? "Ergebnis:" : "Výsledok:");
+      lines.push(resultText || "-");
+    }
+
+    box.textContent = lines.join("\n");
+
+    $("#btnCopy").onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(box.textContent);
+        toast(state.lang === "de" ? "Kopiert" : "Skopírované");
+      } catch {
+        toast(state.lang === "de" ? "Kopieren fehlgeschlagen" : "Kopírovanie zlyhalo");
+      }
+    };
+
+    $("#btnDownloadTxt").onclick = () => {
+      const blob = new Blob([box.textContent], { type: "text/plain;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `caravan_tam_${state.lang}_${Date.now()}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+    };
+
+    // !!! DÔLEŽITÉ: žiadne "download content.json" tlačidlo tu už NIE JE !!!
+  }
+
+  function toast(msg) {
+    const el = $("#toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    setTimeout(() => el.classList.remove("show"), 1200);
+  }
+
+  function escapeHtml(s) {
+    return String(s || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  // ---------- ADMIN ----------
+  async function adminMenu() {
+    const choice = prompt("ADMIN\n1 = Import\n2 = Export\n\n(OK = pokračovať)");
+    if (!choice) return;
+
+    if (choice.trim() === "1") {
+      // Import: file picker
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "application/json,.json";
+      input.onchange = async () => {
+        const file = input.files?.[0];
+        if (!file) return;
+        const text = await file.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          alert(state.lang === "de" ? "JSON ungültig" : "Neplatný JSON");
+          return;
+        }
+        if (!Array.isArray(data)) {
+          alert(state.lang === "de" ? "JSON muss ein Array sein" : "JSON musí byť pole");
+          return;
+        }
+
+        // uloz do localStorage ako override (app načíta preferenčne z override)
+        localStorage.setItem("ctam_override_content", JSON.stringify(data));
+        toast(state.lang === "de" ? "Import OK – Reload" : "Import OK – Reload");
+
+        // reload aby sa načítalo nové
+        location.reload();
+      };
+      input.click();
+    }
+
+    if (choice.trim() === "2") {
+      // Export: uloz aktualny content (override ak existuje, inak fetchnuty)
+      const data = getEffectiveContent();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `content_export_${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
     }
   }
 
-  // search
-  const q = norm(document.getElementById("search").value);
-  if(!q) return true;
-  return getTreeSearchText(tree).includes(q);
-}
-
-function renderTreeList(){
-  const list = document.getElementById("treeList");
-  list.innerHTML = "";
-
-  const filtered = TREES.filter(treeMatchesFilters);
-
-  if(!filtered.length){
-    list.innerHTML = `<div class="muted">${(LANG==="de") ? "Keine Treffer." : "Žiadne výsledky."}</div>`;
-    return;
+  function getEffectiveContent() {
+    const override = localStorage.getItem("ctam_override_content");
+    if (override) {
+      try {
+        const parsed = JSON.parse(override);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {}
+    }
+    return state.trees;
   }
 
-  filtered.forEach(t=>{
-    const div = document.createElement("div");
-    div.className = "treeItem" + ((currentTree && currentTree.id===t.id) ? " active" : "");
-    const title = tr(t.title);
-    const sub = tr(t.subtitle);
-    div.innerHTML = `<div class="t">${title}</div><div class="s">${sub}</div>`;
-    div.onclick = ()=> startTree(t.id);
-    list.appendChild(div);
+  async function loadOverrideIfAny() {
+    const override = localStorage.getItem("ctam_override_content");
+    if (!override) return false;
+    try {
+      const parsed = JSON.parse(override);
+      if (!Array.isArray(parsed)) return false;
+      state.trees = parsed;
+      state.treeById = new Map();
+      for (const tree of state.trees) state.treeById.set(tree.id, tree);
+
+      if (!state.selectedTreeId || !state.treeById.has(state.selectedTreeId)) {
+        state.selectedTreeId = state.trees[0]?.id || "";
+        localStorage.setItem(STORAGE.selectedTreeId, state.selectedTreeId);
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // ---------- INIT ----------
+  async function init() {
+    buildHeader();
+
+    // load override first (admin import)
+    const hasOverride = await loadOverrideIfAny();
+    if (!hasOverride) await loadContent();
+
+    $("#search").addEventListener("input", renderTreeList);
+
+    renderTagsFilter();
+    renderAll();
+  }
+
+  function renderAll() {
+    // title
+    $("#brand").textContent = "CaravanTechniker am Main";
+
+    // texts
+    $("#secTreesTitle").textContent = state.lang === "de" ? "Störungen" : "Poruchy";
+    $("#secTreesHint").textContent = state.lang === "de"
+      ? "Wähle eine Störung oder suche. Funktioniert auch offline."
+      : "Vyber poruchu alebo hľadaj. Funguje aj offline.";
+
+    $("#secDiagTitle").textContent = state.lang === "de" ? "Diagnose" : "Diagnostika";
+    $("#secDiagHint").textContent = state.lang === "de"
+      ? "Wähle links eine Störung. Dann klicke JA / NEIN."
+      : "Vyber poruchu vľavo. Potom klikaj ÁNO / NIE.";
+
+    $("#secProtTitle").textContent = state.lang === "de" ? "Protokoll" : "Protokol";
+
+    // buttons
+    $("#btnFilterReset").textContent = state.lang === "de" ? "Filter Reset" : "Filter Reset";
+    $("#btnTags").textContent = state.lang === "de" ? "Tags ▾" : "Tagy ▾";
+    $("#btnCopy").textContent = state.lang === "de" ? "Kopieren" : "Kopírovať";
+    $("#btnDownloadTxt").textContent = state.lang === "de" ? "TXT Download" : "Stiahnuť TXT";
+
+    renderTreeList();
+    renderDiagnosis();
+    renderProtocol();
+  }
+
+  init().catch((e) => {
+    console.error(e);
+    $("#diagError").textContent = "Init error. Check console.";
+    $("#diagError").classList.remove("hidden");
   });
-}
-
-/* =========
-   TREE ENGINE
-   ========= */
-function startTree(id){
-  currentTree = TREES.find(t=>t.id===id) || TREES[0];
-  currentNodeId = currentTree.start;
-  history = [];
-  renderTreeList();
-  renderNode();
-  updateProtocol();
-}
-
-function renderNode(){
-  const titleEl = document.getElementById("nodeTitle");
-  const textEl = document.getElementById("nodeText");
-
-  if(!currentTree){
-    titleEl.innerText = "–";
-    textEl.innerText = "–";
-    return;
-  }
-
-  const node = currentTree.nodes?.[currentNodeId];
-  if(!node){
-    titleEl.innerText = (LANG==="de") ? "Fehler" : "Chyba";
-    textEl.innerText = (LANG==="de")
-      ? "Node fehlt im Baum. Prüfe content.json."
-      : "Chýba uzol v strome. Skontroluj content.json.";
-    return;
-  }
-
-  titleEl.innerText = tr(currentTree.title);
-  textEl.innerText = tr(node.text);
-}
-
-function answer(isYes){
-  if(!currentTree) return;
-  const node = currentTree.nodes?.[currentNodeId];
-  if(!node) return;
-
-  history.push(currentNodeId);
-  currentNodeId = isYes ? node.yes : node.no;
-  renderNode();
-  updateProtocol();
-}
-
-function back(){
-  if(!history.length) return;
-  currentNodeId = history.pop();
-  renderNode();
-  updateProtocol();
-}
-
-/* =========
-   PROTOCOL
-   ========= */
-function buildProtocolText(){
-  if(!currentTree) return "";
-
-  const now = new Date();
-  const pad = (n)=> String(n).padStart(2,"0");
-  const ts = `${pad(now.getDate())}.${pad(now.getMonth()+1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-
-  const lines = [];
-  lines.push((LANG==="de") ? `Zeit: ${ts}` : `Čas: ${ts}`);
-  lines.push((LANG==="de") ? `Sprache: ${LANG.toUpperCase()}` : `Jazyk: ${LANG.toUpperCase()}`);
-  lines.push((LANG==="de") ? `Störung: ${tr(currentTree.title)}` : `Porucha: ${tr(currentTree.title)}`);
-
-  const tags = allTagsForLang(currentTree);
-  if(tags.length){
-    lines.push((LANG==="de") ? `Tags: ${tags.join(", ")}` : `Tagy: ${tags.join(", ")}`);
-  }
-
-  lines.push("");
-  lines.push((LANG==="de") ? "Schritte:" : "Kroky:");
-
-  history.forEach((nid, i)=>{
-    const n = currentTree.nodes?.[nid];
-    if(!n) return;
-    lines.push(`${i+1}. ${tr(n.text)}`);
-  });
-
-  lines.push("");
-  lines.push((LANG==="de") ? "Aktueller Schritt:" : "Aktuálny krok:");
-  const cur = currentTree.nodes?.[currentNodeId];
-  lines.push(cur ? tr(cur.text) : "–");
-
-  return lines.join("\n");
-}
-
-function updateProtocol(){
-  document.getElementById("protocol").innerText = buildProtocolText();
-}
-
-function copyProtocol(){
-  const txt = buildProtocolText();
-  navigator.clipboard.writeText(txt).then(()=>{
-    // silent ok
-  }).catch(()=> alert((LANG==="de") ? "Kopieren fehlgeschlagen" : "Kopírovanie zlyhalo"));
-}
-
-function downloadText(filename, text){
-  const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
-}
-
-function downloadProtocol(){
-  const txt = buildProtocolText();
-  downloadText("protokol.txt", txt);
-}
-
-function downloadContent(){
-  const blob = new Blob([JSON.stringify(TREES, null, 2)], {type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "content.json";
-  a.click();
-}
-
-/* =========
-   ADMIN
-   ========= */
-function openAdmin(){
-  const pin = prompt("PIN:");
-  if(pin !== ADMIN_PIN){
-    alert((LANG==="de") ? "Falscher PIN" : "Zlý PIN");
-    return;
-  }
-  const panel = document.getElementById("adminPanel");
-  panel.style.display = "block";
-  const info = document.getElementById("adminInfo");
-  info.innerText =
-    `LANG=${LANG}\n`+
-    `customTrees=${localStorage.getItem(LS_CUSTOM) ? "YES" : "NO"}\n`+
-    `tagsOn=${Array.from(tagsOn).join(", ") || "-"}`;
-}
-
-function closeAdmin(){
-  document.getElementById("adminPanel").style.display = "none";
-}
-
-function importJsonViaClick(){
-  const fi = document.getElementById("fileInput");
-  fi.value = "";
-  fi.click();
-}
-
-async function handleFileChosen(file){
-  const txt = await file.text();
-  const data = JSON.parse(txt);
-
-  if(!Array.isArray(data) || !data.length || !data[0].id){
-    alert((LANG==="de") ? "Ungültiges JSON Format (erwarte Array von Bäumen)." : "Chybný formát JSON (očakávam pole stromov).");
-    return;
-  }
-
-  localStorage.setItem(LS_CUSTOM, JSON.stringify(data));
-  alert((LANG==="de") ? "Import OK. App wird neu geladen." : "Import OK. Obnovujem aplikáciu.");
-  location.reload();
-}
-
-function wipeLocal(){
-  localStorage.removeItem(LS_CUSTOM);
-  localStorage.removeItem(LS_TAGS);
-  // jazyk necháme
-  alert((LANG==="de") ? "Lokale Daten gelöscht. Neu laden." : "Lokálne dáta vymazané. Obnovujem.");
-  location.reload();
-}
-
-/* =========
-   EVENTS
-   ========= */
-document.getElementById("deBtn").onclick = ()=>{
-  LANG = "de";
-  localStorage.setItem(LS_LANG, LANG);
-  applyUiLanguage();
-};
-document.getElementById("skBtn").onclick = ()=>{
-  LANG = "sk";
-  localStorage.setItem(LS_LANG, LANG);
-  applyUiLanguage();
-};
-
-document.getElementById("yesBtn").onclick = ()=>answer(true);
-document.getElementById("noBtn").onclick  = ()=>answer(false);
-document.getElementById("backBtn").onclick = back;
-
-document.getElementById("copyProto").onclick = copyProtocol;
-document.getElementById("downloadProto").onclick = downloadProtocol;
-document.getElementById("downloadContent").onclick = downloadContent;
-
-document.getElementById("adminBtn").onclick = openAdmin;
-document.getElementById("closeAdminBtn").onclick = closeAdmin;
-document.getElementById("importBtn").onclick = importJsonViaClick;
-document.getElementById("exportBtn").onclick = downloadContent;
-document.getElementById("wipeLocalBtn").onclick = wipeLocal;
-
-document.getElementById("resetBtn").onclick = ()=>{
-  tagsOn = new Set();
-  localStorage.setItem(LS_TAGS, "[]");
-  document.getElementById("search").value = "";
-  renderTagsBox();
-  renderTreeList();
-};
-
-document.getElementById("search").addEventListener("input", ()=>{
-  renderTreeList();
-});
-
-document.getElementById("tagsToggle").onclick = ()=>{
-  const box = document.getElementById("tagsBox");
-  const isOpen = box.style.display === "block";
-  box.style.display = isOpen ? "none" : "block";
-  document.getElementById("tagsToggle").innerText = (LANG==="de" ? "Tags" : "Tagy") + (isOpen ? " ▾" : " ▴");
-};
-
-document.getElementById("tagsReset").onclick = ()=>{
-  tagsOn = new Set();
-  localStorage.setItem(LS_TAGS, "[]");
-  renderTagsBox();
-  renderTreeList();
-};
-
-document.getElementById("fileInput").addEventListener("change", (e)=>{
-  const f = e.target.files && e.target.files[0];
-  if(!f) return;
-  handleFileChosen(f).catch(err=>{
-    console.error(err);
-    alert((LANG==="de") ? ("Import Fehler: " + err.message) : ("Import chyba: " + err.message));
-  });
-});
-
-/* =========
-   BOOT
-   ========= */
-(async()=>{
-  await loadTrees();
-  applyUiLanguage();
-  renderTagsBox();
-  renderTreeList();
-  startTree(TREES[0]?.id);
 })();
