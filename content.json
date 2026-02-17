@@ -1,70 +1,182 @@
 {
-  "trees": [
+  "nodes": [
+    {
+      "id": "menu",
+      "title": "CaravanTechniker am Main",
+      "items": [
+        { "label": "01 Komplettausfall 12V", "next": "01" },
+        { "label": "02 Spannung vorhanden – Verbraucher ohne Funktion", "next": "02" },
+        { "label": "03 Spannung bricht unter Last ein", "next": "03" },
+        { "label": "04 Aufbaubatterie lädt nicht (230V)", "next": "04" },
+        { "label": "05 Ladegerät lädt falsch / falscher Batterietyp", "next": "05" },
+        { "label": "06 Solarsystem lädt nicht", "next": "06" }
+      ]
+    },
+
     {
       "id": "01",
-      "title": {
-        "de": "01 Komplettausfall 12V",
-        "sk": "01 Úplný výpadok 12V"
-      },
-      "description": {
-        "de": "Keine 12V Verbraucher funktionieren vollständig.",
-        "sk": "Žiadne 12V spotrebiče nefungujú."
-      }
+      "title": "01 Komplettausfall 12V",
+      "text": "Keine 12V Verbraucher funktionieren vollständig.",
+      "options": [
+        { "label": "Panel/Bedienteil je úplne mŕtve", "next": "01A" },
+        { "label": "Panel svieti, ale nič nejde", "next": "01B" },
+        { "label": "Ide len niečo (nie všetko)", "next": "01C" }
+      ]
     },
+    {
+      "id": "01A",
+      "title": "01A Panel mŕtve",
+      "text": "Skontroluj hlavné poistky pri batérii a pri EBL. Zmeraj napätie priamo na batérii a na vstupe EBL.",
+      "options": [
+        { "label": "Napätie na batérii je OK (≥12.0V)", "next": "01A1" },
+        { "label": "Napätie na batérii je nízke (<12.0V)", "next": "01A2" }
+      ]
+    },
+    {
+      "id": "01A1",
+      "title": "01A1 Batéria OK",
+      "text": "Ak je batéria OK, ale panel je mŕtvy, problém je často hlavná poistka, odpojovač batérie alebo kábel medzi batériou a EBL.",
+      "options": [
+        { "label": "Chcem sa vrátiť na menu", "next": "menu" }
+      ]
+    },
+    {
+      "id": "01A2",
+      "title": "01A2 Batéria nízka",
+      "text": "Batéria je vybitá alebo poškodená. Nabíjaj 230V alebo cez externú nabíjačku. Skontroluj, či nabíjačka vôbec nabíja.",
+      "options": [
+        { "label": "Chcem sa vrátiť na menu", "next": "menu" }
+      ]
+    },
+
     {
       "id": "02",
-      "title": {
-        "de": "02 Spannung vorhanden – Verbraucher ohne Funktion",
-        "sk": "02 Napätie je – spotrebiče nefungujú"
-      },
-      "description": {
-        "de": "Spannung messbar, aber Geräte reagieren nicht.",
-        "sk": "Napätie je prítomné, ale zariadenia nereagujú."
-      }
+      "title": "02 Spannung vorhanden – Verbraucher ohne Funktion",
+      "text": "Napätie zmerané, ale spotrebič nejde.",
+      "options": [
+        { "label": "Je to jeden spotrebič", "next": "02A" },
+        { "label": "Je to viac spotrebičov", "next": "02B" }
+      ]
     },
+    {
+      "id": "02A",
+      "title": "02A Jeden spotrebič",
+      "text": "Skontroluj poistku okruhu, konektor, kostru (mínus) a test pod záťažou.",
+      "options": [
+        { "label": "Späť na menu", "next": "menu" }
+      ]
+    },
+    {
+      "id": "02B",
+      "title": "02B Viac spotrebičov",
+      "text": "Skontroluj spoločný bod: poistková skrinka, EBL výstupy, hlavné relé, spoločnú kostru.",
+      "options": [
+        { "label": "Späť na menu", "next": "menu" }
+      ]
+    },
+
     {
       "id": "03",
-      "title": {
-        "de": "03 Spannung bricht unter Last ein",
-        "sk": "03 Napätie padá pod záťažou"
-      },
-      "description": {
-        "de": "Unter Last sinkt die Bordspannung stark ab.",
-        "sk": "Pri zaťažení výrazne klesá napätie."
-      }
+      "title": "03 Spannung bricht unter Last ein",
+      "text": "Napätie je bez záťaže OK, ale po zapnutí klesne.",
+      "options": [
+        { "label": "Klesne hneď pod 11V", "next": "03A" },
+        { "label": "Klesne len trochu, ale zariadenie vypína", "next": "03B" }
+      ]
     },
+    {
+      "id": "03A",
+      "title": "03A Silný prepad",
+      "text": "Typicky zlá batéria, vysoký prechodový odpor, zlé spoje, slabá kostra.",
+      "options": [
+        { "label": "Späť na menu", "next": "menu" }
+      ]
+    },
+    {
+      "id": "03B",
+      "title": "03B Mierny prepad",
+      "text": "Typicky dlhé tenké káble, zlý konektor, poistka s odporom, oxidácia.",
+      "options": [
+        { "label": "Späť na menu", "next": "menu" }
+      ]
+    },
+
     {
       "id": "04",
-      "title": {
-        "de": "04 Aufbaubatterie lädt nicht (230V)",
-        "sk": "04 Aufbau batéria sa nenabíja (230V)"
-      },
-      "description": {
-        "de": "Kein Ladevorgang bei externom pripojení 230V.",
-        "sk": "Batéria sa nenabíja pri externom 230V pripojení."
-      }
+      "title": "04 Aufbaubatterie lädt nicht (230V)",
+      "text": "Pri 230V sa batéria nenabíja.",
+      "options": [
+        { "label": "230V je v aute určite prítomné", "next": "04A" },
+        { "label": "Nie som si istý 230V prívodom", "next": "04B" }
+      ]
     },
+    {
+      "id": "04A",
+      "title": "04A 230V OK",
+      "text": "Skontroluj nabíjačku (output 13.8–14.4V), poistky nabíjačky, relé nabíjania, typ batérie (LiFePO4 režim).",
+      "options": [
+        { "label": "Späť na menu", "next": "menu" }
+      ]
+    },
+    {
+      "id": "04B",
+      "title": "04B 230V neisté",
+      "text": "Skontroluj FI/istič, prívod, zásuvku, a či máš aktivovaný 230V okruh v rozvádzači.",
+      "options": [
+        { "label": "Späť na menu", "next": "menu" }
+      ]
+    },
+
     {
       "id": "05",
-      "title": {
-        "de": "05 Ladegerät lädt falsch / falscher Batterietyp",
-        "sk": "05 Nabíjačka nabíja nesprávne"
-      },
-      "description": {
-        "de": "Falsches Ladeprofil oder typischer Batteriefehler.",
-        "sk": "Nesprávny nabíjací profil alebo typ batérie."
-      }
+      "title": "05 Ladegerät lädt falsch / falscher Batterietyp",
+      "text": "Batéria sa nabíja nesprávnym napätím alebo režimom.",
+      "options": [
+        { "label": "Mám LiFePO4", "next": "05A" },
+        { "label": "Mám AGM/GEL", "next": "05B" }
+      ]
     },
     {
+      "id": "05A",
+      "title": "05A LiFePO4",
+      "text": "Nabíjačka musí mať LiFePO4 profil (alebo nastaviteľné napätie). Inak prebijanie / podbíjanie.",
+      "options": [
+        { "label": "Späť na menu", "next": "menu" }
+      ]
+    },
+    {
+      "id": "05B",
+      "title": "05B AGM/GEL",
+      "text": "Skontroluj správny profil (AGM/GEL), teplotný senzor, a či nie je nastavený LiFePO4 režim.",
+      "options": [
+        { "label": "Späť na menu", "next": "menu" }
+      ]
+    },
+
+    {
       "id": "06",
-      "title": {
-        "de": "06 Solarsystem lädt nicht",
-        "sk": "06 Solárny systém nenabíja"
-      },
-      "description": {
-        "de": "Regler aktiv, aber Batterie bleibt leer.",
-        "sk": "Regulátor je aktívny, batéria sa nenabíja."
-      }
+      "title": "06 Solarsystem lädt nicht",
+      "text": "Solar nenabíja batériu.",
+      "options": [
+        { "label": "Regulátor je zapnutý, ale 0A", "next": "06A" },
+        { "label": "Regulátor je vypnutý / nič nesvieti", "next": "06B" }
+      ]
+    },
+    {
+      "id": "06A",
+      "title": "06A Regulátor OK, 0A",
+      "text": "Skontroluj napätie panelov, poistky PV, MC4 konektory, či nie je tieň, a či regulátor vidí batériu.",
+      "options": [
+        { "label": "Späť na menu", "next": "menu" }
+      ]
+    },
+    {
+      "id": "06B",
+      "title": "06B Regulátor mŕtvy",
+      "text": "Najprv batéria -> regulátor (BATT). Ak nemá napájanie z batérie, často sa ani nezapne. Skontroluj poistku pri batérii.",
+      "options": [
+        { "label": "Späť na menu", "next": "menu" }
+      ]
     }
   ]
 }
