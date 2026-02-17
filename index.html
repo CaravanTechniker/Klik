@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="sk">
+<html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CaravanTechniker am Main</title>
+  <title>Caravan TaM</title>
 
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#cfe8ff" />
@@ -12,111 +12,251 @@
     :root{
       --bg:#cfe8ff;
       --card:#ffffff;
-      --primary:#1b5fd6;
+      --text:#0b1220;
+      --muted:#334155;
       --ok:#2e8b57;
       --no:#b22222;
       --back:#f0c419;
-      --text:#111;
-      --mono: "Roboto Mono", monospace;
+      --btn:#ffffff;
+      --btnb:#cbd5e1;
+      --shadow: 0 8px 22px rgba(2,6,23,.08);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
     }
-    body{ margin:0; background:var(--bg); font-family: system-ui, sans-serif; color:var(--text); }
-    header{ display:flex; gap:6px; align-items:center; padding:10px; background:#e6f2ff; position:sticky; top:0; z-index:10; }
-    header button{ padding:8px 12px; border-radius:10px; border:1px solid #999; background:#fff; font-weight:700; }
-
-    main{ padding:10px; }
-    .card{ background:var(--card); border-radius:16px; padding:12px; margin-bottom:12px; }
-
-    #answers{ display:flex; gap:10px; margin-top:12px; }
-    #answers button{
-      flex:1; padding:14px; border-radius:14px; border:none;
-      font-size:18px; font-weight:900; color:#fff;
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    header{
+      position:sticky;top:0;z-index:20;
+      display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+      padding:10px;background:rgba(219,239,255,.92);backdrop-filter:blur(8px);
+      border-bottom:1px solid rgba(15,23,42,.08);
     }
-    #yesBtn{ background:var(--ok); }
-    #noBtn{ background:var(--no); }
-
-    #backBtn{
-      margin-top:10px; width:100%;
-      background:var(--back); color:#000;
-      font-weight:900; padding:12px; border-radius:14px; border:none;
-      font-size:16px;
+    header .title{font-weight:900;font-size:18px;margin-right:auto}
+    header button{
+      border:1px solid var(--btnb); background:var(--btn); color:var(--text);
+      padding:9px 12px; border-radius:12px; font-weight:900;
     }
 
-    #protocol{ font-family:var(--mono); font-size:15px; font-weight:700; white-space:pre-wrap; }
+    main{padding:12px; max-width:1100px; margin:0 auto;}
+    .grid{
+      display:grid; gap:12px;
+      grid-template-columns: 420px 1fr;
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr;}
+    }
 
-    /* ADMIN PANEL */
-    #adminPanel{
+    .card{
+      background:var(--card);
+      border-radius:18px;
+      padding:14px;
+      box-shadow:var(--shadow);
+    }
+    .card h2{margin:0 0 8px 0;font-size:18px}
+    .muted{color:var(--muted);font-size:13px}
+
+    .search{
+      width:100%; padding:12px 12px; border-radius:14px;
+      border:1px solid rgba(15,23,42,.18);
+      font-size:15px;
+    }
+
+    .treeList{display:flex; flex-direction:column; gap:10px; margin-top:12px; max-height:560px; overflow:auto; padding-right:6px;}
+    .treeItem{
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:16px;
+      padding:12px;
+      background:#fff;
+      cursor:pointer;
+    }
+    .treeItem .t{font-weight:900}
+    .treeItem .s{margin-top:4px; font-size:13px; color:var(--muted)}
+    .treeItem.active{outline:3px solid rgba(59,130,246,.25)}
+
+    .pillRow{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+    .pillBtn{
+      border:1px solid var(--btnb);
+      background:#fff;
+      padding:9px 12px;
+      border-radius:999px;
+      font-weight:900;
+    }
+    .pillBox{
       display:none;
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.35);
-      z-index:9999;
-      padding:16px;
+      margin-top:10px;
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:14px;
+      padding:10px;
+      background:#fff;
+      max-height:180px;
+      overflow:auto;
+    }
+    .tag{
+      display:inline-block;
+      margin:6px 6px 0 0;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(15,23,42,.14);
+      background:#f8fafc;
+      font-weight:800;
+      font-size:13px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .tag.on{background:#e0f2fe; border-color:#7dd3fc}
+
+    .nodeTitle{font-weight:1000; font-size:18px; margin-bottom:6px}
+    .nodeText{font-size:15px; line-height:1.35}
+
+    .answerRow{display:flex; gap:12px; margin-top:14px}
+    .answerRow button{
+      flex:1; border:none;
+      padding:16px 14px;
+      border-radius:16px;
+      font-weight:1000;
+      font-size:18px;
+      color:#fff;
+    }
+    .yes{background:var(--ok)}
+    .no{background:var(--no)}
+
+    .backBtn{
+      width:100%;
+      margin-top:12px;
+      border:none;
+      padding:14px 14px;
+      border-radius:16px;
+      font-weight:1000;
+      font-size:16px;
+      background:var(--back);
+      color:#000;
+    }
+
+    .proto{
+      margin-top:12px;
+      font-family:var(--mono);
+      font-size:15px;
+      font-weight:800;
+      white-space:pre-wrap;
+      background:#f8fafc;
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:16px;
+      padding:12px;
+      min-height:140px;
+    }
+
+    .protoActions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    .protoActions button{
+      border:1px solid var(--btnb);
+      background:#fff;
+      padding:10px 12px;
+      border-radius:14px;
+      font-weight:1000;
+    }
+
+    /* ADMIN MODAL */
+    #adminPanel{
+      display:none; position:fixed; inset:0; z-index:9999;
+      background:rgba(0,0,0,.35); padding:16px;
     }
     #adminPanel .box{
-      background:#fff; border-radius:16px; padding:14px;
-      max-width:520px; margin:60px auto 0 auto;
-      box-shadow:0 10px 30px rgba(0,0,0,.25);
+      background:#fff; border-radius:18px; padding:14px;
+      max-width:560px; margin:60px auto 0 auto; box-shadow:0 10px 30px rgba(0,0,0,.25);
     }
-    #adminPanel .row{ display:flex; gap:10px; margin-top:10px; }
+    #adminPanel .row{display:flex; gap:10px; margin-top:10px; flex-wrap:wrap}
     #adminPanel .row button{
-      flex:1; padding:12px; border-radius:14px; border:1px solid #999;
-      background:#f7f7f7; font-weight:900; font-size:16px;
+      flex:1; min-width:220px;
+      padding:12px; border-radius:16px; border:1px solid #999;
+      background:#f7f7f7; font-weight:1000; font-size:16px;
     }
-    #adminPanel .danger{ background:#fff0f0; }
-    #adminPanel .ok{ background:#f0fff5; }
-    #adminPanel .close{ margin-top:10px; width:100%; background:#eee; }
-    #adminInfo{ font-family:var(--mono); font-size:13px; font-weight:700; white-space:pre-wrap; background:#f6f8ff; padding:10px; border-radius:12px; }
-
-    /* hidden file input */
-    #fileInput{ display:none; }
+    #adminInfo{
+      margin-top:12px;
+      font-family:var(--mono); font-size:13px; font-weight:800;
+      white-space:pre-wrap; background:#f6f8ff; padding:10px; border-radius:14px;
+      border:1px solid rgba(15,23,42,.12);
+    }
+    #fileInput{display:none}
   </style>
 </head>
 
 <body>
 <header>
-  <button id="langBtn">SK</button>
+  <div class="title">CaravanTechniker am Main</div>
+  <button id="deBtn">DE</button>
+  <button id="skBtn">SK</button>
   <button id="adminBtn">ADMIN</button>
+  <button id="resetBtn">Reset</button>
 </header>
 
 <main>
-  <div class="card">
-    <select id="treeSelect" style="width:100%;padding:10px;font-size:16px"></select>
-  </div>
+  <div class="grid">
+    <!-- LEFT -->
+    <section class="card">
+      <h2 id="leftTitle">Störungen</h2>
+      <div class="muted" id="leftHint">Wähle eine Störung oder suche. Funktioniert auch offline.</div>
 
-  <div class="card">
-    <div id="nodeText"></div>
+      <input id="search" class="search" placeholder="Suchen (trittstufe, wasserpumpe, 12V...)" />
 
-    <div id="answers">
-      <button id="yesBtn">ÁNO</button>
-      <button id="noBtn">NIE</button>
-    </div>
+      <div class="pillRow">
+        <button id="tagsToggle" class="pillBtn">Tags ▾</button>
+        <button id="tagsReset" class="pillBtn">Filter Reset</button>
+      </div>
 
-    <button id="backBtn">⟵ KROK SPÄŤ</button>
-  </div>
+      <div id="tagsBox" class="pillBox"></div>
 
-  <div class="card">
-    <h3>Protokol</h3>
-    <div id="protocol"></div>
+      <div id="treeList" class="treeList"></div>
+    </section>
+
+    <!-- RIGHT -->
+    <section class="card">
+      <h2 id="rightTitle">Diagnostika</h2>
+      <div class="muted" id="rightHint">Vyber poruchu vľavo. Potom klikaj ÁNO / NIE.</div>
+
+      <div style="margin-top:12px">
+        <div id="nodeTitle" class="nodeTitle">–</div>
+        <div id="nodeText" class="nodeText">–</div>
+
+        <div class="answerRow">
+          <button class="yes" id="yesBtn">ÁNO</button>
+          <button class="no" id="noBtn">NIE</button>
+        </div>
+
+        <button class="backBtn" id="backBtn">⟵ KROK SPÄŤ</button>
+      </div>
+
+      <div style="margin-top:14px">
+        <h2 id="protoTitle">Protokol</h2>
+        <div id="protocol" class="proto"></div>
+
+        <div class="protoActions">
+          <button id="copyProto">Kopírovať</button>
+          <button id="downloadProto">Stiahnuť TXT</button>
+          <button id="downloadContent">Stiahnuť content.json</button>
+        </div>
+      </div>
+    </section>
   </div>
 </main>
 
-<!-- ADMIN PANEL -->
+<!-- ADMIN -->
 <div id="adminPanel">
   <div class="box">
-    <div style="font-weight:900;font-size:18px;">ADMIN</div>
-    <div style="opacity:.85;margin-top:4px;">Import/Export funguje spoľahlivo len cez tieto tlačidlá (kvôli Android bezpečnosti).</div>
-    <div class="row">
-      <button id="importBtn" class="ok">1 = Import (vybrať súbor)</button>
-      <button id="exportBtn" class="danger">2 = Export (stiahnuť JSON)</button>
+    <div style="font-weight:1000;font-size:18px;">ADMIN</div>
+    <div class="muted" style="margin-top:4px;">
+      Import/Export je tu kvôli Android bezpečnosti (file picker musí byť priamo na klik).
     </div>
-    <button id="closeAdminBtn" class="close">Zavrieť</button>
 
-    <div style="margin-top:12px;font-weight:900;">Info</div>
+    <div class="row">
+      <button id="importBtn">1 = Import content.json</button>
+      <button id="exportBtn">2 = Export content.json</button>
+      <button id="wipeLocalBtn">Vymazať lokálne dáta</button>
+      <button id="closeAdminBtn">Zavrieť</button>
+    </div>
+
     <div id="adminInfo">–</div>
   </div>
 </div>
 
 <input id="fileInput" type="file" accept="application/json" />
-
 <script src="app.js"></script>
 </body>
 </html>
