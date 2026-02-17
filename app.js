@@ -1,448 +1,513 @@
-/* Caravan TaM - simple offline decision tree (DE/SK) + TXT/PDF export
-   v0.1.5-pdf
-*/
+// Caravan TaM - stable UI + TXT/PDF export
+const VERSION = "0.1.5";
 
-const I18N = {
-  sk: {
-    appTitle: "CaravanTechniker am Main",
-    poruchyTitle: "Poruchy",
-    poruchyHint: "Vyber poruchu alebo hľadaj. Funguje aj offline.",
-    diagTitle: "Diagnostika",
-    diagHint: "Vyber poruchu vľavo. Potom klikaj ÁNO / NIE.",
-    yes: "ÁNO",
-    no: "NIE",
-    back: "← KROK SPÄŤ",
-    protoTitle: "Protokol",
-    copy: "Kopírovať",
-    clearPath: "Vymazať cestu",
-    txt: "Stiahnuť TXT",
-    pdf: "Stiahnuť PDF",
-    noProto: "Nie je čo exportovať (protokol je prázdny).",
-    pdfLibMissing: "Chýba knižnica pre PDF. Skontroluj index.html.",
-    errMissingNode: "Chýba uzol v strome. Skontroluj content.json.",
-    searchPH: "Hľadať (trittstufe, wasserpumpe, 12V...)",
-    qEmpty: "—",
-    time: "Čas",
-    lang: "Jazyk",
-    fault: "Porucha",
-    tags: "Tagy",
-    steps: "Kroky",
-    result: "Výsledok",
-    currentStep: "Aktuálny krok"
-  },
-  de: {
-    appTitle: "CaravanTechniker am Main",
-    poruchyTitle: "Störungen",
-    poruchyHint: "Wähle eine Störung oder suche. Funktioniert auch offline.",
-    diagTitle: "Diagnose",
-    diagHint: "Wähle links eine Störung. Dann klicke JA / NEIN.",
-    yes: "JA",
-    no: "NEIN",
-    back: "← SCHRITT ZURÜCK",
-    protoTitle: "Protokoll",
-    copy: "Kopieren",
-    clearPath: "Pfad löschen",
-    txt: "TXT Download",
-    pdf: "PDF Download",
-    noProto: "Nichts zu exportieren (Protokoll ist leer).",
-    pdfLibMissing: "PDF-Bibliothek fehlt. Prüfe index.html.",
-    errMissingNode: "Node fehlt im Baum. Prüfe content.json.",
-    searchPH: "Suche (trittstufe, wasserpumpe, 12V...)",
-    qEmpty: "—",
-    time: "Zeit",
-    lang: "Sprache",
-    fault: "Störung",
-    tags: "Tags",
-    steps: "Schritte",
-    result: "Ergebnis",
-    currentStep: "Aktueller Schritt"
-  }
-};
+let LANG = localStorage.getItem("lang") || "de"; // PRIORITA DE
+let TREES = [];
+let currentTree = null;
+let currentNodeId = null;
+let path = [];
+let activeTag = "";
+let tagsOpen = false;
 
-const state = {
-  lang: "de",
-  data: [],
-  selectedId: null,
-  path: [], // {nodeId, answer}
-  admin: false
-};
+// ---- DOM
+const el = {
+  pwaPill: document.getElementById("pwaPill"),
+  offlinePill: document.getElementById("offlinePill"),
+  langDE: document.getElementById("langDE"),
+  langSK: document.getElementById("langSK"),
+  adminBtn: document.getElementById("adminBtn"),
+  resetBtn: document.getElementById("resetBtn"),
 
-const els = {
-  appTitle: document.getElementById("appTitle"),
-  poruchyTitle: document.getElementById("poruchyTitle"),
-  poruchyHint: document.getElementById("poruchyHint"),
-  diagTitle: document.getElementById("diagTitle"),
-  diagHint: document.getElementById("diagHint"),
+  hFaults: document.getElementById("hFaults"),
+  hHint: document.getElementById("hHint"),
+  hDiag: document.getElementById("hDiag"),
+  diagEmpty: document.getElementById("diagEmpty"),
+  hProto: document.getElementById("hProto"),
+
   search: document.getElementById("search"),
-  list: document.getElementById("list"),
-  question: document.getElementById("question"),
+  tagBtn: document.getElementById("tagBtn"),
+  filterResetBtn: document.getElementById("filterResetBtn"),
+  tagChips: document.getElementById("tagChips"),
+  faultList: document.getElementById("faultList"),
+
+  faultTitleBadge: document.getElementById("faultTitleBadge"),
+  faultTagsBadge: document.getElementById("faultTagsBadge"),
+
+  nodeText: document.getElementById("nodeText"),
+  nodeHelp: document.getElementById("nodeHelp"),
+  answerBtns: document.getElementById("answerBtns"),
   yesBtn: document.getElementById("yesBtn"),
   noBtn: document.getElementById("noBtn"),
   backBtn: document.getElementById("backBtn"),
-  protoTitle: document.getElementById("protoTitle"),
+
   proto: document.getElementById("proto"),
   copyBtn: document.getElementById("copyBtn"),
   clearPathBtn: document.getElementById("clearPathBtn"),
   txtBtn: document.getElementById("txtBtn"),
   pdfBtn: document.getElementById("pdfBtn"),
-  langDeBtn: document.getElementById("langDeBtn"),
-  langSkBtn: document.getElementById("langSkBtn"),
-  adminBtn: document.getElementById("adminBtn"),
-  resetBtn: document.getElementById("resetBtn")
+  protoHint: document.getElementById("protoHint"),
+  ver: document.getElementById("ver")
 };
 
-function t(key){
-  return (I18N[state.lang] && I18N[state.lang][key]) ? I18N[state.lang][key] : key;
+// ---- i18n
+const I = {
+  de: {
+    faults:"Störungen",
+    hint:"Wähle eine Störung oder suche. Funktioniert auch offline.",
+    search:"Suche (trittstufe, wasserpumpe, 12V...)",
+    diag:"Diagnose",
+    empty:"Wähle links eine Störung. Dann JA / NEIN klicken.",
+    proto:"Protokoll",
+    copy:"Kopieren",
+    clear:"Pfad löschen",
+    yes:"JA",
+    no:"NEIN",
+    back:"← SCHRITT ZURÜCK",
+    tags:"Tags ▾",
+    filterReset:"Filter Reset",
+    reset:"Reset",
+    admin:"ADMIN",
+    time:"Zeit",
+    lang:"Sprache",
+    fault:"Störung",
+    tagsLabel:"Tags",
+    steps:"Schritte",
+    result:"Ergebnis",
+    pdf:"PDF Download",
+    txt:"TXT Download",
+    copied:"Kopiert."
+  },
+  sk: {
+    faults:"Poruchy",
+    hint:"Vyber poruchu alebo hľadaj. Funguje aj offline.",
+    search:"Hľadať (trittstufe, wasserpumpe, 12V...)",
+    diag:"Diagnostika",
+    empty:"Vyber poruchu vľavo. Potom klikaj ÁNO / NIE.",
+    proto:"Protokol",
+    copy:"Kopírovať",
+    clear:"Vymazať cestu",
+    yes:"ÁNO",
+    no:"NIE",
+    back:"← KROK SPÄŤ",
+    tags:"Tagy ▾",
+    filterReset:"Reset filtra",
+    reset:"Reset",
+    admin:"ADMIN",
+    time:"Čas",
+    lang:"Jazyk",
+    fault:"Porucha",
+    tagsLabel:"Tagy",
+    steps:"Kroky",
+    result:"Výsledok",
+    pdf:"PDF Download",
+    txt:"TXT Download",
+    copied:"Skopírované."
+  }
+};
+
+function T(k){ return (I[LANG] && I[LANG][k]) || k; }
+
+// ---- CRITICAL: object {de,sk} -> string
+function L(x){
+  if (x == null) return "";
+  if (typeof x === "string") return x;
+  if (typeof x === "number" || typeof x === "boolean") return String(x);
+  if (typeof x === "object"){
+    // prefer current lang, then de, then sk, then first value
+    if (x[LANG]) return String(x[LANG]);
+    if (x.de) return String(x.de);
+    if (x.sk) return String(x.sk);
+    const v = Object.values(x)[0];
+    return v == null ? "" : String(v);
+  }
+  return String(x);
 }
 
+function nowLocal(){
+  try { return new Date().toLocaleString(undefined,{hour12:false}); }
+  catch { return new Date().toISOString(); }
+}
+
+// ---- LOAD content.json
 async function loadContent(){
-  const url = "./content.json?nocache=" + Date.now();
-  const res = await fetch(url, {cache:"no-store"});
-  if(!res.ok) throw new Error("content.json load failed");
-  state.data = await res.json();
-}
-
-function buildIndex(){
-  // expects array of "trees"
-  // each tree: { id, title:{de,sk}, subtitle:{de,sk}, tags:[...], root:"nodeId", nodes:{...} }
-  // We keep it tolerant.
-  return state.data.map((t, idx) => {
-    const title = (t.title && (t.title[state.lang] || t.title.de || t.title.sk)) || t.id || ("Tree " + (idx+1));
-    const subtitle = (t.subtitle && (t.subtitle[state.lang] || t.subtitle.de || t.subtitle.sk)) || "";
-    return { id: t.id, title, subtitle, idx };
-  });
-}
-
-function renderList(){
-  const q = (els.search.value || "").trim().toLowerCase();
-  const items = buildIndex().filter(it => {
-    if(!q) return true;
-    return (it.title + " " + it.subtitle).toLowerCase().includes(q);
-  });
-
-  els.list.innerHTML = "";
-  for(const it of items){
-    const div = document.createElement("div");
-    div.className = "item";
-    div.innerHTML = `<strong>${it.title}</strong><div class="muted">${it.subtitle}</div>`;
-    div.addEventListener("click", () => {
-      state.selectedId = it.id;
-      state.path = [];
-      render();
-      // scroll to diagnosis card on mobile
-      els.question.scrollIntoView({behavior:"smooth", block:"start"});
-    });
-    els.list.appendChild(div);
+  try{
+    const r = await fetch("./content.json?v="+encodeURIComponent(VERSION), {cache:"no-store"});
+    const data = await r.json();
+    TREES = Array.isArray(data) ? data : (data.trees || []);
+  }catch(e){
+    TREES = [];
   }
 }
 
-function getSelectedTree(){
-  if(!state.selectedId) return null;
-  return state.data.find(t => t.id === state.selectedId) || null;
-}
-
-function getNode(tree, nodeId){
-  if(!tree) return null;
-  if(tree.nodes && tree.nodes[nodeId]) return tree.nodes[nodeId];
-  if(Array.isArray(tree.nodes)){
-    return tree.nodes.find(n => n.id === nodeId) || null;
-  }
-  return null;
-}
-
-function getCurrentNode(tree){
-  if(!tree) return null;
-  const rootId = tree.root || tree.rootId || tree.start || (tree.nodes && tree.nodes.root) || null;
-  if(!rootId) return null;
-
-  let nodeId = rootId;
-  for(const step of state.path){
-    const node = getNode(tree, nodeId);
-    if(!node) return null;
-    const next = step.answer ? (node.yes || node.nextYes || node.onYes) : (node.no || node.nextNo || node.onNo);
-    if(!next) return null;
-    nodeId = next;
-  }
-  return getNode(tree, nodeId);
-}
-
-function renderQuestion(){
-  const tree = getSelectedTree();
-  if(!tree){
-    els.question.textContent = t("qEmpty");
-    return;
-  }
-
-  const node = getCurrentNode(tree);
-  if(!node){
-    els.question.textContent = t("errMissingNode");
-    return;
-  }
-
-  const q = (node.q && (node.q[state.lang] || node.q.de || node.q.sk)) || node.question || node.text || "";
-  els.question.textContent = q || t("qEmpty");
-}
-
-function protocolText(){
-  const tree = getSelectedTree();
-  const now = new Date();
-
-  const pad = (n)=>String(n).padStart(2,"0");
-  const dt = `${pad(now.getDate())}.${pad(now.getMonth()+1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-
-  let title = "";
-  let tags = [];
-  if(tree){
-    title = (tree.title && (tree.title[state.lang] || tree.title.de || tree.title.sk)) || tree.id || "";
-    tags = Array.isArray(tree.tags) ? tree.tags : [];
-  }
-
-  const lines = [];
-  lines.push(`${t("time")}: ${dt}`);
-  lines.push(`${t("lang")}: ${state.lang.toUpperCase()}`);
-  if(title) lines.push(`${t("fault")}: ${title}`);
-  if(tags.length) lines.push(`${t("tags")}: ${tags.join(", ")}`);
-  lines.push("");
-  lines.push(`${t("steps")}:`);
-
-  if(tree){
-    // walk path and include questions + answers
-    let nodeId = tree.root || tree.rootId || tree.start;
-    for(let i=0;i<state.path.length;i++){
-      const node = getNode(tree, nodeId);
-      if(!node) break;
-      const q = (node.q && (node.q[state.lang] || node.q.de || node.q.sk)) || node.question || node.text || "";
-      const a = state.path[i].answer ? t("yes") : t("no");
-      lines.push(`${i+1}. ${q}  [${a}]`);
-      const next = state.path[i].answer ? (node.yes || node.nextYes || node.onYes) : (node.no || node.nextNo || node.onNo);
-      if(!next) { nodeId = null; break; }
-      nodeId = next;
-    }
-
-    // final result if leaf/result exists
-    const cur = getCurrentNode(tree);
-    if(cur){
-      const result = (cur.result && (cur.result[state.lang] || cur.result.de || cur.result.sk)) || cur.outcome || cur.end || "";
-      if(result){
-        lines.push("");
-        lines.push(`${t("result")}:`);
-        lines.push(result);
-      }
-    }
-  }
-
-  return lines.join("\n");
-}
-
-function renderProtocol(){
-  els.proto.value = protocolText();
-}
-
-function render(){
+// ---- UI init
+function applyLangUI(){
+  document.documentElement.lang = (LANG === "de") ? "de" : "sk";
+  el.hFaults.textContent = T("faults");
+  el.hHint.textContent = T("hint");
+  el.hDiag.textContent = T("diag");
+  el.diagEmpty.textContent = T("empty");
+  el.hProto.textContent = T("proto");
+  el.search.placeholder = T("search");
+  el.tagBtn.textContent = T("tags");
+  el.filterResetBtn.textContent = T("filterReset");
+  el.resetBtn.textContent = T("reset");
+  el.adminBtn.textContent = T("admin");
+  el.yesBtn.textContent = T("yes");
+  el.noBtn.textContent = T("no");
+  el.backBtn.textContent = T("back");
+  el.copyBtn.textContent = T("copy");
+  el.clearPathBtn.textContent = T("clear");
+  el.txtBtn.textContent = T("txt");
+  el.pdfBtn.textContent = T("pdf");
+  el.ver.textContent = "v"+VERSION;
+  renderTagChips();
   renderList();
-  renderQuestion();
+  renderNode();
   renderProtocol();
 }
 
-function copyToClipboard(text){
-  if(!text) return;
-  navigator.clipboard.writeText(text).catch(()=>{});
+function updateOffline(){
+  const on = navigator.onLine;
+  el.offlinePill.textContent = "offline: " + (on ? "NO" : "YES");
+}
+window.addEventListener("online", updateOffline);
+window.addEventListener("offline", updateOffline);
+
+// ---- TAGS
+function allTags(){
+  const s = new Set();
+  for(const tr of TREES){
+    for(const tg of (tr.tags||[])) s.add(tg);
+  }
+  return Array.from(s).sort((a,b)=>a.localeCompare(b));
 }
 
-function downloadBlob(filename, blob){
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+function renderTagChips(){
+  el.tagChips.innerHTML = "";
+  if(!tagsOpen){ el.tagChips.style.display="none"; return; }
+  el.tagChips.style.display="flex";
+  const tags = ["__ALL__"].concat(allTags());
+  for(const tg of tags){
+    const b = document.createElement("button");
+    b.className = "tagBtn" + ((activeTag === tg) ? " active" : "");
+    b.textContent = (tg==="__ALL__") ? "ALL" : tg;
+    b.onclick = ()=>{
+      activeTag = (activeTag === tg) ? "" : tg;
+      renderList();
+      renderTagChips();
+    };
+    el.tagChips.appendChild(b);
+  }
 }
 
-function makeExportBase(){
-  const lang = state.lang || "de";
-  const ts = new Date();
-  const pad = (n)=>String(n).padStart(2,"0");
-  const stamp = `${ts.getFullYear()}${pad(ts.getMonth()+1)}${pad(ts.getDate())}_${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}`;
-  return `caravan_tam_${lang}_${stamp}`;
+function filterReset(){
+  activeTag = "";
+  el.search.value = "";
+  renderList();
+  renderTagChips();
 }
 
-function exportTxt(){
-  const text = (els.proto && els.proto.value ? els.proto.value : "").trim();
-  if(!text){ alert(t("noProto")); return; }
-  const withBOM = "\ufeff" + text + "\n";
-  const blob = new Blob([withBOM], {type:"text/plain;charset=utf-8"});
-  downloadBlob(makeExportBase()+".txt", blob);
+// ---- LIST
+function matchTree(tr, q){
+  if(activeTag && activeTag!=="__ALL__"){
+    if(!(tr.tags||[]).includes(activeTag)) return false;
+  }
+  if(!q) return true;
+  const hay = (L(tr.title)+" "+L(tr.subtitle)+" "+(tr.tags||[]).join(" ")).toLowerCase();
+  return hay.includes(q);
 }
 
-function exportPdf(){
-  const text = (els.proto && els.proto.value ? els.proto.value : "").trim();
-  if(!text){ alert(t("noProto")); return; }
-  if(!window.jspdf || !window.jspdf.jsPDF){
-    alert(t("pdfLibMissing"));
+function renderList(){
+  const q = (el.search.value||"").trim().toLowerCase();
+  el.faultList.innerHTML = "";
+
+  // numbering: use index in filtered list (stabilné)
+  const list = TREES.filter(tr=>matchTree(tr,q));
+
+  list.forEach((tr, idx)=>{
+    const item = document.createElement("button");
+    item.className = "item";
+    const title = `${String(idx+1).padStart(2,"0")} ${L(tr.title)}`;
+    item.innerHTML = `<div class="t">${escapeHtml(title)}</div><div class="s">${escapeHtml(L(tr.subtitle))}</div>`;
+    item.onclick = ()=>selectTree(tr);
+    el.faultList.appendChild(item);
+  });
+}
+
+function selectTree(tr){
+  currentTree = tr;
+  currentNodeId = tr.start;
+  path = [];
+  el.faultTitleBadge.style.display = "inline-flex";
+  el.faultTitleBadge.textContent = L(tr.title);
+  el.faultTagsBadge.style.display = "inline-flex";
+  el.faultTagsBadge.textContent = "#"+(tr.tags||[]).join(" #");
+  renderNode();
+  renderProtocol();
+}
+
+// ---- NODE
+function node(){
+  if(!currentTree || !currentNodeId) return null;
+  return (currentTree.nodes||{})[currentNodeId] || null;
+}
+
+function renderNode(){
+  if(!currentTree){
+    el.answerBtns.style.display = "none";
+    el.nodeText.textContent = "";
+    el.nodeHelp.textContent = "";
     return;
   }
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({unit:"mm", format:"a4"});
-  doc.setFont("courier", "normal");
-  doc.setFontSize(11);
-
-  const pageW = doc.internal.pageSize.getWidth();
-  const pageH = doc.internal.pageSize.getHeight();
-  const margin = 12;
-  const maxW = pageW - margin*2;
-  const lineH = 5.2;
-  let y = margin;
-
-  const lines = doc.splitTextToSize(text, maxW);
-  for(const line of lines){
-    if(y > pageH - margin){
-      doc.addPage();
-      y = margin;
-    }
-    doc.text(line, margin, y);
-    y += lineH;
+  const n = node();
+  if(!n){
+    el.nodeText.textContent = (LANG==="de") ? "Fehler: Node fehlt im Baum." : "Chyba: chýba uzol v strome.";
+    el.nodeHelp.textContent = (LANG==="de") ? "Prüfe content.json." : "Skontroluj content.json.";
+    el.answerBtns.style.display = "none";
+    return;
   }
-  doc.save(makeExportBase()+".pdf");
+
+  if(n.type === "question"){
+    el.nodeText.textContent = L(n.text);
+    el.nodeHelp.textContent = L(n.help);
+    el.answerBtns.style.display = "grid";
+  } else if(n.type === "result"){
+    // show result as node text (so user sees solution immediately)
+    const cause = L(n.cause);
+    const action = L(n.action);
+    const head = (LANG==="de") ? "Ergebnis" : "Výsledok";
+    el.nodeText.textContent = head + ": " + (cause || "");
+    el.nodeHelp.textContent = action ? ((LANG==="de") ? "Maßnahme: " : "Akcia: ") + action : "";
+    el.answerBtns.style.display = "none";
+  } else if(n.type === "action"){
+    // action node -> show text and provide YES as "weiter" only
+    el.nodeText.textContent = L(n.text);
+    el.nodeHelp.textContent = "";
+    el.answerBtns.style.display = "grid";
+  } else {
+    el.nodeText.textContent = L(n.text);
+    el.nodeHelp.textContent = L(n.help);
+    el.answerBtns.style.display = "grid";
+  }
 }
 
-function applyLangUI(){
-  els.appTitle.textContent = t("appTitle");
-  els.poruchyTitle.textContent = t("poruchyTitle");
-  els.poruchyHint.textContent = t("poruchyHint");
-  els.diagTitle.textContent = t("diagTitle");
-  els.diagHint.textContent = t("diagHint");
-  els.yesBtn.textContent = t("yes");
-  els.noBtn.textContent = t("no");
-  els.backBtn.textContent = t("back");
-  els.protoTitle.textContent = t("protoTitle");
-  els.copyBtn.textContent = t("copy");
-  els.clearPathBtn.textContent = t("clearPath");
-  if (els.txtBtn) els.txtBtn.textContent = t("txt");
-  if (els.pdfBtn) els.pdfBtn.textContent = t("pdf");
-  els.search.placeholder = t("searchPH");
+// ---- ANSWER FLOW
+function go(nextId, answerLabel){
+  const n = node();
+  if(!n) return;
+
+  // store protocol step as TEXT (never object)
+  if(n.type === "question"){
+    path.push({ q: L(n.text), a: answerLabel });
+  } else if(n.type === "action"){
+    path.push({ q: L(n.text), a: answerLabel });
+  }
+
+  currentNodeId = nextId || null;
+  renderNode();
+  renderProtocol();
 }
 
-function adminPrompt(){
-  // Simple prompt like before: 1 import / 2 export (kept basic)
-  const v = prompt("ADMIN\n1 = Import\n2 = Export");
-  if(v === "1"){
-    // import via file input
+function yes(){
+  const n = node(); if(!n) return;
+  if(n.type === "question") return go(n.yes, (LANG==="de") ? "[JA]" : "[ÁNO]");
+  if(n.type === "action") return go(n.next || currentNodeId, (LANG==="de") ? "[JA]" : "[ÁNO]");
+}
+function no(){
+  const n = node(); if(!n) return;
+  if(n.type === "question") return go(n.no, (LANG==="de") ? "[NEIN]" : "[NIE]");
+  if(n.type === "action") return go(n.next || currentNodeId, (LANG==="de") ? "[NEIN]" : "[NIE]");
+}
+function back(){
+  // go one step back in protocol path: reset and replay steps
+  if(!currentTree) return;
+  if(path.length === 0){
+    currentNodeId = currentTree.start;
+    renderNode(); renderProtocol();
+    return;
+  }
+  path.pop();
+  // replay from start
+  currentNodeId = currentTree.start;
+  const replay = [...path];
+  path = [];
+  for(const st of replay){
+    // find node by matching text – stable enough for our trees
+    const n = node();
+    if(!n) break;
+    const wantYes = st.a.includes("JA") || st.a.includes("ÁNO");
+    if(n.type === "question"){
+      path.push({ q: L(n.text), a: st.a });
+      currentNodeId = wantYes ? n.yes : n.no;
+    }else break;
+  }
+  renderNode(); renderProtocol();
+}
+
+// ---- PROTOCOL
+function renderProtocol(){
+  if(!currentTree){
+    el.proto.value = "";
+    return;
+  }
+  const n = node();
+
+  let out = "";
+  out += `${T("time")}: ${nowLocal()}\n`;
+  out += `${T("lang")}: ${LANG.toUpperCase()}\n`;
+  out += `${T("fault")}: ${L(currentTree.title)}\n`;
+  out += `${T("tagsLabel")}: ${(currentTree.tags||[]).join(", ")}\n\n`;
+
+  out += `${T("steps")}:\n`;
+  path.forEach((st, i)=>{
+    out += `${i+1}. ${st.q} ${st.a}\n`;
+  });
+
+  // if current node is result -> append result
+  if(n && n.type === "result"){
+    out += `\n${T("result")}:\n`;
+    const cause = L(n.cause);
+    const action = L(n.action);
+    if(cause) out += `${cause}\n`;
+    if(action) out += `${action}\n`;
+  }
+  el.proto.value = out;
+}
+
+// ---- TXT / PDF
+function downloadTxt(){
+  const blob = new Blob([el.proto.value], {type:"text/plain;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `caravan_tam_${LANG}_${Date.now()}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+}
+
+function downloadPdf(){
+  // simple: open print window with <pre> (PDF -> "Save as PDF")
+  const w = window.open("", "_blank");
+  const safe = escapeHtml(el.proto.value);
+  w.document.write(`
+    <html><head><meta charset="utf-8">
+    <title>Caravan TaM Protocol</title>
+    <style>
+      body{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; padding:18px;}
+      pre{white-space:pre-wrap; font-size:14px; line-height:1.35;}
+    </style></head><body>
+    <pre>${safe}</pre>
+    <script>window.onload=()=>{window.print();}</script>
+    </body></html>
+  `);
+  w.document.close();
+}
+
+function escapeHtml(s){
+  return (s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+// ---- RESET
+function hardReset(){
+  activeTag = "";
+  tagsOpen = false;
+  currentTree = null;
+  currentNodeId = null;
+  path = [];
+  el.faultTitleBadge.style.display="none";
+  el.faultTagsBadge.style.display="none";
+  el.search.value = "";
+  el.tagChips.style.display="none";
+  renderList();
+  renderNode();
+  el.proto.value = "";
+}
+
+// ---- ADMIN (IMPORT/EXPORT)
+async function admin(){
+  const choice = prompt("ADMIN\n1 = Import content.json\n2 = Export content.json");
+  if(!choice) return;
+
+  if(choice.trim()==="1"){
     const inp = document.createElement("input");
-    inp.type = "file";
-    inp.accept = "application/json,.json";
-    inp.onchange = async () => {
+    inp.type="file";
+    inp.accept="application/json,.json";
+    inp.onchange = async ()=>{
       const f = inp.files && inp.files[0];
       if(!f) return;
-      const text = await f.text();
+      const txt = await f.text();
       try{
-        const parsed = JSON.parse(text);
-        state.data = parsed;
-        alert("OK");
-        render();
+        const data = JSON.parse(txt);
+        const arr = Array.isArray(data) ? data : (data.trees || []);
+        localStorage.setItem("content_override", JSON.stringify(arr));
+        TREES = arr;
+        hardReset();
+        applyLangUI();
+        alert("Import OK");
       }catch(e){
-        alert("JSON error");
+        alert("Import ERROR: JSON invalid");
       }
     };
     inp.click();
-  } else if(v === "2"){
-    // export content as json
-    const blob = new Blob([JSON.stringify(state.data, null, 2)], {type:"application/json;charset=utf-8"});
-    downloadBlob("content_export.json", blob);
+  }
+
+  if(choice.trim()==="2"){
+    const data = JSON.stringify(TREES, null, 2);
+    const blob = new Blob([data], {type:"application/json;charset=utf-8"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `content_export_${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
   }
 }
 
-function hardReset(){
-  // Clear localStorage + caches, then reload
-  try{ localStorage.clear(); }catch(e){}
-  if(window.caches){
-    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).finally(()=>location.reload(true));
+// ---- boot
+(async function(){
+  // content override from localStorage (admin import)
+  const ov = localStorage.getItem("content_override");
+  if(ov){
+    try{ TREES = JSON.parse(ov); }
+    catch{ TREES = []; }
   } else {
-    location.reload(true);
+    await loadContent();
   }
-}
 
-async function init(){
-  // restore lang if saved
-  try{
-    const saved = localStorage.getItem("ctam_lang");
-    if(saved === "de" || saved === "sk") state.lang = saved;
-  }catch(e){}
+  // handlers
+  el.langDE.onclick = ()=>{ LANG="de"; localStorage.setItem("lang",LANG); applyLangUI(); };
+  el.langSK.onclick = ()=>{ LANG="sk"; localStorage.setItem("lang",LANG); applyLangUI(); };
+  el.resetBtn.onclick = ()=>hardReset();
+  el.search.oninput = ()=>renderList();
+
+  el.tagBtn.onclick = ()=>{
+    tagsOpen = !tagsOpen;
+    renderTagChips();
+  };
+  el.filterResetBtn.onclick = ()=>filterReset();
+
+  el.yesBtn.onclick = ()=>yes();
+  el.noBtn.onclick = ()=>no();
+  el.backBtn.onclick = ()=>back();
+
+  el.copyBtn.onclick = async ()=>{
+    try{ await navigator.clipboard.writeText(el.proto.value); el.protoHint.textContent=T("copied"); }
+    catch{ el.protoHint.textContent=""; }
+    setTimeout(()=>el.protoHint.textContent="", 1000);
+  };
+
+  el.clearPathBtn.onclick = ()=>{
+    path = [];
+    if(currentTree) currentNodeId = currentTree.start;
+    renderNode(); renderProtocol();
+  };
+
+  el.txtBtn.onclick = ()=>downloadTxt();
+  el.pdfBtn.onclick = ()=>downloadPdf();
+  el.adminBtn.onclick = ()=>admin();
 
   applyLangUI();
-
-  els.langDeBtn.addEventListener("click", () => {
-    state.lang = "de";
-    try{ localStorage.setItem("ctam_lang","de"); }catch(e){}
-    applyLangUI();
-    render();
-  });
-
-  els.langSkBtn.addEventListener("click", () => {
-    state.lang = "sk";
-    try{ localStorage.setItem("ctam_lang","sk"); }catch(e){}
-    applyLangUI();
-    render();
-  });
-
-  els.resetBtn.addEventListener("click", hardReset);
-
-  els.search.addEventListener("input", renderList);
-
-  els.yesBtn.addEventListener("click", () => {
-    const tree = getSelectedTree();
-    if(!tree) return;
-    const node = getCurrentNode(tree);
-    if(!node) return;
-    state.path.push({nodeId: node.id || null, answer: true});
-    render();
-  });
-
-  els.noBtn.addEventListener("click", () => {
-    const tree = getSelectedTree();
-    if(!tree) return;
-    const node = getCurrentNode(tree);
-    if(!node) return;
-    state.path.push({nodeId: node.id || null, answer: false});
-    render();
-  });
-
-  els.backBtn.addEventListener("click", () => {
-    state.path.pop();
-    render();
-  });
-
-  els.copyBtn.addEventListener("click", () => {
-    const text = (els.proto.value || "").trim();
-    if(!text){ alert(t("noProto")); return; }
-    copyToClipboard(text);
-  });
-
-  els.clearPathBtn.addEventListener("click", () => {
-    state.path = [];
-    render();
-  });
-
-  if (els.txtBtn) els.txtBtn.addEventListener("click", exportTxt);
-  if (els.pdfBtn) els.pdfBtn.addEventListener("click", exportPdf);
-
-  // admin by 7 clicks on ADMIN (kept simple)
-  let adminClicks = 0;
-  let adminTimer = null;
-  els.adminBtn.addEventListener("click", () => {
-    adminClicks++;
-    clearTimeout(adminTimer);
-    adminTimer = setTimeout(()=>adminClicks = 0, 800);
-    if(adminClicks >= 7){
-      adminClicks = 0;
-      adminPrompt();
-    }
-  });
-
-  await loadContent();
-  render();
-}
-
-init().catch(err => {
-  console.error(err);
-  els.question.textContent = "Init error";
-});
+  updateOffline();
+})();
