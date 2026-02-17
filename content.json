@@ -1,0 +1,1062 @@
+[
+  {
+    "id": "strom_01_12v_totalausfall",
+    "title": {
+      "de": "12V komplett ausgefallen (Aufbau tot)",
+      "sk": "12V úplný výpadok (všetko mŕtve)"
+    },
+    "subtitle": {
+      "de": "Kein Licht, keine Pumpe, Panel dunkel – systematische Eingrenzung bis Batterie/EBL.",
+      "sk": "Nefunguje svetlo, pumpa, panel – systematické rozdelenie až k batérii/EBL."
+    },
+    "tags": [
+      "12V",
+      "aufbau",
+      "ebl",
+      "sicherung",
+      "totalausfall",
+      "batterie"
+    ],
+    "start": "q1",
+    "nodes": {
+      "q1": {
+        "type": "question",
+        "text": {
+          "de": "Ist 230V Landstrom angeschlossen (Außensteckdose) oder Motor läuft?",
+          "sk": "Je pripojených 230V zvonku alebo beží motor?"
+        },
+        "help": {
+          "de": "Wichtig für die Interpretation: Bei Landstrom kann ein Ladegerät/Netzteil 12V erzeugen, obwohl die Batterie leer ist.",
+          "sk": "Dôležité: Pri externom pripojení môže nabíjačka vytvárať 12V aj pri vybitej batérii."
+        },
+        "yes": "q2",
+        "no": "q3"
+      },
+      "q2": {
+        "type": "question",
+        "text": {
+          "de": "Funktionieren 12V-Verbraucher NUR bei Landstrom/Motor, aber nicht im Batteriebetrieb?",
+          "sk": "Fungujú 12V spotrebiče iba pri externom pripojení/motore, ale nie na batériu?"
+        },
+        "yes": "r_ls_only",
+        "no": "q3"
+      },
+      "q3": {
+        "type": "question",
+        "text": {
+          "de": "Misst du direkt an der Aufbaubatterie (an den Polklemmen) mindestens 11,8 V?",
+          "sk": "Meriaš priamo na palubnej batérii (na póloch) aspoň 11,8 V?"
+        },
+        "help": {
+          "de": "Nicht am Panel messen – wirklich an den Batterieklemmen. Unter ~11,5 V kann vieles abschalten.",
+          "sk": "Nemeraj na paneli – meraj na póloch batérie. Pod ~11,5 V sa veľa vecí vypne."
+        },
+        "yes": "q4",
+        "no": "r_batt_dead"
+      },
+      "q4": {
+        "type": "question",
+        "text": {
+          "de": "Sind ALLE 12V-Verbraucher tot (Licht, Pumpe, Heizung/Panel etc.)?",
+          "sk": "Je úplne všetko 12V mŕtve (svetlá, pumpa, panel atď.)?"
+        },
+        "yes": "q5",
+        "no": "r_partial"
+      },
+      "q5": {
+        "type": "question",
+        "text": {
+          "de": "Ist der Hauptschalter am Elektroblock/Control-Panel (Aufbau 12V / 'Hauptschalter') EIN?",
+          "sk": "Je hlavný vypínač 12V na EBL/paneli zapnutý?"
+        },
+        "yes": "q6",
+        "no": "a5"
+      },
+      "a5": {
+        "type": "action",
+        "text": {
+          "de": "Hauptschalter EIN schalten. Danach erneut testen.",
+          "sk": "Zapni hlavný vypínač 12V a otestuj znova."
+        },
+        "next": "q6"
+      },
+      "q6": {
+        "type": "question",
+        "text": {
+          "de": "Ist die Hauptsicherung direkt an der Batterie (+) intakt (gemessen, nicht nur optisch)?",
+          "sk": "Je hlavná poistka pri batérii (+) OK (meraná, nie len vizuálne)?"
+        },
+        "help": {
+          "de": "Typisch: 30–200A Streifensicherung/MEGA/ANL nahe Batterie. Mit Multimeter Durchgang/Spannungsabfall prüfen.",
+          "sk": "Typicky 30–200A poistka pri batérii. Skontroluj meraním priechod/úbytok."
+        },
+        "yes": "q7",
+        "no": "r_main_fuse"
+      },
+      "q7": {
+        "type": "question",
+        "text": {
+          "de": "Liegt am Eingang des Elektroblocks/EBL (BATT+ und Masse) dieselbe Spannung wie an der Batterie an?",
+          "sk": "Je na vstupe EBL (BATT+ a mínus) rovnaké napätie ako na batérii?"
+        },
+        "help": {
+          "de": "Wenn an der Batterie 12V sind, am EBL aber nicht: Kabelbruch, Korrosion, Masseproblem, Trennschalter, Sicherung im Kabel.",
+          "sk": "Ak je na batérii 12V a na EBL nie: kábel, korózia, kostra, poistka v kábli."
+        },
+        "yes": "q8",
+        "no": "r_cable_break"
+      },
+      "q8": {
+        "type": "question",
+        "text": {
+          "de": "Springt die 12V-Versorgung nach Reset wieder an (EBL stromlos 60s, dann wieder verbinden)?",
+          "sk": "Pomôže reset (odpojiť EBL/12V na 60s a zapojiť)?"
+        },
+        "yes": "r_reset_ok",
+        "no": "q9"
+      },
+      "q9": {
+        "type": "question",
+        "text": {
+          "de": "Siehst du am EBL eine ausgelöste Sicherung/automatischen Schutzschalter oder riechst du verbrannten Geruch?",
+          "sk": "Vidíš na EBL vyhodenú poistku/istič alebo cítiš spáleninu?"
+        },
+        "yes": "r_ebl_damage",
+        "no": "r_ebl_no_out"
+      },
+      "r_ls_only": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Batteriebetrieb fehlt – Ladegerät/Netzteil speist 12V bei Landstrom, aber Batterie/Trennpfad ist unterbrochen.",
+          "sk": "Chýba batériový režim – nabíjačka/zdroj dáva 12V pri externom pripojení, ale cesta z batérie je prerušená."
+        },
+        "action": {
+          "de": "Prüfe Batterie-Hauptsicherung, Trennrelais, Batterietrennschalter, Kabelschuhe/Korrosion. Miss Spannungsabfall unter Last (z.B. 10–15A).",
+          "sk": "Skontroluj hlavnú poistku batérie, relé odpojenia, batériový odpínač, káble a koróziu. Meraj úbytok pod záťažou (10–15A)."
+        }
+      },
+      "r_batt_dead": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Aufbaubatterie tiefentladen oder defekt.",
+          "sk": "Palubná batéria je hlboko vybitá alebo chybná."
+        },
+        "action": {
+          "de": "Sofort laden (passendes Ladegerät). Wenn Spannung nicht stabil steigt oder sofort wieder abfällt: Batterie testen/ersetzen. Bei LiFePO4: BMS-UVP möglich.",
+          "sk": "Okamžite nabíjaj vhodnou nabíjačkou. Ak napätie nestúpa alebo hneď padá: test/výmena. Pri LiFePO4 môže byť BMS v UVP."
+        }
+      },
+      "r_partial": {
+        "type": "result",
+        "level": "ok",
+        "cause": {
+          "de": "Kein Totalausfall – eher Teilkreis/Einzelverbraucher/Steuerung betroffen.",
+          "sk": "Nie je totálny výpadok – skôr vetva/konkrétny spotrebič/riadenie."
+        },
+        "action": {
+          "de": "Nutze den Baum „Spannung vorhanden – Verbraucher ohne Funktion“ oder prüfe gezielt Sicherungen und Masse des betroffenen Kreises.",
+          "sk": "Použi strom „Napätie je – spotrebiče nejdú“ alebo rieš poistky a kostru danej vetvy."
+        }
+      },
+      "r_main_fuse": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Hauptsicherung an der Batterie defekt / Übergangswiderstand.",
+          "sk": "Hlavná poistka pri batérii je chybná / prechodový odpor."
+        },
+        "action": {
+          "de": "Sicherung korrekt ersetzen und Ursache suchen (Kurzschluss, Feuchtigkeit, falsch angeschlossen). Kabelschuhe reinigen, festziehen.",
+          "sk": "Vymeň poistku správnej hodnoty a hľadaj príčinu (skrat, vlhkosť, zlé zapojenie). Kontakty vyčisti a dotiahni."
+        }
+      },
+      "r_cable_break": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Unterbrechung zwischen Batterie und EBL oder Masseproblem.",
+          "sk": "Prerušenie medzi batériou a EBL alebo problém kostry."
+        },
+        "action": {
+          "de": "Leitung, Steckverbindungen, Durchführungen und Massepunkt prüfen. Spannungsabfallmessung unter Last durchführen.",
+          "sk": "Skontroluj vedenie, konektory, priechodky a kostru. Urob meranie úbytku pod záťažou."
+        }
+      },
+      "r_reset_ok": {
+        "type": "result",
+        "level": "ok",
+        "cause": {
+          "de": "Steuergerät hing – Reset hat geholfen.",
+          "sk": "Riadiaca jednotka bola zaseknutá – reset pomohol."
+        },
+        "action": {
+          "de": "Ursache oft: Unterspannung, Feuchtigkeit am EBL, Wackelkontakt. Präventiv: Massepunkte reinigen, Batterie/Charging prüfen.",
+          "sk": "Často: podnapätie, vlhkosť na EBL, zlý kontakt. Prevencia: vyčisti kostry, skontroluj batériu a nabíjanie."
+        }
+      },
+      "r_ebl_damage": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Hinweis auf Defekt im Elektroblock/Verteilung (Überlast, Kurzschluss, Wasserschaden).",
+          "sk": "Náznak poruchy EBL/rozvodu (preťaženie, skrat, voda)."
+        },
+        "action": {
+          "de": "Stromlos machen, Sichtprüfung, Sicherungswerte prüfen. Bei Brandspuren: Fachreparatur/EBL-Tausch. Vorher Kurzschluss im Abgang messen.",
+          "sk": "Odpoj napájanie, vizuálna kontrola, poistky. Pri stopách spálenia: odborná oprava/výmena. Predtým zmeraj skrat na vetvách."
+        }
+      },
+      "r_ebl_no_out": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Batteriespannung am EBL vorhanden, aber keine 12V-Ausgänge – internes Problem oder Hauptschalter/Steuerleitung.",
+          "sk": "Napätie na EBL je, ale výstupy 12V nie – interný problém alebo hlavný vypínač/riadenie."
+        },
+        "action": {
+          "de": "Prüfe EBL-Hauptsicherung(en), Hauptschalter-Signal, Remote-Leitung (D+ / Panel). Wenn OK: EBL intern defekt.",
+          "sk": "Skontroluj hlavné poistky EBL, signál vypínača, riadiace vodiče (D+/panel). Ak OK: EBL je chybný."
+        }
+      }
+    }
+  },
+  {
+    "id": "strom_02_spannung_vorhanden_aber_verbraucher_aus",
+    "title": {
+      "de": "Spannung vorhanden – Verbraucher ohne Funktion",
+      "sk": "Napätie je – spotrebiče nejdú"
+    },
+    "subtitle": {
+      "de": "12V liegt an, aber einzelne/mehrere Verbraucher reagieren nicht.",
+      "sk": "12V je prítomné, ale niektoré/viaceré spotrebiče nereagujú."
+    },
+    "tags": [
+      "12V",
+      "verbraucher",
+      "sicherung",
+      "masse",
+      "ebl"
+    ],
+    "start": "q1",
+    "nodes": {
+      "q1": {
+        "type": "question",
+        "text": {
+          "de": "Misst du an der Aufbaubatterie mindestens 12,2 V (ruhende Spannung)?",
+          "sk": "Meriaš na palubnej batérii aspoň 12,2 V (bez záťaže)?"
+        },
+        "yes": "q2",
+        "no": "r_low"
+      },
+      "q2": {
+        "type": "question",
+        "text": {
+          "de": "Sind NUR einzelne Verbraucher betroffen (z.B. nur Pumpe, nur Lichtkreis)?",
+          "sk": "Je problém iba s niektorými spotrebičmi (napr. len pumpa alebo len svetlá)?"
+        },
+        "yes": "q3",
+        "no": "q7"
+      },
+      "q3": {
+        "type": "question",
+        "text": {
+          "de": "Gibt es für den betroffenen Verbraucher eine eigene Sicherung/Automat am EBL oder in der Nähe?",
+          "sk": "Má daný spotrebič vlastnú poistku/istič na EBL alebo pri ňom?"
+        },
+        "yes": "q4",
+        "no": "q5"
+      },
+      "q4": {
+        "type": "question",
+        "text": {
+          "de": "Ist diese Sicherung elektrisch OK (Durchgang / Spannung beidseitig unter Last)?",
+          "sk": "Je táto poistka OK (priechod/napätie na oboch stranách pod záťažou)?"
+        },
+        "yes": "q5",
+        "no": "r_fuse"
+      },
+      "q5": {
+        "type": "question",
+        "text": {
+          "de": "Liegt am Verbraucher-Stecker bei eingeschaltetem Schalter/Panel 12V an?",
+          "sk": "Je na konektore spotrebiča pri zapnutí 12V?"
+        },
+        "yes": "q6",
+        "no": "r_wiring"
+      },
+      "q6": {
+        "type": "question",
+        "text": {
+          "de": "Hat der Verbraucher eine gute Masse (Spannungsabfall Masse <0,2V bei Last)?",
+          "sk": "Má spotrebič dobrú kostru (úbytok na mínuse <0,2V pri záťaži)?"
+        },
+        "yes": "r_device",
+        "no": "r_mass"
+      },
+      "q7": {
+        "type": "question",
+        "text": {
+          "de": "Ist das Kontrollpanel/EBL eingeschaltet und zeigt es keine Fehlermeldung (z.B. Batterie-Symbol, Unterspannung)?",
+          "sk": "Je panel/EBL zapnutý a bez chýb (napr. symbol batérie, podnapätie)?"
+        },
+        "yes": "q8",
+        "no": "r_panel"
+      },
+      "q8": {
+        "type": "question",
+        "text": {
+          "de": "Funktionieren Verbraucher bei Landstrom, aber nicht im Batteriebetrieb?",
+          "sk": "Funguje to pri externom pripojení, ale nie na batériu?"
+        },
+        "yes": "r_sep",
+        "no": "r_ebl_part"
+      },
+      "r_low": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Batteriespannung zu niedrig/instabil – Unterspannung kann Verbraucher sperren.",
+          "sk": "Napätie batérie je nízke/nestabilné – podnapätie môže blokovať spotrebiče."
+        },
+        "action": {
+          "de": "Batterie laden und unter Last prüfen. Bei LiFePO4: BMS/UVP prüfen. Danach erneut testen.",
+          "sk": "Nabi batériu a otestuj pod záťažou. Pri LiFePO4 skontroluj BMS/UVP. Potom test znova."
+        }
+      },
+      "r_fuse": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Sicherung defekt oder Übergangswiderstand im Sicherungshalter.",
+          "sk": "Poistka je chybná alebo je prechodový odpor v držiaku."
+        },
+        "action": {
+          "de": "Sicherung ersetzen. Halter/Kontakte reinigen und Klemmsitz prüfen. Ursache für Überstrom suchen.",
+          "sk": "Vymeň poistku, vyčisti kontakty, skontroluj držiak. Hľadaj príčinu preťaženia."
+        }
+      },
+      "r_wiring": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Keine Spannung am Verbraucher – Problem im Schalter/Relais/EBL-Abgang oder Kabelbruch.",
+          "sk": "Na spotrebiči nie je napätie – problém v spínači/relé/EBL alebo kábel."
+        },
+        "action": {
+          "de": "Spannung Schritt für Schritt verfolgen: EBL-Abgang → Steckverbinder → Verbraucher. Besonders Durchführungen/Türbereich prüfen.",
+          "sk": "Sleduj napätie krok po kroku: výstup EBL → konektory → spotrebič. Najmä priechodky a ohyby."
+        }
+      },
+      "r_mass": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Masseproblem (Korrosion, lose Schraube, dünnes Massekabel).",
+          "sk": "Problém kostry (korózia, voľný spoj, tenký mínus kábel)."
+        },
+        "action": {
+          "de": "Massepunkt reinigen/erneuern. Zusatzmasse legen und Spannungsabfall unter Last bestätigen.",
+          "sk": "Vyčisti/obnov kostru. Pridaj mínus vodič a potvrď úbytok pod záťažou."
+        }
+      },
+      "r_device": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Versorgung ist da – Verbraucher selbst defekt oder blockiert (Thermoschutz, interne Sicherung).",
+          "sk": "Napájanie je – spotrebič je chybný alebo blokuje (tepelná ochrana, vnútorná poistka)."
+        },
+        "action": {
+          "de": "Verbraucher direkt prüfen/tauschen. Bei Motoren: Stromaufnahme messen, Mechanik auf Blockade prüfen.",
+          "sk": "Otestuj/vymeň spotrebič. Pri motoroch zmeraj odber a skontroluj mechaniku."
+        }
+      },
+      "r_panel": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Panel/Steuerung deaktiviert 12V oder zeigt Unterspannung/Fehler.",
+          "sk": "Panel/riadenie deaktivuje 12V alebo hlási chybu."
+        },
+        "action": {
+          "de": "Fehlercode auslesen, Reset, Panel-Verkabelung prüfen. Unterspannung/Ursache beseitigen.",
+          "sk": "Prečítaj chybu, reset, skontroluj kabeláž panelu. Odstráň príčinu podnapätia."
+        }
+      },
+      "r_sep": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Trennpfad Batterie↔EBL gestört (Sicherung/Relais/Schalter/Kabel).",
+          "sk": "Cesta batéria↔EBL je narušená (poistka/relé/odpínač/kábel)."
+        },
+        "action": {
+          "de": "Batterie-Hauptsicherung, Trennrelais, Batterietrennschalter, Masse prüfen. Spannungsabfall messen.",
+          "sk": "Skontroluj hlavnú poistku, relé, odpínač, kostru. Zmeraj úbytok."
+        }
+      },
+      "r_ebl_part": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Mehrere Verbraucher ohne Funktion trotz Spannung – EBL-Verteilung/Steuerleitung möglich.",
+          "sk": "Viac spotrebičov nejde aj keď je napätie – možný problém EBL/riadenia."
+        },
+        "action": {
+          "de": "EBL-Abgänge, interne Sicherungen, Steckverbindungen und Steuerleitungen (D+, Panel) prüfen. Falls alles OK: EBL intern defekt.",
+          "sk": "Skontroluj výstupy EBL, interné poistky, konektory, riadiace vodiče (D+, panel). Ak OK: EBL chyba."
+        }
+      }
+    }
+  },
+  {
+    "id": "strom_03_spannung_bricht_unter_last",
+    "title": {
+      "de": "Spannung bricht unter Last ein (12V)",
+      "sk": "Napätie padá pod záťažou (12V)"
+    },
+    "subtitle": {
+      "de": "Licht/Pumpe startet und alles wird dunkel – Diagnostik über Spannungsabfallmessung.",
+      "sk": "Svetlo/pumpa sa spustí a všetko stmavne – diagnostika cez meranie úbytku."
+    },
+    "tags": [
+      "12V",
+      "spannungsabfall",
+      "masse",
+      "sicherung",
+      "last"
+    ],
+    "start": "q1",
+    "nodes": {
+      "q1": {
+        "type": "question",
+        "text": {
+          "de": "Bricht die Spannung bei Last (z.B. Licht/Pumpe) deutlich ein (<11,5 V)?",
+          "sk": "Padá napätie pri záťaži výrazne (<11,5 V)?"
+        },
+        "yes": "q2",
+        "no": "r_no"
+      },
+      "q2": {
+        "type": "question",
+        "text": {
+          "de": "Ist die Batterie frisch geladen und trotzdem bricht sie sofort ein?",
+          "sk": "Je batéria nabitá a aj tak hneď padá?"
+        },
+        "yes": "r_batt_bad",
+        "no": "q3"
+      },
+      "q3": {
+        "type": "question",
+        "text": {
+          "de": "Misst du den Spannungsabfall zwischen Batterie-Plus und EBL-Plus bei Last >0,2 V?",
+          "sk": "Meriaš úbytok medzi + batérie a + EBL pri záťaži >0,2 V?"
+        },
+        "yes": "r_plus_drop",
+        "no": "q4"
+      },
+      "q4": {
+        "type": "question",
+        "text": {
+          "de": "Misst du den Spannungsabfall zwischen Batterie-Minus und Massepunkt/EBL-Minus bei Last >0,2 V?",
+          "sk": "Meriaš úbytok medzi - batérie a kostrou/EBL- pri záťaži >0,2 V?"
+        },
+        "yes": "r_minus_drop",
+        "no": "q5"
+      },
+      "q5": {
+        "type": "question",
+        "text": {
+          "de": "Tritt das Problem nur bei einem bestimmten Verbraucher auf (z.B. nur Trittstufe/Pumpe)?",
+          "sk": "Je problém len pri konkrétnom spotrebiči (napr. len schod/pumpa)?"
+        },
+        "yes": "r_consumer_short",
+        "no": "r_overload"
+      },
+      "r_no": {
+        "type": "result",
+        "level": "ok",
+        "cause": {
+          "de": "Kein Last-Einbruch – dann passt eher 'Verbraucher ohne Funktion' oder 'Totalausfall'.",
+          "sk": "Nie je úbytok pod záťažou – skôr 'spotrebiče nejdú' alebo 'totálny výpadok'."
+        },
+        "action": {
+          "de": "Wähle den passenden Baum je nach Symptom und prüfe Sicherungen/Masse.",
+          "sk": "Vyber vhodný strom podľa príznaku a skontroluj poistky/kostru."
+        }
+      },
+      "r_batt_bad": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Batterie hat hohe Innenresistenz/Defekt (Sulfatierung, Zellschaden, BMS-Limit).",
+          "sk": "Batéria má vysoký vnútorný odpor/je chybná."
+        },
+        "action": {
+          "de": "Batterietest (Belastungstest) durchführen, ggf. ersetzen. Bei LiFePO4: BMS-Parameter/Temperatur prüfen.",
+          "sk": "Urob záťažový test batérie, prípadne výmena. Pri LiFePO4 skontroluj BMS/teplotu."
+        }
+      },
+      "r_plus_drop": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Übergangswiderstand im Plus-Pfad (Sicherung, Relais, Klemme, Kabel).",
+          "sk": "Prechodový odpor v + vetve (poistka, relé, svorka, kábel)."
+        },
+        "action": {
+          "de": "Mit Last messen und Hotspots suchen. Sicherungshalter/Kabelschuhe reinigen, crimpen, ersetzen. Leitungsquerschnitt prüfen.",
+          "sk": "Meraj pod záťažou a hľadaj teplé miesta. Vyčisti/prekrympuj kontakty, skontroluj prierez."
+        }
+      },
+      "r_minus_drop": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Massepfad schlecht (Korrosion, lose Schraube, zu dünn).",
+          "sk": "Zlá kostra (korózia, voľný spoj, slabý mínus vodič)."
+        },
+        "action": {
+          "de": "Massepunkte blank machen, verschrauben, ggf. Zusatzmasse zur Batterie legen.",
+          "sk": "Očisti kostry na kov, dotiahni, prípadne pridaj mínus kábel k batérii."
+        }
+      },
+      "r_consumer_short": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Einzelverbraucher zieht zu viel Strom (Blockade, Kurzschluss, defekter Motor).",
+          "sk": "Jeden spotrebič má veľký odber (zaseknutie, skrat, motor)."
+        },
+        "action": {
+          "de": "Stromaufnahme messen, Verbraucher abklemmen und prüfen. Mechanik freimachen, Motor/Relais prüfen.",
+          "sk": "Zmeraj odber, odpoj spotrebič a otestuj. Uvoľni mechaniku, skontroluj motor/relé."
+        }
+      },
+      "r_overload": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Gesamtsystem überlastet oder Batterie/Verkabelung zu schwach.",
+          "sk": "Systém je preťažený alebo batéria/kabeláž je slabá."
+        },
+        "action": {
+          "de": "Gesamtstrom messen, Verbraucher nacheinander zu-/abschalten, Kabelquerschnitt und Sicherungen prüfen. Batterie-Kapazität bewerten.",
+          "sk": "Zmeraj celkový prúd, zapínaj/vypínaj spotrebiče po jednom, skontroluj káble a poistky. Zhodnoť kapacitu batérie."
+        }
+      }
+    }
+  },
+  {
+    "id": "strom_04_aufbaubatterie_laed_nicht_230v",
+    "title": {
+      "de": "Aufbaubatterie lädt nicht (230V extern)",
+      "sk": "Palubná batéria sa nenabíja (230V zvonku)"
+    },
+    "subtitle": {
+      "de": "Bei 230V-Anschluss keine Ladespannung an der Aufbaubatterie.",
+      "sk": "Pri 230V pripojení nie je nabíjacie napätie na palubnej batérii."
+    },
+    "tags": [
+      "230V",
+      "ladegeraet",
+      "ebl",
+      "aufbaubatterie",
+      "extern"
+    ],
+    "start": "q1",
+    "nodes": {
+      "q1": {
+        "type": "question",
+        "text": {
+          "de": "Ist außen 230V korrekt vorhanden (CEE angeschlossen, FI/LS im Fahrzeug EIN)?",
+          "sk": "Je 230V zvonku prítomné (CEE pripojené, FI/istič v aute zapnutý)?"
+        },
+        "yes": "q2",
+        "no": "r_230_missing"
+      },
+      "q2": {
+        "type": "question",
+        "text": {
+          "de": "Zeigt das Ladegerät/EBL eine Betriebsanzeige (LED/Display) bei 230V?",
+          "sk": "Ukazuje nabíjačka/EBL indikáciu (LED/displej) pri 230V?"
+        },
+        "yes": "q3",
+        "no": "r_lader_no_power"
+      },
+      "q3": {
+        "type": "question",
+        "text": {
+          "de": "Steigt die Batteriespannung nach 5–10 min über 13,2 V?",
+          "sk": "Stúpne napätie batérie po 5–10 min nad 13,2 V?"
+        },
+        "help": {
+          "de": "Messung direkt an den Batterieklemmen.",
+          "sk": "Meraj priamo na póloch batérie."
+        },
+        "yes": "r_ok",
+        "no": "q4"
+      },
+      "q4": {
+        "type": "question",
+        "text": {
+          "de": "Ist der Batterie-Trennschalter (Batteriehauptschalter) EIN?",
+          "sk": "Je batériový odpínač zapnutý?"
+        },
+        "yes": "q5",
+        "no": "a4"
+      },
+      "a4": {
+        "type": "action",
+        "text": {
+          "de": "Batterie-Trennschalter einschalten, dann Spannung erneut prüfen.",
+          "sk": "Zapni batériový odpínač a zmeraj znovu."
+        },
+        "next": "q5"
+      },
+      "q5": {
+        "type": "question",
+        "text": {
+          "de": "Gibt es eine Lade-Sicherung zwischen Ladegerät/EBL und Batterie (z.B. 'Ladegerät', 'BATT', 'Charger')?",
+          "sk": "Je poistka nabíjania medzi nabíjačkou/EBL a batériou?"
+        },
+        "yes": "q6",
+        "no": "q7"
+      },
+      "q6": {
+        "type": "question",
+        "text": {
+          "de": "Ist diese Sicherung elektrisch OK (Spannung beidseitig bei 230V)?",
+          "sk": "Je táto poistka OK (napätie na oboch stranách pri 230V)?"
+        },
+        "yes": "q7",
+        "no": "r_charge_fuse"
+      },
+      "q7": {
+        "type": "question",
+        "text": {
+          "de": "Hat die Batterie ein BMS, das bei Kälte/Unterspannung das Laden sperrt (LiFePO4)?",
+          "sk": "Má batéria BMS ktoré blokuje nabíjanie (LiFePO4, chlad, UVP)?"
+        },
+        "yes": "r_bms_block",
+        "no": "r_charger_def"
+      },
+      "r_230_missing": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "230V fehlt oder wird im Fahrzeug nicht verteilt.",
+          "sk": "Chýba 230V alebo sa v aute nerozdeľuje."
+        },
+        "action": {
+          "de": "Außenanschluss prüfen, FI/LS reset, Einspeiseleitung und Steckdosen testen. Erst dann Ladegerät beurteilen.",
+          "sk": "Skontroluj prívod, FI/istič, kábel a zásuvky. Až potom rieš nabíjačku."
+        }
+      },
+      "r_lader_no_power": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Ladegerät/EBL bekommt kein 230V oder ist intern defekt.",
+          "sk": "Nabíjačka/EBL nemá 230V alebo je chybná."
+        },
+        "action": {
+          "de": "230V am Eingang des Ladegeräts messen (VORSICHT!). Wenn 230V da und keine Anzeige: Ladegerät defekt.",
+          "sk": "Zmeraj 230V na vstupe nabíjačky (pozor!). Ak 230V je a nič nesvieti: nabíjačka chybná."
+        }
+      },
+      "r_ok": {
+        "type": "result",
+        "level": "ok",
+        "cause": {
+          "de": "Laden funktioniert – Problem war Bedienung/Anzeige oder zu kurze Beobachtung.",
+          "sk": "Nabíjanie funguje – problém bol v ovládaní/indikácii alebo krátkom čase."
+        },
+        "action": {
+          "de": "Im Panel Werte vergleichen. Bei falscher Anzeige: Panel-Kalibrierung/Shunt prüfen.",
+          "sk": "Porovnaj hodnoty na paneli. Ak zlé: kalibrácia/shunt."
+        }
+      },
+      "r_charge_fuse": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Ladesicherung defekt oder Kontaktproblem – Batterie wird nicht erreicht.",
+          "sk": "Poistka nabíjania je chybná alebo kontakt – nabíjanie sa nedostane k batérii."
+        },
+        "action": {
+          "de": "Sicherung ersetzen, Halter/Stecker reinigen, Querschnitt prüfen. Danach Lade-Spannung erneut messen.",
+          "sk": "Vymeň poistku, vyčisti kontakty, skontroluj prierez. Potom meraj znova."
+        }
+      },
+      "r_bms_block": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "BMS blockiert das Laden (Untertemperatur, UVP, Fehler).",
+          "sk": "BMS blokuje nabíjanie (nízka teplota, UVP, chyba)."
+        },
+        "action": {
+          "de": "BMS-Status prüfen (App/LED). Batterie erwärmen, Vorladung/Reset gemäß Hersteller. Keine Gewaltladung.",
+          "sk": "Skontroluj BMS (app/LED). Zohrej batériu, reset podľa výrobcu. Nenúť nabíjanie."
+        }
+      },
+      "r_charger_def": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Ladegerät liefert keine Ladespannung oder EBL-Ladezweig defekt.",
+          "sk": "Nabíjačka nedáva nabíjacie napätie alebo je chybná vetva EBL."
+        },
+        "action": {
+          "de": "Ausgang des Ladegeräts messen (DC). Wenn keine ~14V: Ladegerät reparieren/tauschen. Wenn Spannung am Ladegerät aber nicht an Batterie: Kabel/EBL prüfen.",
+          "sk": "Zmeraj DC výstup nabíjačky. Ak nie je ~14V: oprava/výmena. Ak je na nabíjačke, ale nie na batérii: kabeláž/EBL."
+        }
+      }
+    }
+  },
+  {
+    "id": "strom_05_ladegeraet_laed_falsch",
+    "title": {
+      "de": "Ladegerät lädt falsch / falscher Batterietyp",
+      "sk": "Nabíjačka nabíja zle / zlý typ batérie"
+    },
+    "subtitle": {
+      "de": "Falsches Ladeprofil oder unplausible Ladespannung – Gefahr für Batterie und Anzeige.",
+      "sk": "Zlé nastavenie profilu alebo nesprávne nabíjacie napätie – riziko pre batériu aj indikáciu."
+    },
+    "tags": [
+      "ladegeraet",
+      "batterietyp",
+      "lifepo4",
+      "agm",
+      "gel",
+      "230V"
+    ],
+    "start": "q1",
+    "nodes": {
+      "q1": {
+        "type": "question",
+        "text": {
+          "de": "Welche Batterietechnologie ist verbaut?",
+          "sk": "Aký typ batérie je namontovaný?"
+        },
+        "help": {
+          "de": "Falsches Ladeprofil kann Unterladung, Überladung oder BMS-Abschaltung verursachen.",
+          "sk": "Zlé nabíjacie nastavenie môže spôsobiť pod/prek nabíjanie alebo BMS vypnutie."
+        },
+        "options": [
+          {
+            "label": {
+              "de": "LiFePO4 (Lithium)",
+              "sk": "LiFePO4 (lítium)"
+            },
+            "next": "q2_lfp"
+          },
+          {
+            "label": {
+              "de": "AGM/GEL/Blei-Säure",
+              "sk": "AGM/GEL/olovo"
+            },
+            "next": "q2_pb"
+          },
+          {
+            "label": {
+              "de": "Unbekannt",
+              "sk": "Neviem"
+            },
+            "next": "a_unknown"
+          }
+        ]
+      },
+      "a_unknown": {
+        "type": "action",
+        "text": {
+          "de": "Batterietyp klären (Label am Akku, Rechnung, BMS-App). Danach erneut starten.",
+          "sk": "Zisti typ batérie (štítok, doklad, BMS app) a spusti znova."
+        },
+        "next": "q1"
+      },
+      "q2_lfp": {
+        "type": "question",
+        "text": {
+          "de": "Ist im Ladegerät/EBL ein LiFePO4-Ladeprofil aktiviert (oder ein externes Li-Ladegerät verbaut)?",
+          "sk": "Je v nabíjačke/EBL aktivovaný LiFePO4 profil (alebo externá Li nabíjačka)?"
+        },
+        "yes": "q3",
+        "no": "r_wrong_profile_lfp"
+      },
+      "q2_pb": {
+        "type": "question",
+        "text": {
+          "de": "Ist das Ladeprofil passend (AGM/GEL) eingestellt?",
+          "sk": "Je nastavený správny profil (AGM/GEL)?"
+        },
+        "yes": "q3",
+        "no": "r_wrong_profile_pb"
+      },
+      "q3": {
+        "type": "question",
+        "text": {
+          "de": "Erreicht die Ladespannung im Bulk/Absorption realistisch den Sollwert (AGM ~14,4V, GEL ~14,1V, LFP typ. 14,2–14,6V)?",
+          "sk": "Dosahuje nabíjanie správne napätie (AGM ~14,4V, GEL ~14,1V, LFP 14,2–14,6V)?"
+        },
+        "help": {
+          "de": "Messung an Batterieklemmen. Bei Shunt/Panel kann es abweichen.",
+          "sk": "Meraj na póloch batérie. Panel/shunt môže klamať."
+        },
+        "yes": "q4",
+        "no": "r_voltage_off"
+      },
+      "q4": {
+        "type": "question",
+        "text": {
+          "de": "Schaltet das Ladegerät zu früh ab oder lädt dauerhaft (keine Float-Phase / Batterie wird warm)?",
+          "sk": "Vypína nabíjačka príliš skoro alebo nabíja stále (bez float / batéria sa hreje)?"
+        },
+        "yes": "r_charger_logic",
+        "no": "r_ok"
+      },
+      "r_wrong_profile_lfp": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "LiFePO4 ohne korrektes Ladeprofil – Risiko: BMS-Abschaltung oder falsche Kapazitätsanzeige.",
+          "sk": "LiFePO4 bez správneho profilu – riziko BMS vypnutia alebo zlá indikácia."
+        },
+        "action": {
+          "de": "Ladeprofil auf LiFePO4 umstellen oder externes Li-Ladegerät nutzen. Bei EBL ohne Li-Profil: Herstellerlösung/Upgrade.",
+          "sk": "Nastav LiFePO4 profil alebo použi externú Li nabíjačku. Ak EBL nemá Li profil: riešenie výrobcu/upgrade."
+        }
+      },
+      "r_wrong_profile_pb": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Falsches Blei-Ladeprofil (AGM/GEL) führt zu Unter-/Überladung.",
+          "sk": "Zlé olovené nastavenie (AGM/GEL) spôsobuje pod/prek nabíjanie."
+        },
+        "action": {
+          "de": "Profil korrekt einstellen. Bei alten Ladegeräten: Temperaturfühler prüfen und ggf. Ladegerät tauschen.",
+          "sk": "Nastav správny profil. Pri starých nabíjačkách skontroluj teplotný senzor a zváž výmenu."
+        }
+      },
+      "r_voltage_off": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Ladespannung weicht ab – Kalibrierung, Sensorik oder Ladegerätdefekt.",
+          "sk": "Nabíjacie napätie nesedí – kalibrácia, senzorika alebo chyba nabíjačky."
+        },
+        "action": {
+          "de": "Vergleiche Multimeter vs. Panel/Shunt. Prüfe Kabelquerschnitt/Spannungsabfall. Wenn Ladegerät-Ausgang falsch: defekt.",
+          "sk": "Porovnaj multimeter vs panel/shunt. Skontroluj úbytky. Ak výstup nabíjačky nesedí: chyba."
+        }
+      },
+      "r_charger_logic": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Laderegelung unplausibel (Float fehlt / Überladung / Temperaturproblem).",
+          "sk": "Regulácia nabíjania je zlá (chýba float / prebitie / teplota)."
+        },
+        "action": {
+          "de": "Temperatursensor prüfen, Ladegerät-Parameter kontrollieren. Bei Überladung sofort stoppen und Ladegerät tauschen.",
+          "sk": "Skontroluj teplotný senzor a parametre. Pri prebití okamžite zastav a vymeň nabíjačku."
+        }
+      },
+      "r_ok": {
+        "type": "result",
+        "level": "ok",
+        "cause": {
+          "de": "Ladeprofil und Spannungen plausibel.",
+          "sk": "Profil a napätia vyzerajú správne."
+        },
+        "action": {
+          "de": "Wenn Anzeige trotzdem falsch: Shunt/Panel-Konfiguration prüfen (Batteriekapazität, Peukert, Nullpunkt).",
+          "sk": "Ak je zlá indikácia: skontroluj shunt/panel nastavenia (kapacita, kalibrácia)."
+        }
+      }
+    }
+  },
+  {
+    "id": "strom_06_solar_laed_nicht",
+    "title": {
+      "de": "Solaranlage lädt nicht – Regler aktiv, Batterie lädt nicht",
+      "sk": "Solárny systém nenabíja – regulátor aktívny, batéria sa nenabíja"
+    },
+    "subtitle": {
+      "de": "Solarregler zeigt Aktivität, aber kein Ladestrom/keine Spannungserhöhung.",
+      "sk": "Regulátor ukazuje aktivitu, ale nie je prúd/napätie nestúpa."
+    },
+    "tags": [
+      "solar",
+      "mppt",
+      "regler",
+      "pv",
+      "12V",
+      "lifepo4"
+    ],
+    "start": "q1",
+    "nodes": {
+      "q1": {
+        "type": "question",
+        "text": {
+          "de": "Zeigt der Solarregler 'aktiv' (LED/App), aber die Batterie lädt nicht?",
+          "sk": "Ukazuje regulátor 'aktívny', ale batéria sa nenabíja?"
+        },
+        "yes": "q2",
+        "no": "q0"
+      },
+      "q0": {
+        "type": "question",
+        "text": {
+          "de": "Ist überhaupt Solarspannung am Regler-Eingang (PV) vorhanden (Tag/ Sonne)?",
+          "sk": "Je na vstupe PV do regulátora napätie (deň/slnko)?"
+        },
+        "yes": "q2",
+        "no": "r_no_pv"
+      },
+      "q2": {
+        "type": "question",
+        "text": {
+          "de": "Ist die Batteriespannung direkt an den Regler-Klemmen (BAT+/-) identisch zur Batterie?",
+          "sk": "Je napätie na BAT svorkách regulátora rovnaké ako na batérii?"
+        },
+        "yes": "q3",
+        "no": "r_bat_cable"
+      },
+      "q3": {
+        "type": "question",
+        "text": {
+          "de": "Ist die Batterie bereits voll (Spannung hoch, Regler in Float/Erhaltung)?",
+          "sk": "Nie je batéria už plná (vyššie napätie, float/udržiavanie)?"
+        },
+        "yes": "r_full",
+        "no": "q4"
+      },
+      "q4": {
+        "type": "question",
+        "text": {
+          "de": "Gibt es eine Sicherung/Trennschalter in der Solar-Batterieleitung, die ausgelöst ist?",
+          "sk": "Je v solar→batéria vedení poistka/odpínač ktorý je vypnutý?"
+        },
+        "yes": "q5",
+        "no": "q6"
+      },
+      "q5": {
+        "type": "question",
+        "text": {
+          "de": "Ist die Sicherung elektrisch OK (Spannung beidseitig bei Sonne)?",
+          "sk": "Je poistka OK (napätie na oboch stranách pri slnku)?"
+        },
+        "yes": "q6",
+        "no": "r_solar_fuse"
+      },
+      "q6": {
+        "type": "question",
+        "text": {
+          "de": "Meldet der Regler einen Fehler (Übertemperatur, Batterie voll, PV zu niedrig, BMS sperrt)?",
+          "sk": "Hlási regulátor chybu (teplota, PV nízke, batéria plná, BMS blokuje)?"
+        },
+        "yes": "r_error",
+        "no": "q7"
+      },
+      "q7": {
+        "type": "question",
+        "text": {
+          "de": "Ist der PV-Eingang korrekt gepolt und die PV-Spannung plausibel (z.B. bei MPPT deutlich höher als Batterie)?",
+          "sk": "Je PV vstup správne polarizovaný a PV napätie je reálne (pri MPPT vyššie než batéria)?"
+        },
+        "yes": "r_regler_def",
+        "no": "r_polarity"
+      },
+      "r_no_pv": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Keine/zu geringe PV-Spannung am Regler – Panel, Steckverbinder oder Kabel defekt.",
+          "sk": "Nie je PV napätie – panel, konektory alebo kábel je chybný."
+        },
+        "action": {
+          "de": "PV-Spannung am Panel und am Regler messen. MC4/Steckverbinder, Dachdurchführung, Sicherung/Trennschalter prüfen.",
+          "sk": "Zmeraj PV napätie na paneli aj na regulátore. Skontroluj MC4, priechodku, poistku/odpínač."
+        }
+      },
+      "r_bat_cable": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Regler ist nicht korrekt mit der Batterie verbunden (Sicherung/Leitung/Masse).",
+          "sk": "Regulátor nie je správne pripojený k batérii (poistka/vedenie/kostra)."
+        },
+        "action": {
+          "de": "Batterieleitung und Masse prüfen, Sicherungshalter/Crimps nachziehen. Ohne stabile BAT-Verbindung regelt MPPT falsch.",
+          "sk": "Skontroluj vedenie k batérii a kostru, dotiahni kontakty. Bez BAT spojenia MPPT zle reguluje."
+        }
+      },
+      "r_full": {
+        "type": "result",
+        "level": "ok",
+        "cause": {
+          "de": "Batterie ist voll – Regler reduziert Strom (normal).",
+          "sk": "Batéria je plná – regulátor zníži prúd (normálne)."
+        },
+        "action": {
+          "de": "Unter Last prüfen (z.B. Verbraucher einschalten) – dann sollte wieder Ladestrom erscheinen.",
+          "sk": "Zapni záťaž – potom by sa mal objaviť nabíjací prúd."
+        }
+      },
+      "r_solar_fuse": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Solar-Sicherung defekt oder Kontaktproblem.",
+          "sk": "Solárna poistka je chybná alebo kontakt."
+        },
+        "action": {
+          "de": "Sicherung ersetzen, Halter reinigen. Ursache prüfen (Kurzschluss, falsche Polarität).",
+          "sk": "Vymeň poistku, vyčisti držiak. Skontroluj príčinu (skrat, polarita)."
+        }
+      },
+      "r_error": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "Regler meldet Fehler/Betriebsgrenze.",
+          "sk": "Regulátor hlási chybu/limit."
+        },
+        "action": {
+          "de": "Fehlercode in App/LED-Legende auslesen. Typisch: Übertemperatur, PV-Über/Unterspannung, Batterie/BMS blockiert. Ursache beheben.",
+          "sk": "Prečítaj kód v app/LED. Typicky teplota, PV napätie, BMS blokuje. Odstráň príčinu."
+        }
+      },
+      "r_polarity": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "PV-Polarität vertauscht oder Anschluss fehlerhaft.",
+          "sk": "PV polarita je otočená alebo zlé pripojenie."
+        },
+        "action": {
+          "de": "PV-Leitungen korrekt identifizieren (Plus/Minus) und anschließen. Danach Regler neu starten (BAT zuerst, dann PV).",
+          "sk": "Identifikuj +/-. Zapoj správne. Potom reštart: najprv BAT, potom PV."
+        }
+      },
+      "r_regler_def": {
+        "type": "result",
+        "level": "danger",
+        "cause": {
+          "de": "PV und BAT plausibel, aber kein Ladestrom – Regler-Konfiguration oder Defekt.",
+          "sk": "PV aj BAT sú OK, ale nie je nabíjanie – konfigurácia alebo porucha regulátora."
+        },
+        "action": {
+          "de": "Regler-Einstellungen prüfen (Batterietyp, Ladespannungen). Firmware/Reset. Wenn weiterhin 0A bei Sonne: Regler testen/tauschen.",
+          "sk": "Skontroluj nastavenia (typ batérie, napätia). Reset. Ak stále 0A pri slnku: test/výmena regulátora."
+        }
+      }
+    }
+  }
+]
