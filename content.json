@@ -1,212 +1,102 @@
-[
-  {
-    "id": "strom_01_12v_totalausfall",
-    "order": 1,
-    "title": {
-      "de": "01 12V komplett ausgefallen (Aufbau tot)",
-      "sk": "01 12V úplný výpadok (všetko mŕtve)"
-    },
-    "subtitle": {
-      "de": "Kein Licht, keine Pumpe, Panel dunkel – systematische Eingrenzung bis Batterie/EBL.",
-      "sk": "Nefunguje svetlo, pumpa, panel – systematické zúženie až k batérii/EBL."
-    },
-    "tags": [
-      "12v",
-      "aufbau",
-      "ebl",
-      "hauptschalter",
-      "sicherung",
-      "totalausfall",
-      "batterie"
-    ],
-    "root": "q1",
-    "nodes": {
-      "q1": {
-        "type": "question",
-        "text": {
-          "de": "Ist 230V Landstrom angeschlossen (Außensteckdose) ODER läuft der Motor?",
-          "sk": "Je pripojených 230V zvonku (CEE) ALEBO beží motor?"
-        },
-        "yes": "q2",
-        "no": "q4"
-      },
-      "q2": {
-        "type": "question",
-        "text": {
-          "de": "Funktionieren 12V-Verbraucher NUR bei 230V/Motor, aber NICHT im Batteriebetrieb?",
-          "sk": "Fungujú 12V spotrebiče IBA pri 230V/motore, ale NIE na batériu?"
-        },
-        "yes": "r1",
-        "no": "q3"
-      },
-      "q3": {
-        "type": "question",
-        "text": {
-          "de": "Zeigt das Bedienpanel/EBL eine Störung oder bleibt es komplett dunkel?",
-          "sk": "Ukazuje panel/EBL chybu alebo je úplne mŕtvy (tma)?"
-        },
-        "yes": "r2",
-        "no": "r3"
-      },
-      "q4": {
-        "type": "question",
-        "text": {
-          "de": "Misst du direkt an der Aufbaubatterie (an den Polklemmen) mindestens ~11,8 V?",
-          "sk": "Nameriaš priamo na palubnej batérii (na póloch) aspoň ~11,8 V?"
-        },
-        "yes": "q5",
-        "no": "r4"
-      },
-      "q5": {
-        "type": "question",
-        "text": {
-          "de": "Ist der Hauptschalter am Elektroblock/Control-Panel (Aufbau 12V / 'Hauptschalter') wirklich EIN?",
-          "sk": "Je hlavný vypínač (Aufbau 12V / hlavný vypínač) naozaj ZAPNUTÝ?"
-        },
-        "yes": "q6",
-        "no": "r5"
-      },
-      "q6": {
-        "type": "question",
-        "text": {
-          "de": "Ist die Hauptsicherung direkt an der Batterie (+) intakt (gemessen, nicht nur optisch)?",
-          "sk": "Je hlavná poistka pri batérii (+) v poriadku (zmeraná, nie iba vizuálne)?"
-        },
-        "yes": "r6",
-        "no": "r7"
-      },
+{
+  "version": "0.1.5",
 
-      "r1": {
-        "type": "result",
-        "text": {
-          "de": "Ergebnis: EBL schaltet Aufbau-12V nicht frei. Trennrelais/DSU oder EBL-Teildefekt wahrscheinlich.",
-          "sk": "Výsledok: EBL neuvoľní palubných 12V. Pravdepodobné separačné relé/DSU alebo porucha EBL."
-        },
-        "actions": {
-          "de": [
-            "EBL/Schalteinheit prüfen: Trennrelais-Klick/Steuersignal (je nach Hersteller).",
-            "Spannung BATT+ am EBL vs. Batterie vergleichen (Spannungsabfall).",
-            "Falls vorhanden: Sicherungen/Steckbrücken am EBL gemäß Typ prüfen."
-          ],
-          "sk": [
-            "Skontrolovať EBL/spínaciu časť: či cvaká separačné relé / riadiaci signál (podľa výrobcu).",
-            "Porovnať napätie BATT+ na EBL vs. priamo na batérii (úbytok).",
-            "Ak existuje: poistky/prepojky na EBL podľa typu preveriť."
-          ]
-        }
+  "issues": [
+    {
+      "id": "01_01",
+      "title": {
+        "de": "01 12V komplett ausgefallen (Aufbau tot)",
+        "sk": "01 12V úplne vypadnuté (nadstavba mŕtva)"
       },
-      "r2": {
-        "type": "result",
-        "text": {
-          "de": "Ergebnis: Panel/EBL tot oder Störung – zuerst Versorgung/Stecker/Sicherungen am EBL prüfen.",
-          "sk": "Výsledok: Panel/EBL mŕtvy alebo chyba – najprv napájanie, konektory a poistky na EBL."
-        },
-        "actions": {
-          "de": [
-            "EBL BATT+ Eingang und Masse messen (muss Batteriespannung haben).",
-            "Massepunkt/Minusverteiler prüfen (hoher Übergangswiderstand möglich).",
-            "EBL-Sicherungen auf Durchgang prüfen (nicht nur anschauen)."
-          ],
-          "sk": [
-            "Zmerať vstup BATT+ a kostru na EBL (musí byť napätie batérie).",
-            "Skontrolovať kostru/mínus rozvod (možný veľký prechodový odpor).",
-            "Poistky EBL preveriť meraním (nie iba očami)."
-          ]
-        }
+      "subtitle": {
+        "de": "Kein Licht, keine Pumpe, Panel dunkel.",
+        "sk": "Nesvieti, nejde pumpa, panel tmavý."
       },
-      "r3": {
-        "type": "result",
-        "text": {
-          "de": "Ergebnis: Batterie ok, Hauptschalter ok – Fehler wahrscheinlich im 12V-Verteiler/EBL-Ausgang oder Masse.",
-          "sk": "Výsledok: Batéria ok, vypínač ok – chyba bude na 12V rozvode/EBL výstupe alebo na kostre."
-        },
-        "actions": {
-          "de": [
-            "12V-Ausgang EBL 'Aufbau' messen (unter Last, z.B. Licht/Pumpe einschalten).",
-            "Spannungsabfall messen: Batterie+ → EBL+ → Verbraucher+.",
-            "Masse prüfen: Batterie- → EBL- → Verbraucher-."
-          ],
-          "sk": [
-            "Zmerať 12V výstup EBL pre 'Aufbau' (pod záťažou, napr. zapnúť svetlo/pumpu).",
-            "Merať úbytok: Batéria+ → EBL+ → Spotrebič+.",
-            "Overiť kostru: Batéria- → EBL- → Spotrebič-."
-          ]
-        }
+      "tags": [
+        "12v",
+        "aufbau",
+        "ebl",
+        "hauptschalter",
+        "sicherung",
+        "totalausfall",
+        "batterie"
+      ],
+      "root": "tree_01_01_start"
+    }
+  ],
+
+  "tree": {
+    "tree_01_01_start": {
+      "text": {
+        "de": "Ist der Hauptschalter für den Aufbau eingeschaltet?",
+        "sk": "Je hlavný vypínač nadstavby zapnutý?"
       },
-      "r4": {
-        "type": "result",
-        "text": {
-          "de": "Ergebnis: Aufbaubatterie ist sehr leer/defekt oder BMS hat abgeschaltet (LiFePO4).",
-          "sk": "Výsledok: Palubná batéria je veľmi vybitá/defektná alebo BMS odpojilo (LiFePO4)."
+      "options": [
+        {
+          "label": { "de": "JA", "sk": "ÁNO" },
+          "next": "tree_01_01_hauptschalter_ok"
         },
-        "actions": {
-          "de": [
-            "Batterietyp prüfen (AGM/GEL/LiFePO4) und korrekt laden.",
-            "Bei LiFePO4: BMS-Reset/Weckladung je nach Hersteller.",
-            "Klemmen/Polverbindungen reinigen und festziehen."
-          ],
-          "sk": [
-            "Zistiť typ batérie (AGM/GEL/LiFePO4) a správne nabiť.",
-            "Pri LiFePO4: BMS reset / prebudenie podľa výrobcu.",
-            "Očistiť a dotiahnuť svorky/póly."
-          ]
+        {
+          "label": { "de": "NEIN", "sk": "NIE" },
+          "next": "tree_01_01_hauptschalter_off"
         }
+      ]
+    },
+
+    "tree_01_01_hauptschalter_off": {
+      "text": {
+        "de": "Schalter einschalten. Danach prüfen ob Licht, Pumpe oder Panel wieder funktionieren.",
+        "sk": "Zapni vypínač. Potom skontroluj či funguje svetlo, pumpa alebo panel."
       },
-      "r5": {
-        "type": "result",
-        "text": {
-          "de": "Ergebnis: Hauptschalter war AUS. Einschalten und Funktion prüfen.",
-          "sk": "Výsledok: Hlavný vypínač bol VYPNUTÝ. Zapnúť a otestovať funkciu."
-        },
-        "actions": {
-          "de": [
-            "Hauptschalter einschalten und Verbraucher testen.",
-            "Falls Schalter wackelig: Steckverbindung/Schalterkontakt prüfen."
-          ],
-          "sk": [
-            "Zapnúť hlavný vypínač a otestovať spotrebiče.",
-            "Ak je vypínač nestabilný: preveriť konektor/kontakty."
-          ]
+      "options": [
+        {
+          "label": { "de": "Zurück", "sk": "Späť" },
+          "next": "tree_01_01_start"
         }
+      ]
+    },
+
+    "tree_01_01_hauptschalter_ok": {
+      "text": {
+        "de": "Sind Aufbaubatterien angeschlossen und liegt die Spannung über 12,0 V?",
+        "sk": "Sú palubné batérie pripojené a majú napätie nad 12,0 V?"
       },
-      "r6": {
-        "type": "result",
-        "text": {
-          "de": "Ergebnis: Versorgung vorhanden – dann ist eher EBL-Ausgang/Verteilung/Masse der Engpass.",
-          "sk": "Výsledok: Napájanie je prítomné – potom je problém skôr výstup EBL/rozvod/kostra."
+      "options": [
+        {
+          "label": { "de": "JA", "sk": "ÁNO" },
+          "next": "tree_01_01_battery_ok"
         },
-        "actions": {
-          "de": [
-            "EBL-Ausgang 'Aufbau 12V' unter Last messen.",
-            "Sicherungsträger/Flachsicherungen im Aufbau-Verteiler prüfen.",
-            "Massepunkt/Minusverteiler auf Erwärmung/Übergang prüfen."
-          ],
-          "sk": [
-            "Zmerať výstup EBL 'Aufbau 12V' pod záťažou.",
-            "Skontrolovať poistkový blok/poistky v palubnom rozvode.",
-            "Kostrový bod/mínus rozvod preveriť na prechodový odpor."
-          ]
+        {
+          "label": { "de": "NEIN", "sk": "NIE" },
+          "next": "tree_01_01_battery_low"
         }
+      ]
+    },
+
+    "tree_01_01_battery_low": {
+      "text": {
+        "de": "Batterien laden oder korrekt anschließen. Hauptsicherung nahe Batterie prüfen.",
+        "sk": "Nabi alebo správne pripoj batérie. Skontroluj hlavnú poistku pri batérii."
       },
-      "r7": {
-        "type": "result",
-        "text": {
-          "de": "Ergebnis: Hauptsicherung/Plus-Zuleitung defekt. Ohne diese je nach Aufbau komplett tot.",
-          "sk": "Výsledok: Hlavná poistka alebo prívod + je chybný. Bez toho je často všetko mŕtve."
-        },
-        "actions": {
-          "de": [
-            "Sicherung ersetzen (gleicher Typ/Wert) und Ursache prüfen (Kurzschluss/Überlast).",
-            "Pluskabel Batterie → EBL auf Durchgang und Übergang prüfen.",
-            "Nach Austausch: Verbraucher nacheinander zuschalten."
-          ],
-          "sk": [
-            "Vymeniť poistku (rovnaký typ/hodnota) a nájsť príčinu (skrat/preťaž).",
-            "Plus kábel Batéria → EBL preveriť na spojitosť a prechod.",
-            "Po výmene: zapínať spotrebiče postupne."
-          ]
+      "options": [
+        {
+          "label": { "de": "Zurück", "sk": "Späť" },
+          "next": "tree_01_01_hauptschalter_ok"
         }
-      }
+      ]
+    },
+
+    "tree_01_01_battery_ok": {
+      "text": {
+        "de": "Prüfe EBL: Batteriespannung am Eingang, Hauptsicherung, Masseverbindung.",
+        "sk": "Skontroluj EBL: napätie na vstupe, hlavnú poistku a kostru."
+      },
+      "options": [
+        {
+          "label": { "de": "Zurück", "sk": "Späť" },
+          "next": "tree_01_01_hauptschalter_ok"
+        }
+      ]
     }
   }
-]
+}
