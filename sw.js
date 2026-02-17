@@ -1,65 +1,33 @@
-// Caravan TaM service worker - offline first
-const CACHE = "caravan-tam-v014";
+const CACHE = "caravan-tam-v015";
 const ASSETS = [
   "./",
   "./index.html",
   "./app.js",
-  "./manifest.webmanifest",
-  "./content.json"
+  "./content.json",
+  "./manifest.webmanifest"
 ];
 
-self.addEventListener("install", (event)=>{
-  event.waitUntil((async()=>{
-    const cache = await caches.open(CACHE);
-    await cache.addAll(ASSETS);
-    self.skipWaiting();
-  })());
+self.addEventListener("install", (e) => {
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
+  );
 });
 
-self.addEventListener("activate", (event)=>{
-  event.waitUntil((async()=>{
-    const keys = await caches.keys();
-    await Promise.all(keys.map(k => (k===CACHE) ? null : caches.delete(k)));
-    self.clients.claim();
-  })());
+self.addEventListener("activate", (e) => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
+  );
 });
 
-self.addEventListener("fetch", (event)=>{
-  const req = event.request;
-  const url = new URL(req.url);
-  const isContent = url.pathname.endsWith("/content.json") || url.pathname.endsWith("content.json");
-
-  event.respondWith((async()=>{
-    const cache = await caches.open(CACHE);
-
-    if(isContent){
-      try{
-        const fresh = await fetch(req, {cache:"no-store"});
-        if(req.method === "GET" && fresh && fresh.status === 200){
-          cache.put(req, fresh.clone());
-        }
-        return fresh;
-      }catch{
-        const cached = await cache.match(req);
-        if(cached) return cached;
-        throw;
-      }
-    }
-
-    const cached = await cache.match(req);
-    if(cached) return cached;
-
-    try{
-      const fresh = await fetch(req);
-      if(req.method === "GET" && fresh && fresh.status === 200){
-        cache.put(req, fresh.clone());
-      }
-      return fresh;
-    }catch{
-      if(req.mode === "navigate"){
-        return cache.match("./index.html");
-      }
-      throw;
-    }
-  })());
+self.addEventListener("fetch", (e) => {
+  const req = e.request;
+  e.respondWith(
+    caches.match(req).then((cached) => cached || fetch(req).then((res) => {
+      const copy = res.clone();
+      caches.open(CACHE).then(c => c.put(req, copy));
+      return res;
+    }).catch(() => cached))
+  );
 });
