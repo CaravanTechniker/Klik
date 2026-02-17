@@ -1,98 +1,193 @@
 <!doctype html>
-<html lang="sk">
+<html lang="de">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Caravan TaM</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <meta name="theme-color" content="#dbefff">
-
   <style>
     :root{
       --bg:#dbefff; --card:#ffffff; --muted:#334155; --text:#0b1220;
-      --accent:#2563eb; --yes:#1f8a3b; --no:#b91c1c; --warn:#f2c200;
-      --border:#dbe5f3;
+      --accent:#2563eb; --yes:#15803d; --no:#b91c1c; --warn:#facc15;
+      --radius:18px; --shadow:0 10px 24px rgba(0,0,0,.10);
+      --fs:1.00;
     }
     *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-    header{position:sticky;top:0;background:rgba(219,239,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);z-index:10}
-    .wrap{max-width:980px;margin:0 auto;padding:14px}
-    .topbar{display:flex;gap:10px;align-items:center;justify-content:space-between}
-    .title{font-weight:800;font-size:22px;line-height:1.1}
-    .btnrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-    .btn{appearance:none;border:1px solid var(--border);background:#fff;border-radius:14px;padding:10px 12px;font-weight:700}
-    .btn:active{transform:translateY(1px)}
-    main{padding:14px}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:14px;margin:12px auto;max-width:980px;box-shadow:0 6px 20px rgba(15,23,42,.06)}
-    .h2{font-weight:900;font-size:20px;margin:0 0 6px}
-    .muted{color:var(--muted);font-size:14px}
-    .list{display:flex;flex-direction:column;gap:10px;margin-top:10px}
-    .item{border:1px solid var(--border);border-radius:16px;padding:12px;background:#fff}
-    .item strong{display:block;font-size:17px}
-    .search{width:100%;padding:12px 14px;border-radius:16px;border:1px solid var(--border);font-size:16px}
-    .qrow{display:flex;gap:14px;margin-top:10px}
-    .big{flex:1;border-radius:18px;border:0;padding:14px 16px;font-weight:900;font-size:18px;color:#fff}
-    .yes{background:var(--yes)}
-    .no{background:var(--no)}
-    .back{width:100%;margin-top:10px;background:var(--warn);color:#111827}
-    textarea{width:100%;min-height:180px;border:1px solid var(--border);border-radius:16px;padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:15px;line-height:1.35}
-    .protoBtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      font-size:calc(16px * var(--fs));
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      background:rgba(219,239,255,.92);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid rgba(15,23,42,.10);
+    }
+    .wrap{max-width:980px; margin:0 auto; padding:14px}
+    .topbar{display:flex; gap:10px; align-items:center; justify-content:space-between}
+    .brand{font-weight:800; font-size:1.35rem}
+    .btnrow{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+    button, .pill{
+      border:1px solid rgba(15,23,42,.18);
+      background:#fff; color:#0b1220;
+      padding:10px 14px; border-radius:999px;
+      font-weight:800; letter-spacing:.2px;
+      box-shadow:0 6px 14px rgba(0,0,0,.06);
+    }
+    button:active{transform:scale(.99)}
+    .pill{display:inline-flex; align-items:center; gap:6px; font-weight:700; box-shadow:none}
+    .pill.small{padding:8px 10px; font-weight:800}
+    .grid{display:grid; grid-template-columns:1fr; gap:14px; padding:14px}
+    @media(min-width:900px){ .grid{grid-template-columns:1.1fr .9fr} }
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      border:1px solid rgba(15,23,42,.10);
+      padding:14px;
+    }
+    h2{margin:0 0 6px 0; font-size:1.15rem}
+    .muted{color:var(--muted)}
+    input{
+      width:100%; border-radius:14px; padding:12px 14px;
+      border:1px solid rgba(15,23,42,.14);
+      outline:none; font-size:1rem;
+      background:#fff;
+    }
+    .list{display:flex; flex-direction:column; gap:10px; margin-top:12px}
+    .item{
+      text-align:left;
+      border-radius:16px;
+      padding:12px 14px;
+      border:1px solid rgba(15,23,42,.12);
+      background:#fff;
+      box-shadow:0 6px 14px rgba(0,0,0,.05);
+    }
+    .item .t{font-weight:900}
+    .item .s{margin-top:2px; color:var(--muted)}
+    .tagsRow{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    .tagBtn{font-weight:900}
+    .tagBtn.active{background:rgba(37,99,235,.12); border-color:rgba(37,99,235,.35)}
+    .diagTitle{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:6px}
+    .badge{
+      font-weight:900;
+      border-radius:999px;
+      padding:8px 10px;
+      background:rgba(2,132,199,.10);
+      border:1px solid rgba(2,132,199,.18);
+    }
+    .nodeText{font-size:1.22rem; font-weight:900; margin-top:8px}
+    .help{margin-top:8px; color:var(--muted)}
+    .answers{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px}
+    .ansYes{background:var(--yes); color:#fff; border:none; padding:16px 14px; border-radius:18px; font-size:1.1rem}
+    .ansNo{background:var(--no); color:#fff; border:none; padding:16px 14px; border-radius:18px; font-size:1.1rem}
+    .backWide{
+      grid-column:1 / -1;
+      background:var(--warn);
+      color:#0b1220;
+      border:none;
+      padding:16px 14px;
+      border-radius:18px;
+      font-size:1.1rem;
+      font-weight:1000;
+    }
+    textarea{
+      width:100%; min-height:180px;
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.14);
+      padding:12px 14px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:0.95rem;
+      line-height:1.35;
+      background:#fff;
+      white-space:pre-wrap;
+    }
+    .protoBtns{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    .protoBtns button{font-weight:900}
+    .footerRow{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    .tiny{font-size:.9rem; color:var(--muted)}
   </style>
 </head>
-
 <body>
-  <header>
-    <div class="wrap">
-      <div class="topbar">
-        <div class="title" id="appTitle">CaravanTechniker am Main</div>
-        <div class="btnrow">
-          <button id="langDeBtn" class="btn">DE</button>
-          <button id="langSkBtn" class="btn">SK</button>
-          <button id="adminBtn" class="btn">ADMIN</button>
-          <button id="resetBtn" class="btn">Reset</button>
-        </div>
+<header>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">CaravanTechniker am Main</div>
+      <div class="btnrow">
+        <span class="pill small" id="pwaPill">PWA</span>
+        <span class="pill small" id="offlinePill">offline: ?</span>
+        <button id="langDE">DE</button>
+        <button id="langSK">SK</button>
+        <button id="adminBtn">ADMIN</button>
+        <button id="resetBtn">Reset</button>
       </div>
     </div>
-  </header>
+  </div>
+</header>
 
-  <main>
+<div class="wrap">
+  <div class="grid">
+
     <section class="card">
-      <div class="h2" id="poruchyTitle">Poruchy</div>
-      <div class="muted" id="poruchyHint">Vyber poruchu alebo hľadaj. Funguje aj offline.</div>
+      <h2 id="hFaults">Störungen</h2>
+      <div class="muted" id="hHint">Wähle eine Störung oder suche. Funktioniert auch offline.</div>
+
       <div style="margin-top:10px">
-        <input id="search" class="search" placeholder="Hľadať (trittstufe, wasserpumpe, 12V...)" />
+        <input id="search" placeholder="Suche (trittstufe, wasserpumpe, 12V...)" />
       </div>
-      <div id="list" class="list"></div>
+
+      <div class="tagsRow">
+        <button class="tagBtn" id="tagBtn">Tags ▾</button>
+        <button class="tagBtn" id="filterResetBtn">Filter Reset</button>
+      </div>
+
+      <div class="tagsRow" id="tagChips" style="display:none"></div>
+
+      <div class="list" id="faultList"></div>
+
+      <div class="footerRow">
+        <span class="tiny" id="ver">v0.1.5</span>
+      </div>
     </section>
 
     <section class="card">
-      <div class="h2" id="diagTitle">Diagnostika</div>
-      <div class="muted" id="diagHint">Vyber poruchu vľavo. Potom klikaj ÁNO / NIE.</div>
+      <h2 id="hDiag">Diagnose</h2>
+      <div class="muted" id="diagEmpty">Wähle links eine Störung. Dann JA / NEIN klicken.</div>
 
-      <div class="h2" id="question" style="margin-top:10px">—</div>
-
-      <div class="qrow">
-        <button id="yesBtn" class="big yes">ÁNO</button>
-        <button id="noBtn" class="big no">NIE</button>
+      <div class="diagTitle">
+        <span class="badge" id="faultTitleBadge" style="display:none"></span>
+        <span class="badge" id="faultTagsBadge" style="display:none"></span>
       </div>
-      <button id="backBtn" class="big back">← KROK SPÄŤ</button>
 
-      <div style="margin-top:14px">
-        <div class="h2" id="protoTitle">Protokol</div>
-        <textarea id="proto" readonly></textarea>
+      <div id="diag">
+        <div class="nodeText" id="nodeText"></div>
+        <div class="help" id="nodeHelp"></div>
 
-        <div class="protoBtns">
-          <button id="copyBtn" class="btn">Kopírovať</button>
-          <button id="clearPathBtn" class="btn">Vymazať cestu</button>
-          <button id="txtBtn" class="btn">TXT</button>
-          <button id="pdfBtn" class="btn">PDF</button>
+        <div class="answers" id="answerBtns" style="display:none">
+          <button class="ansYes" id="yesBtn">JA</button>
+          <button class="ansNo" id="noBtn">NEIN</button>
+          <button class="backWide" id="backBtn">← SCHRITT ZURÜCK</button>
         </div>
       </div>
-    </section>
-  </main>
 
-  <!-- jsPDF for true PDF download -->
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-  <script src="app.js"></script>
+      <h2 style="margin-top:14px" id="hProto">Protokoll</h2>
+      <textarea id="proto" readonly></textarea>
+
+      <div class="protoBtns">
+        <button id="copyBtn">Kopieren</button>
+        <button id="clearPathBtn">Pfad löschen</button>
+        <button id="txtBtn">TXT Download</button>
+        <button id="pdfBtn">PDF Download</button>
+      </div>
+
+      <div class="tiny" id="protoHint"></div>
+    </section>
+
+  </div>
+</div>
+
+<script src="./app.js?v=0.1.5"></script>
 </body>
 </html>
