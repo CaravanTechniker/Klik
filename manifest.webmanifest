@@ -1,9 +1,0 @@
-{
-  "name": "CaravanTechniker am Main",
-  "short_name": "CaravanTaM",
-  "start_url": ".",
-  "display": "standalone",
-  "background_color": "#dbeefe",
-  "theme_color": "#dbeefe",
-  "icons": []
-}
