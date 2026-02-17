@@ -1,541 +1,448 @@
-/* app.js — Caravan TaM (PRO) */
-(() => {
-  "use strict";
+/* Caravan TaM - simple offline decision tree (DE/SK) + TXT/PDF export
+   v0.1.5-pdf
+*/
 
-  const $ = (sel) => document.querySelector(sel);
-  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
-
-  const STORAGE = {
-    lang: "ctam_lang",
-    selectedTreeId: "ctam_selectedTreeId",
-    path: "ctam_path",
-    step: "ctam_step",
-    answers: "ctam_answers",
-    admin: "ctam_admin"
-  };
-
-  // ---------- STATE ----------
-  const state = {
-    lang: localStorage.getItem(STORAGE.lang) || "de", // DE priorita
-    trees: [],
-    treeById: new Map(),
-    selectedTreeId: localStorage.getItem(STORAGE.selectedTreeId) || "",
-    path: safeJsonParse(localStorage.getItem(STORAGE.path), []),
-    stepNodeId: localStorage.getItem(STORAGE.step) || "",
-    answers: safeJsonParse(localStorage.getItem(STORAGE.answers), []),
-    filterTags: new Set()
-  };
-
-  function safeJsonParse(s, fallback) {
-    try { return s ? JSON.parse(s) : fallback; } catch { return fallback; }
+const I18N = {
+  sk: {
+    appTitle: "CaravanTechniker am Main",
+    poruchyTitle: "Poruchy",
+    poruchyHint: "Vyber poruchu alebo hľadaj. Funguje aj offline.",
+    diagTitle: "Diagnostika",
+    diagHint: "Vyber poruchu vľavo. Potom klikaj ÁNO / NIE.",
+    yes: "ÁNO",
+    no: "NIE",
+    back: "← KROK SPÄŤ",
+    protoTitle: "Protokol",
+    copy: "Kopírovať",
+    clearPath: "Vymazať cestu",
+    txt: "Stiahnuť TXT",
+    pdf: "Stiahnuť PDF",
+    noProto: "Nie je čo exportovať (protokol je prázdny).",
+    pdfLibMissing: "Chýba knižnica pre PDF. Skontroluj index.html.",
+    errMissingNode: "Chýba uzol v strome. Skontroluj content.json.",
+    searchPH: "Hľadať (trittstufe, wasserpumpe, 12V...)",
+    qEmpty: "—",
+    time: "Čas",
+    lang: "Jazyk",
+    fault: "Porucha",
+    tags: "Tagy",
+    steps: "Kroky",
+    result: "Výsledok",
+    currentStep: "Aktuálny krok"
+  },
+  de: {
+    appTitle: "CaravanTechniker am Main",
+    poruchyTitle: "Störungen",
+    poruchyHint: "Wähle eine Störung oder suche. Funktioniert auch offline.",
+    diagTitle: "Diagnose",
+    diagHint: "Wähle links eine Störung. Dann klicke JA / NEIN.",
+    yes: "JA",
+    no: "NEIN",
+    back: "← SCHRITT ZURÜCK",
+    protoTitle: "Protokoll",
+    copy: "Kopieren",
+    clearPath: "Pfad löschen",
+    txt: "TXT Download",
+    pdf: "PDF Download",
+    noProto: "Nichts zu exportieren (Protokoll ist leer).",
+    pdfLibMissing: "PDF-Bibliothek fehlt. Prüfe index.html.",
+    errMissingNode: "Node fehlt im Baum. Prüfe content.json.",
+    searchPH: "Suche (trittstufe, wasserpumpe, 12V...)",
+    qEmpty: "—",
+    time: "Zeit",
+    lang: "Sprache",
+    fault: "Störung",
+    tags: "Tags",
+    steps: "Schritte",
+    result: "Ergebnis",
+    currentStep: "Aktueller Schritt"
   }
-
-  // ---------- HELPERS ----------
-  function pad2(n) { return String(n).padStart(2, "0"); }
-
-  function t(obj) {
-    if (!obj) return "";
-    if (typeof obj === "string") return obj;
-    return obj[state.lang] ?? obj.de ?? obj.sk ?? "";
-  }
-
-  function normalizeTags(tags) {
-    if (!Array.isArray(tags)) return [];
-    return tags
-      .map(x => String(x || "").trim())
-      .filter(Boolean);
-  }
-
-  function setLang(lang) {
-    state.lang = lang;
-    localStorage.setItem(STORAGE.lang, lang);
-    renderAll();
-  }
-
-  // ---------- LOAD CONTENT ----------
-  async function loadContent() {
-    // cache-bust pri fetchi (aby sa nepouzil starý JSON)
-    const url = `./content.json?ts=${Date.now()}`;
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error("content.json load failed");
-    const data = await res.json();
-
-    // content.json je pole stromov
-    if (!Array.isArray(data)) throw new Error("content.json invalid (expected array)");
-
-    state.trees = data;
-    state.treeById = new Map();
-    for (const tree of state.trees) state.treeById.set(tree.id, tree);
-
-    // default: ak nic nevybrate, vyber prvy strom
-    if (!state.selectedTreeId || !state.treeById.has(state.selectedTreeId)) {
-      state.selectedTreeId = state.trees[0]?.id || "";
-      localStorage.setItem(STORAGE.selectedTreeId, state.selectedTreeId);
-    }
-  }
-
-  // ---------- UI BUILD ----------
-  function buildHeader() {
-    $("#btnDE").classList.toggle("active", state.lang === "de");
-    $("#btnSK").classList.toggle("active", state.lang === "sk");
-
-    $("#btnDE").onclick = () => setLang("de");
-    $("#btnSK").onclick = () => setLang("sk");
-
-    $("#btnReset").onclick = hardReset;
-    $("#btnBack").onclick = stepBack;
-
-    $("#btnAdmin").onclick = adminMenu;
-  }
-
-  function hardReset() {
-    // vycisti vsetko, co ovplyvnuje UI
-    localStorage.removeItem(STORAGE.selectedTreeId);
-    localStorage.removeItem(STORAGE.path);
-    localStorage.removeItem(STORAGE.step);
-    localStorage.removeItem(STORAGE.answers);
-
-    state.selectedTreeId = state.trees[0]?.id || "";
-    state.path = [];
-    state.stepNodeId = "";
-    state.answers = [];
-
-    // pre istotu komplet reload (najspolahlivejsie aj na Fold/Chrome)
-    location.reload();
-  }
-
-  function stepBack() {
-    if (state.path.length === 0) return;
-    state.path.pop();
-    state.answers.pop();
-
-    const last = state.path[state.path.length - 1] || null;
-    state.stepNodeId = last?.nodeId || "";
-
-    persistProgress();
-    renderDiagnosis();
-    renderProtocol();
-  }
-
-  function persistProgress() {
-    localStorage.setItem(STORAGE.selectedTreeId, state.selectedTreeId);
-    localStorage.setItem(STORAGE.path, JSON.stringify(state.path));
-    localStorage.setItem(STORAGE.step, state.stepNodeId);
-    localStorage.setItem(STORAGE.answers, JSON.stringify(state.answers));
-  }
-
-  function selectTree(treeId) {
-    state.selectedTreeId = treeId;
-    state.path = [];
-    state.stepNodeId = "";
-    state.answers = [];
-    persistProgress();
-    renderDiagnosis();
-    renderProtocol();
-  }
-
-  // ---------- TREE LIST (ACCORDION + NUMBER) ----------
-  function getAllTags() {
-    const all = new Set();
-    for (const tree of state.trees) {
-      for (const tag of normalizeTags(tree.tags)) all.add(tag);
-    }
-    return Array.from(all).sort((a, b) => a.localeCompare(b));
-  }
-
-  function renderTagsFilter() {
-    const btn = $("#btnTags");
-    const menu = $("#tagsMenu");
-    const reset = $("#btnFilterReset");
-
-    const allTags = getAllTags();
-
-    btn.onclick = () => {
-      menu.classList.toggle("open");
-    };
-
-    reset.onclick = () => {
-      state.filterTags.clear();
-      menu.classList.remove("open");
-      renderTreeList();
-    };
-
-    menu.innerHTML = "";
-    for (const tag of allTags) {
-      const row = document.createElement("label");
-      row.className = "tagRow";
-
-      const cb = document.createElement("input");
-      cb.type = "checkbox";
-      cb.checked = state.filterTags.has(tag);
-      cb.onchange = () => {
-        if (cb.checked) state.filterTags.add(tag);
-        else state.filterTags.delete(tag);
-        renderTreeList();
-      };
-
-      const span = document.createElement("span");
-      span.textContent = tag;
-
-      row.appendChild(cb);
-      row.appendChild(span);
-      menu.appendChild(row);
-    }
-
-    // klik mimo menu -> zavri
-    document.addEventListener("click", (e) => {
-      if (!menu.classList.contains("open")) return;
-      const inside = menu.contains(e.target) || btn.contains(e.target);
-      if (!inside) menu.classList.remove("open");
-    }, { passive: true });
-  }
-
-  function matchesFilter(tree) {
-    if (state.filterTags.size === 0) return true;
-    const tags = new Set(normalizeTags(tree.tags));
-    for (const need of state.filterTags) if (!tags.has(need)) return false;
-    return true;
-  }
-
-  function renderTreeList() {
-    const q = ($("#search").value || "").trim().toLowerCase();
-    const wrap = $("#trees");
-
-    wrap.innerHTML = "";
-
-    state.trees.forEach((tree, idx) => {
-      if (!matchesFilter(tree)) return;
-
-      const title = t(tree.title);
-      const subtitle = t(tree.subtitle);
-      const tags = normalizeTags(tree.tags);
-
-      const hay = `${title} ${subtitle} ${tags.join(" ")}`.toLowerCase();
-      if (q && !hay.includes(q)) return;
-
-      const num = pad2(idx + 1);
-
-      // accordion: <details>
-      const details = document.createElement("details");
-      details.className = "treeItem";
-      if (tree.id === state.selectedTreeId) details.open = true;
-
-      const summary = document.createElement("summary");
-      summary.className = "treeSummary";
-      summary.innerHTML = `<span class="treeNum">${num}</span><span class="treeTitle">${escapeHtml(title)}</span>`;
-
-      // klik na summary len rozklik, neprepina automaticky (prehladne)
-      // vyber spravime tlacidlom "Použiť"
-      const body = document.createElement("div");
-      body.className = "treeBody";
-
-      const sub = document.createElement("div");
-      sub.className = "treeSubtitle";
-      sub.textContent = subtitle || "";
-
-      const btnUse = document.createElement("button");
-      btnUse.className = "btnUse";
-      btnUse.textContent = state.lang === "de" ? "Auswählen" : "Vybrať";
-      btnUse.onclick = () => selectTree(tree.id);
-
-      body.appendChild(sub);
-      body.appendChild(btnUse);
-
-      details.appendChild(summary);
-      details.appendChild(body);
-
-      wrap.appendChild(details);
-    });
-  }
-
-  // ---------- DIAGNOSIS ENGINE ----------
-  function getSelectedTree() {
-    return state.treeById.get(state.selectedTreeId) || null;
-  }
-
-  function getNode(tree, nodeId) {
-    if (!tree || !tree.nodes) return null;
-    return tree.nodes[nodeId] || null;
-  }
-
-  function startNodeId(tree) {
-    return tree.start || "start";
-  }
-
-  function renderDiagnosis() {
-    const tree = getSelectedTree();
-    const errBox = $("#diagError");
-
-    if (!tree) {
-      errBox.textContent = state.lang === "de" ? "Kein Baum gewählt." : "Nie je vybraný strom.";
-      errBox.classList.remove("hidden");
-      $("#question").textContent = "";
-      return;
-    }
-
-    // nastav stepNodeId ak prazdny
-    if (!state.stepNodeId) {
-      state.stepNodeId = startNodeId(tree);
-      persistProgress();
-    }
-
-    const node = getNode(tree, state.stepNodeId);
-
-    if (!node) {
-      // toto je tvoja chyba "missing node"
-      errBox.textContent = state.lang === "de"
-        ? "Node fehlt im Baum. Prüfe content.json."
-        : "Chýba uzol v strome. Skontroluj content.json.";
-      errBox.classList.remove("hidden");
-
-      $("#question").textContent = "";
-      return;
-    }
-
-    errBox.classList.add("hidden");
-
-    // ak je to KONIEC / VÝSLEDOK (node.type === "result" alebo node.result)
-    if (node.type === "result" || node.result) {
-      const resultText = t(node.result || node.text);
-      $("#question").innerHTML = `<div class="resultTitle">${state.lang === "de" ? "Ergebnis" : "Výsledok"}</div>
-                                  <div class="resultText">${escapeHtml(resultText)}</div>`;
-      $("#btnYes").disabled = true;
-      $("#btnNo").disabled = true;
-      $("#btnBack").disabled = state.path.length === 0;
-      renderProtocol(true, resultText);
-      return;
-    }
-
-    $("#btnYes").disabled = false;
-    $("#btnNo").disabled = false;
-    $("#btnBack").disabled = state.path.length === 0;
-
-    const qText = t(node.question || node.text);
-    $("#question").textContent = qText || "";
-
-    $("#btnYes").textContent = state.lang === "de" ? "JA" : "ÁNO";
-    $("#btnNo").textContent = state.lang === "de" ? "NEIN" : "NIE";
-    $("#btnBack").textContent = state.lang === "de" ? "← SCHRITT ZURÜCK" : "← KROK SPÄŤ";
-
-    $("#btnYes").onclick = () => answer(tree, node, true);
-    $("#btnNo").onclick = () => answer(tree, node, false);
-
-    renderProtocol(false, "");
-  }
-
-  function answer(tree, node, yes) {
-    const nextId = yes ? node.yes : node.no;
-
-    state.path.push({
-      nodeId: state.stepNodeId,
-      q: t(node.question || node.text),
-      a: yes ? (state.lang === "de" ? "JA" : "ÁNO") : (state.lang === "de" ? "NEIN" : "NIE")
-    });
-
-    state.answers.push(yes);
-
-    state.stepNodeId = nextId || "";
-
-    persistProgress();
-    renderDiagnosis();
-  }
-
-  // ---------- PROTOCOL / EXPORT ----------
-  function renderProtocol(isResult = false, resultText = "") {
-    const tree = getSelectedTree();
-    const box = $("#protocol");
-
-    const now = new Date();
-    const dt = `${pad2(now.getDate())}.${pad2(now.getMonth() + 1)}.${now.getFullYear()} ${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`;
-
-    const title = tree ? t(tree.title) : "";
-    const tags = tree ? normalizeTags(tree.tags).join(", ") : "";
-
-    let lines = [];
-    lines.push(`${state.lang === "de" ? "Zeit" : "Čas"}: ${dt}`);
-    lines.push(`${state.lang === "de" ? "Sprache" : "Jazyk"}: ${state.lang.toUpperCase()}`);
-    lines.push(`${state.lang === "de" ? "Störung" : "Porucha"}: ${title}`);
-    if (tags) lines.push(`${state.lang === "de" ? "Tags" : "Tagy"}: ${tags}`);
-    lines.push("");
-    lines.push(state.lang === "de" ? "Schritte:" : "Kroky:");
-
-    state.path.forEach((p, i) => {
-      lines.push(`${i + 1}. ${p.q}  [${p.a}]`);
-    });
-
-    if (isResult) {
-      lines.push("");
-      lines.push(state.lang === "de" ? "Ergebnis:" : "Výsledok:");
-      lines.push(resultText || "-");
-    }
-
-    box.textContent = lines.join("\n");
-
-    $("#btnCopy").onclick = async () => {
-      try {
-        await navigator.clipboard.writeText(box.textContent);
-        toast(state.lang === "de" ? "Kopiert" : "Skopírované");
-      } catch {
-        toast(state.lang === "de" ? "Kopieren fehlgeschlagen" : "Kopírovanie zlyhalo");
-      }
-    };
-
-    $("#btnDownloadTxt").onclick = () => {
-      const blob = new Blob([box.textContent], { type: "text/plain;charset=utf-8" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `caravan_tam_${state.lang}_${Date.now()}.txt`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(a.href);
-    };
-
-    // !!! DÔLEŽITÉ: žiadne "download content.json" tlačidlo tu už NIE JE !!!
-  }
-
-  function toast(msg) {
-    const el = $("#toast");
-    el.textContent = msg;
-    el.classList.add("show");
-    setTimeout(() => el.classList.remove("show"), 1200);
-  }
-
-  function escapeHtml(s) {
-    return String(s || "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
-
-  // ---------- ADMIN ----------
-  async function adminMenu() {
-    const choice = prompt("ADMIN\n1 = Import\n2 = Export\n\n(OK = pokračovať)");
-    if (!choice) return;
-
-    if (choice.trim() === "1") {
-      // Import: file picker
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = "application/json,.json";
-      input.onchange = async () => {
-        const file = input.files?.[0];
-        if (!file) return;
-        const text = await file.text();
-        let data;
-        try {
-          data = JSON.parse(text);
-        } catch {
-          alert(state.lang === "de" ? "JSON ungültig" : "Neplatný JSON");
-          return;
-        }
-        if (!Array.isArray(data)) {
-          alert(state.lang === "de" ? "JSON muss ein Array sein" : "JSON musí byť pole");
-          return;
-        }
-
-        // uloz do localStorage ako override (app načíta preferenčne z override)
-        localStorage.setItem("ctam_override_content", JSON.stringify(data));
-        toast(state.lang === "de" ? "Import OK – Reload" : "Import OK – Reload");
-
-        // reload aby sa načítalo nové
-        location.reload();
-      };
-      input.click();
-    }
-
-    if (choice.trim() === "2") {
-      // Export: uloz aktualny content (override ak existuje, inak fetchnuty)
-      const data = getEffectiveContent();
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `content_export_${Date.now()}.json`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(a.href);
-    }
-  }
-
-  function getEffectiveContent() {
-    const override = localStorage.getItem("ctam_override_content");
-    if (override) {
-      try {
-        const parsed = JSON.parse(override);
-        if (Array.isArray(parsed)) return parsed;
-      } catch {}
-    }
-    return state.trees;
-  }
-
-  async function loadOverrideIfAny() {
-    const override = localStorage.getItem("ctam_override_content");
-    if (!override) return false;
-    try {
-      const parsed = JSON.parse(override);
-      if (!Array.isArray(parsed)) return false;
-      state.trees = parsed;
-      state.treeById = new Map();
-      for (const tree of state.trees) state.treeById.set(tree.id, tree);
-
-      if (!state.selectedTreeId || !state.treeById.has(state.selectedTreeId)) {
-        state.selectedTreeId = state.trees[0]?.id || "";
-        localStorage.setItem(STORAGE.selectedTreeId, state.selectedTreeId);
-      }
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  // ---------- INIT ----------
-  async function init() {
-    buildHeader();
-
-    // load override first (admin import)
-    const hasOverride = await loadOverrideIfAny();
-    if (!hasOverride) await loadContent();
-
-    $("#search").addEventListener("input", renderTreeList);
-
-    renderTagsFilter();
-    renderAll();
-  }
-
-  function renderAll() {
-    // title
-    $("#brand").textContent = "CaravanTechniker am Main";
-
-    // texts
-    $("#secTreesTitle").textContent = state.lang === "de" ? "Störungen" : "Poruchy";
-    $("#secTreesHint").textContent = state.lang === "de"
-      ? "Wähle eine Störung oder suche. Funktioniert auch offline."
-      : "Vyber poruchu alebo hľadaj. Funguje aj offline.";
-
-    $("#secDiagTitle").textContent = state.lang === "de" ? "Diagnose" : "Diagnostika";
-    $("#secDiagHint").textContent = state.lang === "de"
-      ? "Wähle links eine Störung. Dann klicke JA / NEIN."
-      : "Vyber poruchu vľavo. Potom klikaj ÁNO / NIE.";
-
-    $("#secProtTitle").textContent = state.lang === "de" ? "Protokoll" : "Protokol";
-
-    // buttons
-    $("#btnFilterReset").textContent = state.lang === "de" ? "Filter Reset" : "Filter Reset";
-    $("#btnTags").textContent = state.lang === "de" ? "Tags ▾" : "Tagy ▾";
-    $("#btnCopy").textContent = state.lang === "de" ? "Kopieren" : "Kopírovať";
-    $("#btnDownloadTxt").textContent = state.lang === "de" ? "TXT Download" : "Stiahnuť TXT";
-
-    renderTreeList();
-    renderDiagnosis();
-    renderProtocol();
-  }
-
-  init().catch((e) => {
-    console.error(e);
-    $("#diagError").textContent = "Init error. Check console.";
-    $("#diagError").classList.remove("hidden");
+};
+
+const state = {
+  lang: "de",
+  data: [],
+  selectedId: null,
+  path: [], // {nodeId, answer}
+  admin: false
+};
+
+const els = {
+  appTitle: document.getElementById("appTitle"),
+  poruchyTitle: document.getElementById("poruchyTitle"),
+  poruchyHint: document.getElementById("poruchyHint"),
+  diagTitle: document.getElementById("diagTitle"),
+  diagHint: document.getElementById("diagHint"),
+  search: document.getElementById("search"),
+  list: document.getElementById("list"),
+  question: document.getElementById("question"),
+  yesBtn: document.getElementById("yesBtn"),
+  noBtn: document.getElementById("noBtn"),
+  backBtn: document.getElementById("backBtn"),
+  protoTitle: document.getElementById("protoTitle"),
+  proto: document.getElementById("proto"),
+  copyBtn: document.getElementById("copyBtn"),
+  clearPathBtn: document.getElementById("clearPathBtn"),
+  txtBtn: document.getElementById("txtBtn"),
+  pdfBtn: document.getElementById("pdfBtn"),
+  langDeBtn: document.getElementById("langDeBtn"),
+  langSkBtn: document.getElementById("langSkBtn"),
+  adminBtn: document.getElementById("adminBtn"),
+  resetBtn: document.getElementById("resetBtn")
+};
+
+function t(key){
+  return (I18N[state.lang] && I18N[state.lang][key]) ? I18N[state.lang][key] : key;
+}
+
+async function loadContent(){
+  const url = "./content.json?nocache=" + Date.now();
+  const res = await fetch(url, {cache:"no-store"});
+  if(!res.ok) throw new Error("content.json load failed");
+  state.data = await res.json();
+}
+
+function buildIndex(){
+  // expects array of "trees"
+  // each tree: { id, title:{de,sk}, subtitle:{de,sk}, tags:[...], root:"nodeId", nodes:{...} }
+  // We keep it tolerant.
+  return state.data.map((t, idx) => {
+    const title = (t.title && (t.title[state.lang] || t.title.de || t.title.sk)) || t.id || ("Tree " + (idx+1));
+    const subtitle = (t.subtitle && (t.subtitle[state.lang] || t.subtitle.de || t.subtitle.sk)) || "";
+    return { id: t.id, title, subtitle, idx };
   });
-})();
+}
+
+function renderList(){
+  const q = (els.search.value || "").trim().toLowerCase();
+  const items = buildIndex().filter(it => {
+    if(!q) return true;
+    return (it.title + " " + it.subtitle).toLowerCase().includes(q);
+  });
+
+  els.list.innerHTML = "";
+  for(const it of items){
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `<strong>${it.title}</strong><div class="muted">${it.subtitle}</div>`;
+    div.addEventListener("click", () => {
+      state.selectedId = it.id;
+      state.path = [];
+      render();
+      // scroll to diagnosis card on mobile
+      els.question.scrollIntoView({behavior:"smooth", block:"start"});
+    });
+    els.list.appendChild(div);
+  }
+}
+
+function getSelectedTree(){
+  if(!state.selectedId) return null;
+  return state.data.find(t => t.id === state.selectedId) || null;
+}
+
+function getNode(tree, nodeId){
+  if(!tree) return null;
+  if(tree.nodes && tree.nodes[nodeId]) return tree.nodes[nodeId];
+  if(Array.isArray(tree.nodes)){
+    return tree.nodes.find(n => n.id === nodeId) || null;
+  }
+  return null;
+}
+
+function getCurrentNode(tree){
+  if(!tree) return null;
+  const rootId = tree.root || tree.rootId || tree.start || (tree.nodes && tree.nodes.root) || null;
+  if(!rootId) return null;
+
+  let nodeId = rootId;
+  for(const step of state.path){
+    const node = getNode(tree, nodeId);
+    if(!node) return null;
+    const next = step.answer ? (node.yes || node.nextYes || node.onYes) : (node.no || node.nextNo || node.onNo);
+    if(!next) return null;
+    nodeId = next;
+  }
+  return getNode(tree, nodeId);
+}
+
+function renderQuestion(){
+  const tree = getSelectedTree();
+  if(!tree){
+    els.question.textContent = t("qEmpty");
+    return;
+  }
+
+  const node = getCurrentNode(tree);
+  if(!node){
+    els.question.textContent = t("errMissingNode");
+    return;
+  }
+
+  const q = (node.q && (node.q[state.lang] || node.q.de || node.q.sk)) || node.question || node.text || "";
+  els.question.textContent = q || t("qEmpty");
+}
+
+function protocolText(){
+  const tree = getSelectedTree();
+  const now = new Date();
+
+  const pad = (n)=>String(n).padStart(2,"0");
+  const dt = `${pad(now.getDate())}.${pad(now.getMonth()+1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+  let title = "";
+  let tags = [];
+  if(tree){
+    title = (tree.title && (tree.title[state.lang] || tree.title.de || tree.title.sk)) || tree.id || "";
+    tags = Array.isArray(tree.tags) ? tree.tags : [];
+  }
+
+  const lines = [];
+  lines.push(`${t("time")}: ${dt}`);
+  lines.push(`${t("lang")}: ${state.lang.toUpperCase()}`);
+  if(title) lines.push(`${t("fault")}: ${title}`);
+  if(tags.length) lines.push(`${t("tags")}: ${tags.join(", ")}`);
+  lines.push("");
+  lines.push(`${t("steps")}:`);
+
+  if(tree){
+    // walk path and include questions + answers
+    let nodeId = tree.root || tree.rootId || tree.start;
+    for(let i=0;i<state.path.length;i++){
+      const node = getNode(tree, nodeId);
+      if(!node) break;
+      const q = (node.q && (node.q[state.lang] || node.q.de || node.q.sk)) || node.question || node.text || "";
+      const a = state.path[i].answer ? t("yes") : t("no");
+      lines.push(`${i+1}. ${q}  [${a}]`);
+      const next = state.path[i].answer ? (node.yes || node.nextYes || node.onYes) : (node.no || node.nextNo || node.onNo);
+      if(!next) { nodeId = null; break; }
+      nodeId = next;
+    }
+
+    // final result if leaf/result exists
+    const cur = getCurrentNode(tree);
+    if(cur){
+      const result = (cur.result && (cur.result[state.lang] || cur.result.de || cur.result.sk)) || cur.outcome || cur.end || "";
+      if(result){
+        lines.push("");
+        lines.push(`${t("result")}:`);
+        lines.push(result);
+      }
+    }
+  }
+
+  return lines.join("\n");
+}
+
+function renderProtocol(){
+  els.proto.value = protocolText();
+}
+
+function render(){
+  renderList();
+  renderQuestion();
+  renderProtocol();
+}
+
+function copyToClipboard(text){
+  if(!text) return;
+  navigator.clipboard.writeText(text).catch(()=>{});
+}
+
+function downloadBlob(filename, blob){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+}
+
+function makeExportBase(){
+  const lang = state.lang || "de";
+  const ts = new Date();
+  const pad = (n)=>String(n).padStart(2,"0");
+  const stamp = `${ts.getFullYear()}${pad(ts.getMonth()+1)}${pad(ts.getDate())}_${pad(ts.getHours())}${pad(ts.getMinutes())}${pad(ts.getSeconds())}`;
+  return `caravan_tam_${lang}_${stamp}`;
+}
+
+function exportTxt(){
+  const text = (els.proto && els.proto.value ? els.proto.value : "").trim();
+  if(!text){ alert(t("noProto")); return; }
+  const withBOM = "\ufeff" + text + "\n";
+  const blob = new Blob([withBOM], {type:"text/plain;charset=utf-8"});
+  downloadBlob(makeExportBase()+".txt", blob);
+}
+
+function exportPdf(){
+  const text = (els.proto && els.proto.value ? els.proto.value : "").trim();
+  if(!text){ alert(t("noProto")); return; }
+  if(!window.jspdf || !window.jspdf.jsPDF){
+    alert(t("pdfLibMissing"));
+    return;
+  }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:"mm", format:"a4"});
+  doc.setFont("courier", "normal");
+  doc.setFontSize(11);
+
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const margin = 12;
+  const maxW = pageW - margin*2;
+  const lineH = 5.2;
+  let y = margin;
+
+  const lines = doc.splitTextToSize(text, maxW);
+  for(const line of lines){
+    if(y > pageH - margin){
+      doc.addPage();
+      y = margin;
+    }
+    doc.text(line, margin, y);
+    y += lineH;
+  }
+  doc.save(makeExportBase()+".pdf");
+}
+
+function applyLangUI(){
+  els.appTitle.textContent = t("appTitle");
+  els.poruchyTitle.textContent = t("poruchyTitle");
+  els.poruchyHint.textContent = t("poruchyHint");
+  els.diagTitle.textContent = t("diagTitle");
+  els.diagHint.textContent = t("diagHint");
+  els.yesBtn.textContent = t("yes");
+  els.noBtn.textContent = t("no");
+  els.backBtn.textContent = t("back");
+  els.protoTitle.textContent = t("protoTitle");
+  els.copyBtn.textContent = t("copy");
+  els.clearPathBtn.textContent = t("clearPath");
+  if (els.txtBtn) els.txtBtn.textContent = t("txt");
+  if (els.pdfBtn) els.pdfBtn.textContent = t("pdf");
+  els.search.placeholder = t("searchPH");
+}
+
+function adminPrompt(){
+  // Simple prompt like before: 1 import / 2 export (kept basic)
+  const v = prompt("ADMIN\n1 = Import\n2 = Export");
+  if(v === "1"){
+    // import via file input
+    const inp = document.createElement("input");
+    inp.type = "file";
+    inp.accept = "application/json,.json";
+    inp.onchange = async () => {
+      const f = inp.files && inp.files[0];
+      if(!f) return;
+      const text = await f.text();
+      try{
+        const parsed = JSON.parse(text);
+        state.data = parsed;
+        alert("OK");
+        render();
+      }catch(e){
+        alert("JSON error");
+      }
+    };
+    inp.click();
+  } else if(v === "2"){
+    // export content as json
+    const blob = new Blob([JSON.stringify(state.data, null, 2)], {type:"application/json;charset=utf-8"});
+    downloadBlob("content_export.json", blob);
+  }
+}
+
+function hardReset(){
+  // Clear localStorage + caches, then reload
+  try{ localStorage.clear(); }catch(e){}
+  if(window.caches){
+    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).finally(()=>location.reload(true));
+  } else {
+    location.reload(true);
+  }
+}
+
+async function init(){
+  // restore lang if saved
+  try{
+    const saved = localStorage.getItem("ctam_lang");
+    if(saved === "de" || saved === "sk") state.lang = saved;
+  }catch(e){}
+
+  applyLangUI();
+
+  els.langDeBtn.addEventListener("click", () => {
+    state.lang = "de";
+    try{ localStorage.setItem("ctam_lang","de"); }catch(e){}
+    applyLangUI();
+    render();
+  });
+
+  els.langSkBtn.addEventListener("click", () => {
+    state.lang = "sk";
+    try{ localStorage.setItem("ctam_lang","sk"); }catch(e){}
+    applyLangUI();
+    render();
+  });
+
+  els.resetBtn.addEventListener("click", hardReset);
+
+  els.search.addEventListener("input", renderList);
+
+  els.yesBtn.addEventListener("click", () => {
+    const tree = getSelectedTree();
+    if(!tree) return;
+    const node = getCurrentNode(tree);
+    if(!node) return;
+    state.path.push({nodeId: node.id || null, answer: true});
+    render();
+  });
+
+  els.noBtn.addEventListener("click", () => {
+    const tree = getSelectedTree();
+    if(!tree) return;
+    const node = getCurrentNode(tree);
+    if(!node) return;
+    state.path.push({nodeId: node.id || null, answer: false});
+    render();
+  });
+
+  els.backBtn.addEventListener("click", () => {
+    state.path.pop();
+    render();
+  });
+
+  els.copyBtn.addEventListener("click", () => {
+    const text = (els.proto.value || "").trim();
+    if(!text){ alert(t("noProto")); return; }
+    copyToClipboard(text);
+  });
+
+  els.clearPathBtn.addEventListener("click", () => {
+    state.path = [];
+    render();
+  });
+
+  if (els.txtBtn) els.txtBtn.addEventListener("click", exportTxt);
+  if (els.pdfBtn) els.pdfBtn.addEventListener("click", exportPdf);
+
+  // admin by 7 clicks on ADMIN (kept simple)
+  let adminClicks = 0;
+  let adminTimer = null;
+  els.adminBtn.addEventListener("click", () => {
+    adminClicks++;
+    clearTimeout(adminTimer);
+    adminTimer = setTimeout(()=>adminClicks = 0, 800);
+    if(adminClicks >= 7){
+      adminClicks = 0;
+      adminPrompt();
+    }
+  });
+
+  await loadContent();
+  render();
+}
+
+init().catch(err => {
+  console.error(err);
+  els.question.textContent = "Init error";
+});
