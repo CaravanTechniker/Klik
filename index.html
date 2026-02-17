@@ -1,106 +1,116 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="sk">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>CaravanTechniker am Main</title>
 
-  <!-- DEBUG overlay: ak JS spadne, uvidíš dôvod priamo na stránke -->
-  <script>
-    window.addEventListener("error", function(e){
-      try{
-        const box=document.createElement("pre");
-        box.style.cssText="position:fixed;inset:0;z-index:999999;background:#111;color:#fff;padding:12px;margin:0;white-space:pre-wrap;overflow:auto;font:13px/1.35 monospace";
-        box.textContent="JS ERROR:\\n"
-          + (e.message||"unknown") + "\\n\\n"
-          + (e.filename||"") + ":" + (e.lineno||"") + ":" + (e.colno||"") + "\\n\\n"
-          + (e.error && e.error.stack ? e.error.stack : "");
-        document.body.appendChild(box);
-      }catch(_){}
-    });
-  </script>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#cfe8ff" />
 
   <style>
-    :root{ --fs: 1; }
-    body{ margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background:#d9efff; color:#0b1a2b; }
-    .wrap{ padding:12px; max-width:1100px; margin:0 auto; }
-    .top{ display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
-    .brand{ font-weight:800; font-size:18px; }
-    .btn{ font-size: calc(14px * var(--fs)); padding:10px 12px; border-radius:12px; border:1px solid rgba(0,0,0,.15); background:#fff; color:#0b1a2b; }
-    .btn.ok{ background:#1f8a3b; color:#fff; border-color:rgba(0,0,0,.05); }
-    .btn.no{ background:#c02626; color:#fff; border-color:rgba(0,0,0,.05); }
-    .btn.primary{ background:#2563eb; color:#fff; border-color:rgba(0,0,0,.05); }
-    .pill{ padding:6px 10px; border-radius:999px; background:rgba(255,255,255,.7); border:1px solid rgba(0,0,0,.12); font-size:12px; }
-    .grid{ display:grid; grid-template-columns: 1fr 1.3fr; gap:12px; margin-top:12px; }
-    .card{ background:rgba(255,255,255,.8); border:1px solid rgba(0,0,0,.12); border-radius:16px; padding:12px; }
-    .h{ font-weight:800; margin:0 0 6px; }
-    input{ width:100%; box-sizing:border-box; padding:10px 12px; border-radius:12px; border:1px solid rgba(0,0,0,.18); font-size: calc(14px * var(--fs)); }
-    .list{ margin-top:10px; display:flex; flex-direction:column; gap:8px; }
-    .item{ padding:10px 12px; border-radius:14px; border:1px solid rgba(0,0,0,.12); background:#fff; cursor:pointer; }
-    .item .t{ font-weight:800; font-size: calc(14px * var(--fs)); }
-    .item .s{ opacity:.8; font-size: calc(12px * var(--fs)); margin-top:2px; }
-    #nodeHelp{ white-space:pre-wrap; }
-    #proto{ width:100%; min-height:160px; border-radius:12px; border:1px solid rgba(0,0,0,.18); padding:10px; box-sizing:border-box; font: 12px/1.35 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-    .row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-    .muted{ opacity:.75; font-size:12px; }
-    @media(max-width:900px){ .grid{ grid-template-columns:1fr; } }
+    :root{
+      --bg:#cfe8ff;
+      --card:#ffffff;
+      --primary:#1b5fd6;
+      --ok:#2e8b57;
+      --no:#b22222;
+      --back:#f0c419;
+      --text:#111;
+      --mono: "Roboto Mono", monospace;
+    }
+    body{
+      margin:0;
+      background:var(--bg);
+      font-family: system-ui, sans-serif;
+      color:var(--text);
+    }
+    header{
+      display:flex;
+      gap:6px;
+      align-items:center;
+      padding:10px;
+      background:#e6f2ff;
+    }
+    header button{
+      padding:8px 12px;
+      border-radius:10px;
+      border:1px solid #999;
+      background:#fff;
+      font-weight:600;
+    }
+    main{
+      padding:10px;
+    }
+    .card{
+      background:var(--card);
+      border-radius:16px;
+      padding:12px;
+      margin-bottom:12px;
+    }
+    #answers{
+      display:flex;
+      gap:10px;
+      margin-top:12px;
+    }
+    #answers button{
+      flex:1;
+      padding:14px;
+      border-radius:14px;
+      border:none;
+      font-size:18px;
+      font-weight:800;
+      color:#fff;
+    }
+    #yesBtn{background:var(--ok);}
+    #noBtn{background:var(--no);}
+    #backBtn{
+      margin-top:10px;
+      width:100%;
+      background:var(--back);
+      color:#000;
+      font-weight:800;
+      padding:12px;
+      border-radius:14px;
+      border:none;
+    }
+    #protocol{
+      font-family:var(--mono);
+      font-size:15px;
+      font-weight:600;
+      white-space:pre-wrap;
+    }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div class="brand">CaravanTechniker am Main</div>
-      <div class="row">
-        <span class="pill" id="pwaPill">PWA</span>
-        <span class="pill" id="offlinePill">offline: ?</span>
-        <button class="btn" id="langBtn">SK</button>
-        <button class="btn" id="fontMinus">A−</button>
-        <button class="btn" id="fontPlus">A+</button>
-        <button class="btn" id="backBtn" disabled>Späť</button>
-        <button class="btn" id="resetBtn">Reset</button>
-      </div>
-    </div>
+<header>
+  <button id="langBtn">SK</button>
+  <button id="adminBtn">ADMIN</button>
+</header>
 
-    <div class="grid">
-      <div class="card">
-        <div class="h" id="hFaults">Poruchy</div>
-        <div class="muted" id="hHint">Vyber poruchu alebo hľadaj. Funguje aj offline.</div>
-        <div style="margin-top:10px">
-          <input id="search" placeholder="Hľadať (trittstufe, wasserpumpe, 12V...)" />
-        </div>
-        <div class="list" id="faultList"></div>
-      </div>
-
-      <div class="card">
-        <div class="row" style="justify-content:space-between">
-          <div class="h" id="hDiag">Diagnostika</div>
-          <div class="row">
-            <span class="pill" id="faultTitleBadge">—</span>
-            <span class="pill" id="faultTagsBadge">—</span>
-          </div>
-        </div>
-
-        <div id="diagEmpty" class="muted">Vyber poruchu vľavo. Potom klikaj ÁNO / NIE.</div>
-
-        <div id="diag" style="display:none">
-          <div style="font-weight:800;margin-top:6px" id="nodeText"></div>
-          <div class="muted" id="nodeHelp" style="margin-top:8px;display:none"></div>
-
-          <div class="row" id="answerBtns" style="margin-top:10px"></div>
-
-          <div class="h" style="margin-top:14px" id="hProto">Protokol (detail)</div>
-          <textarea id="proto" readonly></textarea>
-          <div class="row" style="margin-top:8px">
-            <button class="btn primary" id="copyBtn">Kopírovať</button>
-            <button class="btn" id="clearPathBtn">Vymazať cestu</button>
-          </div>
-
-          <div class="muted" id="ver" style="margin-top:10px"></div>
-        </div>
-      </div>
-    </div>
+<main>
+  <div class="card">
+    <select id="treeSelect" style="width:100%;padding:10px;font-size:16px"></select>
   </div>
 
-  <script src="./app.js?v=20260217_fix1" defer></script>
+  <div class="card">
+    <div id="nodeText"></div>
+
+    <div id="answers">
+      <button id="yesBtn">ÁNO</button>
+      <button id="noBtn">NIE</button>
+    </div>
+
+    <button id="backBtn">⟵ KROK SPÄŤ</button>
+  </div>
+
+  <div class="card">
+    <h3>Protokol</h3>
+    <div id="protocol"></div>
+  </div>
+</main>
+
+<script src="app.js"></script>
 </body>
 </html>
