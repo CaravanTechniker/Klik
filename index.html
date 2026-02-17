@@ -19,67 +19,55 @@
       --text:#111;
       --mono: "Roboto Mono", monospace;
     }
-    body{
-      margin:0;
-      background:var(--bg);
-      font-family: system-ui, sans-serif;
-      color:var(--text);
-    }
-    header{
-      display:flex;
-      gap:6px;
-      align-items:center;
-      padding:10px;
-      background:#e6f2ff;
-    }
-    header button{
-      padding:8px 12px;
-      border-radius:10px;
-      border:1px solid #999;
-      background:#fff;
-      font-weight:600;
-    }
-    main{
-      padding:10px;
-    }
-    .card{
-      background:var(--card);
-      border-radius:16px;
-      padding:12px;
-      margin-bottom:12px;
-    }
-    #answers{
-      display:flex;
-      gap:10px;
-      margin-top:12px;
-    }
+    body{ margin:0; background:var(--bg); font-family: system-ui, sans-serif; color:var(--text); }
+    header{ display:flex; gap:6px; align-items:center; padding:10px; background:#e6f2ff; position:sticky; top:0; z-index:10; }
+    header button{ padding:8px 12px; border-radius:10px; border:1px solid #999; background:#fff; font-weight:700; }
+
+    main{ padding:10px; }
+    .card{ background:var(--card); border-radius:16px; padding:12px; margin-bottom:12px; }
+
+    #answers{ display:flex; gap:10px; margin-top:12px; }
     #answers button{
-      flex:1;
-      padding:14px;
-      border-radius:14px;
-      border:none;
-      font-size:18px;
-      font-weight:800;
-      color:#fff;
+      flex:1; padding:14px; border-radius:14px; border:none;
+      font-size:18px; font-weight:900; color:#fff;
     }
-    #yesBtn{background:var(--ok);}
-    #noBtn{background:var(--no);}
+    #yesBtn{ background:var(--ok); }
+    #noBtn{ background:var(--no); }
+
     #backBtn{
-      margin-top:10px;
-      width:100%;
-      background:var(--back);
-      color:#000;
-      font-weight:800;
-      padding:12px;
-      border-radius:14px;
-      border:none;
+      margin-top:10px; width:100%;
+      background:var(--back); color:#000;
+      font-weight:900; padding:12px; border-radius:14px; border:none;
+      font-size:16px;
     }
-    #protocol{
-      font-family:var(--mono);
-      font-size:15px;
-      font-weight:600;
-      white-space:pre-wrap;
+
+    #protocol{ font-family:var(--mono); font-size:15px; font-weight:700; white-space:pre-wrap; }
+
+    /* ADMIN PANEL */
+    #adminPanel{
+      display:none;
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.35);
+      z-index:9999;
+      padding:16px;
     }
+    #adminPanel .box{
+      background:#fff; border-radius:16px; padding:14px;
+      max-width:520px; margin:60px auto 0 auto;
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
+    }
+    #adminPanel .row{ display:flex; gap:10px; margin-top:10px; }
+    #adminPanel .row button{
+      flex:1; padding:12px; border-radius:14px; border:1px solid #999;
+      background:#f7f7f7; font-weight:900; font-size:16px;
+    }
+    #adminPanel .danger{ background:#fff0f0; }
+    #adminPanel .ok{ background:#f0fff5; }
+    #adminPanel .close{ margin-top:10px; width:100%; background:#eee; }
+    #adminInfo{ font-family:var(--mono); font-size:13px; font-weight:700; white-space:pre-wrap; background:#f6f8ff; padding:10px; border-radius:12px; }
+
+    /* hidden file input */
+    #fileInput{ display:none; }
   </style>
 </head>
 
@@ -110,6 +98,24 @@
     <div id="protocol"></div>
   </div>
 </main>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel">
+  <div class="box">
+    <div style="font-weight:900;font-size:18px;">ADMIN</div>
+    <div style="opacity:.85;margin-top:4px;">Import/Export funguje spoľahlivo len cez tieto tlačidlá (kvôli Android bezpečnosti).</div>
+    <div class="row">
+      <button id="importBtn" class="ok">1 = Import (vybrať súbor)</button>
+      <button id="exportBtn" class="danger">2 = Export (stiahnuť JSON)</button>
+    </div>
+    <button id="closeAdminBtn" class="close">Zavrieť</button>
+
+    <div style="margin-top:12px;font-weight:900;">Info</div>
+    <div id="adminInfo">–</div>
+  </div>
+</div>
+
+<input id="fileInput" type="file" accept="application/json" />
 
 <script src="app.js"></script>
 </body>
