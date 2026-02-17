@@ -1,6 +1,6 @@
 {
   "version": "0.1.5",
-  "issues": [
+  "trees": [
     {
       "id": "01_01",
       "title": {
@@ -11,16 +11,8 @@
         "de": "Kein Licht, keine Pumpe, Panel dunkel.",
         "sk": "Nesvieti, nejde pumpa, panel tmavý."
       },
-      "tags": [
-        "12v",
-        "aufbau",
-        "ebl",
-        "hauptschalter",
-        "sicherung",
-        "totalausfall",
-        "batterie"
-      ],
-      "root": "tree_01_01_start",
+      "tags": ["12v", "aufbau", "ebl", "hauptschalter", "sicherung", "totalausfall", "batterie"],
+      "start": "tree_01_01_start",
       "nodes": {
         "tree_01_01_start": {
           "type": "question",
@@ -33,12 +25,15 @@
         },
 
         "tree_01_01_hauptschalter_off": {
-          "type": "action",
-          "text": {
-            "de": "Hauptschalter einschalten und erneut prüfen.",
-            "sk": "Zapni hlavný vypínač a znova skontroluj."
+          "type": "result",
+          "cause": {
+            "de": "Hauptschalter war AUS.",
+            "sk": "Hlavný vypínač bol VYPNUTÝ."
           },
-          "next": "tree_01_01_hauptschalter_ok"
+          "action": {
+            "de": "Schalter einschalten. Danach prüfen ob Licht, Pumpe oder Panel wieder funktionieren.",
+            "sk": "Zapni vypínač. Potom skontroluj či funguje svetlo, pumpa alebo panel."
+          }
         },
 
         "tree_01_01_hauptschalter_ok": {
@@ -52,46 +47,26 @@
         },
 
         "tree_01_01_battery_low": {
-          "type": "action",
-          "text": {
+          "type": "result",
+          "cause": {
+            "de": "Batterien leer / nicht korrekt angeschlossen.",
+            "sk": "Batérie sú vybité / nie sú správne pripojené."
+          },
+          "action": {
             "de": "Batterien laden oder korrekt anschließen. Hauptsicherung nahe Batterie prüfen.",
             "sk": "Nabi alebo správne pripoj batérie. Skontroluj hlavnú poistku pri batérii."
-          },
-          "next": "tree_01_01_hauptschalter_ok"
+          }
         },
 
         "tree_01_01_battery_ok": {
-          "type": "question",
-          "text": {
-            "de": "Liegt 12 V direkt am EBL-Eingang an?",
-            "sk": "Je 12 V prítomné priamo na vstupe EBL?"
-          },
-          "yes": "tree_01_01_ebl_ok",
-          "no": "tree_01_01_ebl_no_power"
-        },
-
-        "tree_01_01_ebl_no_power": {
-          "type": "action",
-          "text": {
-            "de": "Kabel, Hauptsicherung und Masseverbindung zum EBL prüfen.",
-            "sk": "Skontroluj kábel, hlavnú poistku a kostru k EBL."
-          },
-          "next": "tree_01_01_hauptschalter_ok"
-        },
-
-        "tree_01_01_ebl_ok": {
           "type": "result",
-          "text": {
-            "de": "EBL erhält Spannung, aber Verbraucher ohne Funktion.",
-            "sk": "EBL má napätie, ale spotrebiče nefungujú."
-          },
           "cause": {
-            "de": "Interner EBL-Defekt oder Sicherungen ausgelöst.",
-            "sk": "Vnútorná porucha EBL alebo vypnuté poistky."
+            "de": "Batteriespannung OK, Fehler liegt weiter im Aufbau-System.",
+            "sk": "Napätie batérie OK, chyba je ďalej v systéme nadstavby."
           },
           "action": {
-            "de": "EBL-Sicherungen prüfen, ggf. EBL tauschen oder fachlich prüfen lassen.",
-            "sk": "Skontroluj poistky EBL, prípadne EBL vymeniť alebo odborne preveriť."
+            "de": "Prüfe EBL: Batteriespannung am Eingang, Hauptsicherung, Masseverbindung.",
+            "sk": "Skontroluj EBL: napätie na vstupe, hlavnú poistku a kostru."
           }
         }
       }
