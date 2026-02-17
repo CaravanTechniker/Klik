@@ -1,99 +1,146 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CaravanTechniker am Main – Wohnmobil Diagnose</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CaravanTechniker am Main</title>
 
 <style>
 :root{
-  --bg:#b9d7f0;
-  --card:#eaf4ff;
-  --stroke:#c7d9ea;
+  --bg1:#9fc7e8;          /* pozadie tmavsia modra */
+  --bg2:#cfe8ff;
+  --card:#d9efff;         /* bledomodra vnutri */
+  --card2:#eaf6ff;
+  --stroke:#b7d3ea;
   --text:#0b1a2a;
   --muted:#4c5a6a;
-  --tag:#d7ecff;
+  --white:#ffffff;
+  --yes:#177a3a;
+  --no:#b21818;
+  --back:#f2c20e;
 }
+
 *{box-sizing:border-box}
 body{
   margin:0;
-  font-family:system-ui,Segoe UI,Roboto,Arial;
-  background:linear-gradient(180deg,var(--bg),#d8ecff);
-  color:var(--text)
+  font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;
+  color:var(--text);
+  background:linear-gradient(180deg,var(--bg1),var(--bg2));
 }
 .wrap{max-width:1200px;margin:16px auto;padding:0 12px}
-.top{
-  display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px
-}
-.brand{font-size:30px;font-weight:900}
-.brand small{display:block;font-size:14px;opacity:.75}
 
-.pill{padding:10px 16px;border-radius:999px;border:1px solid var(--stroke);
-background:#fff;font-weight:800;cursor:pointer}
-.pills{display:flex;gap:8px;flex-wrap:wrap}
+.header{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;
+}
+.brand{font-size:34px;font-weight:900;line-height:1.05}
+.brand small{display:block;font-size:14px;opacity:.75;margin-top:4px}
+
+.pills{display:flex;gap:10px;flex-wrap:wrap}
+.pill{
+  padding:12px 18px;border-radius:999px;border:1px solid var(--stroke);
+  background:rgba(255,255,255,.85);
+  font-weight:900;cursor:pointer;
+}
+.pill:active{transform:scale(.98)}
 
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
 @media(max-width:900px){.grid{grid-template-columns:1fr}}
 
 .card{
-  background:var(--card);
+  background:linear-gradient(180deg,var(--card2),var(--card));
   border:1px solid var(--stroke);
   border-radius:18px;
-  padding:16px
+  padding:16px;
+  box-shadow:0 8px 20px rgba(0,0,0,.06);
 }
-h2{margin:0 0 6px;font-size:26px}
-.sub{color:var(--muted);margin-bottom:10px}
+h2{margin:0 0 6px;font-size:28px}
+.sub{color:var(--muted);margin:0 0 10px}
 
-.search{display:flex;gap:8px}
-.search input{
-  flex:1;padding:12px;border-radius:999px;border:1px solid var(--stroke)
+.searchRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.searchRow input{
+  flex:1;min-width:220px;
+  padding:12px 14px;border-radius:999px;border:1px solid var(--stroke);
+  background:rgba(255,255,255,.9);
 }
 
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.smallBtn{
+  padding:10px 14px;border-radius:999px;border:1px solid var(--stroke);
+  background:rgba(255,255,255,.9);font-weight:900;cursor:pointer;
+}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 12px}
 .chip{
-  background:var(--tag);
+  padding:7px 12px;border-radius:999px;border:1px solid var(--stroke);
+  background:rgba(255,255,255,.85);
+  font-weight:900;cursor:pointer;
+}
+.chip.active{outline:3px solid rgba(0,0,0,.12)}
+
+.list{display:flex;flex-direction:column;gap:10px}
+.item{
+  background:rgba(255,255,255,.88);
+  border:1px solid var(--stroke);
+  border-radius:14px;
+  padding:12px 12px;
+  cursor:pointer;
+}
+.item b{font-size:17px}
+.item span{display:block;color:var(--muted);margin-top:2px}
+
+.badge{
+  display:inline-block;
+  padding:3px 10px;border-radius:999px;
+  border:1px solid var(--stroke);
+  background:rgba(255,255,255,.9);
+  font-weight:900;margin-bottom:10px;
+}
+
+.tagWrap{display:none;margin:8px 0 10px}
+.tagWrap.on{display:flex}
+.tagWrap .tag{
+  background:rgba(255,255,255,.85);
   border:1px solid var(--stroke);
   border-radius:999px;
-  padding:6px 12px;
-  font-weight:800;
-  cursor:pointer
+  padding:6px 10px;
+  font-weight:900;
 }
-.chip.active{outline:3px solid rgba(0,0,0,.15)}
 
-.list{display:flex;flex-direction:column;gap:8px}
-.item{
-  background:#fff;
+.big{
+  width:100%;
+  padding:18px 16px;
+  border-radius:16px;border:none;
+  font-size:24px;font-weight:1000;
+  cursor:pointer;
+}
+.yes{background:var(--yes);color:#fff}
+.no{background:var(--no);color:#fff;margin-top:10px}
+.back{background:var(--back);color:#000;margin-top:12px}
+
+.proto{
+  margin-top:12px;
+  width:100%;
+  min-height:170px;
+  background:rgba(255,255,255,.55); /* bledomodra/transparent */
   border:1px solid var(--stroke);
   border-radius:14px;
   padding:12px;
-  cursor:pointer
+  font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size:14px;
+  white-space:pre-wrap;
 }
-.item b{font-size:17px}
-.item span{display:block;color:var(--muted)}
-
-.big{
-  width:100%;padding:16px;border-radius:16px;
-  border:none;font-size:22px;font-weight:900;cursor:pointer
-}
-.yes{background:#177a3a;color:#fff}
-.no{background:#b21818;color:#fff}
-.back{background:#f2c20e;color:#000;margin-top:10px}
-
-textarea{
-  width:100%;min-height:160px;
-  background:#cfe7fb;border:1px solid var(--stroke);
-  border-radius:12px;padding:12px
-}
+.footerBtns{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
 </style>
 </head>
 
 <body>
 <div class="wrap">
-  <div class="top">
+
+  <div class="header">
     <div class="brand">
       CaravanTechniker am Main
       <small id="brandSub"></small>
     </div>
+
     <div class="pills">
       <div class="pill" id="langDE">DE</div>
       <div class="pill" id="langSK">SK</div>
@@ -103,87 +150,492 @@ textarea{
   </div>
 
   <div class="grid">
+    <!-- LEFT -->
     <div class="card">
       <h2 id="hFaults"></h2>
-      <div class="search">
-        <input id="search">
+      <p class="sub" id="hFaultsSub"></p>
+
+      <div class="searchRow">
+        <input id="search" placeholder="" />
+        <button class="smallBtn" id="catResetBtn"></button>
+        <button class="smallBtn" id="tagsToggleBtn"></button>
       </div>
-      <div class="chips" id="categoryChips"></div>
+
+      <!-- categories -->
+      <div class="chips" id="catChips"></div>
+
+      <!-- list -->
       <div class="list" id="faultList"></div>
+
+      <div style="opacity:.7;font-weight:900;margin-top:10px" id="ver"></div>
     </div>
 
+    <!-- RIGHT -->
     <div class="card">
       <h2 id="hDiag"></h2>
-      <p class="sub" id="nodeText"></p>
-      <button class="big yes" id="yesBtn">ÁNO</button>
-      <button class="big no" id="noBtn">NIE</button>
-      <button class="big back" id="backBtn">← SPÄŤ</button>
-      <textarea id="proto" readonly></textarea>
-      <button class="pill" id="pdfBtn">PDF</button>
+      <p class="sub" id="hDiagSub"></p>
+
+      <div class="badge" id="faultTitleBadge" style="display:none"></div>
+
+      <!-- tags hidden by default -->
+      <div class="tagWrap" id="tagWrap"></div>
+
+      <div style="font-size:24px;font-weight:1000;margin:10px 0 6px" id="nodeQuestion"></div>
+
+      <button class="big yes" id="yesBtn"></button>
+      <button class="big no" id="noBtn"></button>
+      <button class="big back" id="backBtn"></button>
+
+      <div class="proto" id="proto"></div>
+
+      <div class="footerBtns">
+        <button class="pill" id="copyBtn"></button>
+        <button class="pill" id="clearPathBtn"></button>
+        <button class="pill" id="pdfBtn">PDF</button>
+      </div>
     </div>
   </div>
+
 </div>
 
 <script>
-const I={
-de:{sub:"Wohnmobil Diagnose",faults:"Störungen",diag:"Diagnose"},
-sk:{sub:"Diagnostika obytných vozidiel",faults:"Poruchy",diag:"Diagnostika"}
+/* ========= i18n UI ========= */
+const UI = {
+  de: {
+    sub: "Wohnmobil Diagnose",
+    faults: "Störungen",
+    faultsSub: "Wähle eine Störung oder suche. Funktioniert auch offline.",
+    diag: "Diagnose",
+    diagSub: "Wähle links eine Störung. Dann JA / NEIN klicken.",
+    searchPH: "Suche (trittstufe, wasserpumpe, 12V...)",
+    catReset: "Filter Reset",
+    tagsToggle: "Tagy",
+    yes: "JA",
+    no: "NEIN",
+    back: "← SCHRITT ZURÜCK",
+    copy: "Kopieren",
+    clear: "Pfad löschen",
+    copied: "Kopiert",
+    adminPrompt: "ADMIN\n1 = Import content.json\n2 = Export content.json",
+    importOk: "Import OK",
+    importErr: "Import ERROR: JSON invalid",
+    resetConfirm: "Reset OK"
+  },
+  sk: {
+    sub: "Diagnostika obytných vozidiel",
+    faults: "Poruchy",
+    faultsSub: "Vyber poruchu alebo hľadaj. Funguje aj offline.",
+    diag: "Diagnostika",
+    diagSub: "Vyber poruchu vľavo. Potom klikaj ÁNO / NIE.",
+    searchPH: "Hľadať (trittstufe, wasserpumpe, 12V...)",
+    catReset: "Reset filtra",
+    tagsToggle: "Tagy",
+    yes: "ÁNO",
+    no: "NIE",
+    back: "← SPÄŤ",
+    copy: "Kopírovať",
+    clear: "Vymazať cestu",
+    copied: "Skopírované",
+    adminPrompt: "ADMIN\n1 = Import content.json\n2 = Export content.json",
+    importOk: "Import OK",
+    importErr: "Import ERROR: Neplatný JSON",
+    resetConfirm: "Reset OK"
+  }
 };
-let LANG=localStorage.lang||"de";
-let TREES=[],tree=null,node=null,path=[],cat="";
 
-function L(x){return typeof x==="object"?x[LANG]:x}
-function applyLang(){
-  brandSub.textContent=I[LANG].sub;
-  hFaults.textContent=I[LANG].faults;
-  hDiag.textContent=I[LANG].diag;
+let LANG = localStorage.getItem("lang") || "de";
+
+/* ========= state ========= */
+let CONTENT_VERSION = "v0.0.0";
+let TREES = [];
+let currentTree = null;
+let currentNode = null;
+let path = [];
+let activeCategory = "";
+
+/* ========= helpers ========= */
+function T(obj){
+  if(obj == null) return "";
+  if(typeof obj === "string") return obj;
+  if(typeof obj === "object"){
+    return obj[LANG] ?? obj.de ?? obj.sk ?? "";
+  }
+  return String(obj);
 }
 
-async function load(){
-  const r=await fetch("content.json");
-  const d=await r.json();
-  TREES=d.trees||d;
-  renderCats();renderList()
+function setLang(newLang){
+  LANG = newLang;
+  localStorage.setItem("lang", LANG);
+  applyLangUI();
+  renderCategories();
+  renderList();
+  renderNode();
 }
 
-function renderCats(){
-  categoryChips.innerHTML="";
-  [...new Set(TREES.map(t=>t.category?.key))].forEach(k=>{
-    if(!k)return;
-    const b=document.createElement("div");
-    b.className="chip"+(cat===k?" active":"");
-    b.textContent=L(TREES.find(t=>t.category.key===k).category.label);
-    b.onclick=()=>{cat=cat===k?"":k;renderCats();renderList()};
-    categoryChips.appendChild(b);
-  })
+function applyLangUI(){
+  const u = UI[LANG];
+  brandSub.textContent = u.sub;
+  hFaults.textContent = u.faults;
+  hFaultsSub.textContent = u.faultsSub;
+  hDiag.textContent = u.diag;
+  hDiagSub.textContent = u.diagSub;
+  search.placeholder = u.searchPH;
+  catResetBtn.textContent = u.catReset;
+  tagsToggleBtn.textContent = u.tagsToggle;
+  yesBtn.textContent = u.yes;
+  noBtn.textContent = u.no;
+  backBtn.textContent = u.back;
+  copyBtn.textContent = u.copy;
+  clearPathBtn.textContent = u.clear;
 }
 
+/* ========= content load (supports admin override) ========= */
+async function loadContent(){
+  const ov = localStorage.getItem("content_override");
+  if(ov){
+    try{
+      const parsed = JSON.parse(ov);
+      if(Array.isArray(parsed)){
+        TREES = parsed;
+        CONTENT_VERSION = "override";
+        return;
+      }
+    }catch(e){}
+  }
+
+  const r = await fetch("content.json", {cache:"no-store"});
+  const data = await r.json();
+  if(data && data.version) CONTENT_VERSION = data.version;
+  TREES = Array.isArray(data) ? data : (data.trees || []);
+}
+
+/* ========= sorting / numbering ========= */
+function treeSortKey(t){
+  // prefer explicit "order", then id prefix (01_02) then title
+  if(typeof t.order === "number") return String(t.order).padStart(4,"0");
+  if(typeof t.id === "string"){
+    const m = t.id.match(/(\d+)[_\-]?(\d+)?/);
+    if(m) return (m[1]||"").padStart(3,"0") + "_" + (m[2]||"").padStart(3,"0");
+  }
+  return T(t.title).toLowerCase();
+}
+function treeNumberLabel(t){
+  // show "01" from id like "01_01", or from title prefix "01 ..."
+  if(typeof t.id === "string"){
+    const m = t.id.match(/^(\d{1,3})/);
+    if(m) return m[1].padStart(2,"0");
+  }
+  const tt = T(t.title);
+  const m2 = tt.match(/^(\d{1,3})\b/);
+  if(m2) return m2[1].padStart(2,"0");
+  return "";
+}
+
+/* ========= categories ========= */
+function getCategories(){
+  const map = new Map();
+  for(const t of TREES){
+    if(t.category && t.category.key){
+      const key = t.category.key;
+      if(!map.has(key)){
+        map.set(key, {key, label: t.category.label || {de:key, sk:key}});
+      }
+    }
+  }
+  return [...map.values()];
+}
+
+function renderCategories(){
+  catChips.innerHTML = "";
+  const cats = getCategories();
+  if(!cats.length){
+    // ak zatial nemas category v content.json, nechaj prazdne (nebude rusit)
+    return;
+  }
+  for(const c of cats){
+    const el = document.createElement("div");
+    el.className = "chip" + (activeCategory===c.key ? " active" : "");
+    el.textContent = T(c.label);
+    el.onclick = () => {
+      activeCategory = (activeCategory===c.key) ? "" : c.key;
+      renderCategories();
+      renderList();
+    };
+    catChips.appendChild(el);
+  }
+}
+
+/* ========= list ========= */
 function renderList(){
-  faultList.innerHTML="";
-  TREES.filter(t=>!cat||t.category.key===cat)
-    .forEach(t=>{
-      const d=document.createElement("div");
-      d.className="item";
-      d.innerHTML=`<b>${L(t.title)}</b><span>${L(t.subtitle)}</span>`;
-      d.onclick=()=>{tree=t;node=t.nodes[t.start];path=[];renderNode()};
-      faultList.appendChild(d);
-    })
+  const q = (search.value || "").trim().toLowerCase();
+
+  const filtered = TREES
+    .slice()
+    .sort((a,b)=> treeSortKey(a).localeCompare(treeSortKey(b)))
+    .filter(t=>{
+      if(activeCategory && t.category?.key !== activeCategory) return false;
+      if(!q) return true;
+      const hay = (T(t.title)+" "+T(t.subtitle)+" "+(t.tags||[]).join(" ")).toLowerCase();
+      return hay.includes(q);
+    });
+
+  faultList.innerHTML = "";
+  for(const t of filtered){
+    const item = document.createElement("div");
+    item.className = "item";
+
+    const num = treeNumberLabel(t);
+    const title = T(t.title);
+    const sub = T(t.subtitle);
+
+    item.innerHTML = `<b>${num ? (num+"  ") : ""}${title}</b><span>${sub}</span>`;
+
+    item.onclick = () => {
+      currentTree = t;
+      currentNode = t.nodes?.[t.start || t.root || t.startNode] || null;
+      path = [];
+      faultTitleBadge.style.display = "inline-block";
+      faultTitleBadge.textContent = `${num ? (num+"  ") : ""}${title}`;
+      renderTags();
+      renderNode();
+    };
+
+    faultList.appendChild(item);
+  }
+
+  ver.textContent = CONTENT_VERSION;
 }
 
+/* ========= tags (hidden by default) ========= */
+let tagsVisible = false;
+
+function renderTags(){
+  tagWrap.innerHTML = "";
+  if(!currentTree || !Array.isArray(currentTree.tags) || !currentTree.tags.length){
+    tagWrap.classList.remove("on");
+    return;
+  }
+
+  for(const t of currentTree.tags){
+    const d = document.createElement("div");
+    d.className = "tag";
+    d.textContent = "#"+String(t);
+    tagWrap.appendChild(d);
+  }
+
+  if(tagsVisible) tagWrap.classList.add("on");
+  else tagWrap.classList.remove("on");
+}
+
+/* ========= diagnosis render ========= */
 function renderNode(){
-  nodeText.textContent=L(node.text||node.cause||"");
-  proto.value=path.map(p=>p.q+" "+p.a).join("\n");
+  if(!currentTree || !currentNode){
+    nodeQuestion.textContent = "";
+    proto.textContent = "";
+    return;
+  }
+
+  if(currentNode.type === "question"){
+    nodeQuestion.textContent = T(currentNode.text);
+  }else{
+    // result
+    const cause = T(currentNode.cause);
+    const action = T(currentNode.action);
+    nodeQuestion.textContent = (cause ? ("Výsledok: " + cause) : "") + (action ? ("\nAkcia: " + action) : "");
+  }
+
+  // protocol text
+  const u = UI[LANG];
+  const now = new Date();
+  const dt = now.toLocaleString(LANG==="de" ? "de-DE" : "sk-SK");
+
+  let out = "";
+  out += `Čas: ${dt}\n`;
+  out += `Jazyk: ${LANG.toUpperCase()}\n`;
+  if(currentTree){
+    out += `Porucha: ${T(currentTree.title)}\n`;
+  }
+  out += "\nKroky:\n";
+  path.forEach((p,i)=>{
+    out += `${i+1}. ${p.q} ${p.a}\n`;
+  });
+
+  if(currentNode.type === "result"){
+    out += `\nVýsledok:\n`;
+    if(T(currentNode.cause)) out += `${T(currentNode.cause)}\n`;
+    if(T(currentNode.action)) out += `${T(currentNode.action)}\n`;
+  }
+
+  // DE variant label names
+  if(LANG==="de"){
+    out = out
+      .replace("Čas:", "Zeit:")
+      .replace("Jazyk:", "Sprache:")
+      .replace("Porucha:", "Störung:")
+      .replace("Kroky:", "Schritte:")
+      .replace("Výsledok:", "Ergebnis:");
+  }
+
+  proto.textContent = out;
 }
 
-yesBtn.onclick=()=>{path.push({q:L(node.text),a:"[YES]"});node=tree.nodes[node.yes];renderNode()}
-noBtn.onclick=()=>{path.push({q:L(node.text),a:"[NO]"});node=tree.nodes[node.no];renderNode()}
-backBtn.onclick=()=>{location.reload()}
-langDE.onclick=()=>{LANG="de";localStorage.lang="de";applyLang()}
-langSK.onclick=()=>{LANG="sk";localStorage.lang="sk";applyLang()}
-resetBtn.onclick=()=>{localStorage.clear();location.reload()}
-adminBtn.onclick=()=>alert("ADMIN IMPORT cez pôvodnú verziu")
+/* ========= navigation ========= */
+function answer(isYes){
+  if(!currentTree || !currentNode) return;
+  const u = UI[LANG];
+  if(currentNode.type !== "question") return;
 
-applyLang();load();
+  path.push({
+    q: T(currentNode.text),
+    a: isYes ? `[${u.yes}]` : `[${u.no}]`
+  });
+
+  const nextId = isYes ? currentNode.yes : currentNode.no;
+  const next = currentTree.nodes?.[nextId];
+  if(next){
+    currentNode = next;
+  }
+  renderNode();
+}
+
+function backStep(){
+  // krok späť: vyhod poslednú odpoveď a prepočítaj od start
+  if(!currentTree) return;
+  path.pop();
+  // replay from start
+  currentNode = currentTree.nodes?.[currentTree.start || currentTree.root || currentTree.startNode] || null;
+  // prejdeme odpovede z path, ale potrebujeme uložené isYes -> dedukujeme z a
+  const saved = path.slice();
+  path = [];
+  for(const p of saved){
+    if(currentNode?.type !== "question") break;
+    const isYes = p.a.includes(UI[LANG].yes) || p.a.includes("[JA]") || p.a.includes("[ÁNO]");
+    // pridať odpoveď znova v aktuálnom jazyku
+    answer(isYes);
+  }
+  renderNode();
+}
+
+/* ========= clipboard ========= */
+async function copyProtocol(){
+  try{
+    await navigator.clipboard.writeText(proto.textContent || "");
+    // krátka informácia cez title badge (bez alertu)
+    const old = faultTitleBadge.textContent;
+    faultTitleBadge.textContent = UI[LANG].copied;
+    setTimeout(()=>{ faultTitleBadge.textContent = old; }, 900);
+  }catch(e){}
+}
+
+/* ========= PDF ========= */
+function downloadPdf(){
+  // jednoduchý print-to-pdf kompatibilný postup (Android/Chrome -> uložiť ako PDF)
+  const html = `
+  <html><head><meta charset="utf-8">
+  <title>Protokol</title>
+  <style>
+    body{font-family:Arial,sans-serif;white-space:pre-wrap;padding:18px}
+    h1{margin:0 0 12px}
+  </style></head>
+  <body>
+    <h1>CaravanTechniker am Main</h1>
+    <div>${(proto.textContent||"").replace(/</g,"&lt;")}</div>
+    <script>window.print();</script>
+  </body></html>`;
+  const w = window.open("", "_blank");
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+}
+
+/* ========= admin import/export ========= */
+function admin(){
+  const choice = prompt(UI[LANG].adminPrompt);
+  if(!choice) return;
+
+  if(choice.trim()==="1"){
+    const inp = document.createElement("input");
+    inp.type = "file";
+    inp.accept = "application/json,.json";
+    inp.onchange = async () => {
+      const f = inp.files && inp.files[0];
+      if(!f) return;
+      const txt = await f.text();
+      try{
+        const data = JSON.parse(txt);
+        const arr = Array.isArray(data) ? data : (data.trees || []);
+        localStorage.setItem("content_override", JSON.stringify(arr));
+        alert(UI[LANG].importOk);
+        // reload with override
+        location.reload();
+      }catch(e){
+        alert(UI[LANG].importErr);
+      }
+    };
+    inp.click();
+    return;
+  }
+
+  if(choice.trim()==="2"){
+    const blob = new Blob([JSON.stringify(TREES, null, 2)], {type:"application/json;charset=utf-8"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `content_export_${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+  }
+}
+
+/* ========= reset ========= */
+function hardReset(){
+  // reset len to, čo súvisí s app
+  localStorage.removeItem("content_override");
+  localStorage.removeItem("lang");
+  location.reload();
+}
+
+/* ========= wiring ========= */
+langDE.onclick = ()=>setLang("de");
+langSK.onclick = ()=>setLang("sk");
+yesBtn.onclick = ()=>answer(true);
+noBtn.onclick = ()=>answer(false);
+backBtn.onclick = ()=>backStep();
+
+copyBtn.onclick = ()=>copyProtocol();
+clearPathBtn.onclick = ()=>{
+  if(!currentTree) return;
+  path = [];
+  currentNode = currentTree.nodes?.[currentTree.start || currentTree.root || currentTree.startNode] || null;
+  renderNode();
+};
+
+pdfBtn.onclick = ()=>downloadPdf();
+adminBtn.onclick = ()=>admin();
+resetBtn.onclick = ()=>hardReset();
+
+catResetBtn.onclick = ()=>{
+  activeCategory = "";
+  renderCategories();
+  renderList();
+};
+
+tagsToggleBtn.onclick = ()=>{
+  tagsVisible = !tagsVisible;
+  renderTags();
+};
+
+search.oninput = ()=>renderList();
+
+/* ========= boot ========= */
+(async function boot(){
+  await loadContent();
+  applyLangUI();
+  renderCategories();
+  renderList();
+  renderNode();
+})();
 </script>
 </body>
 </html>
