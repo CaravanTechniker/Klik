@@ -1,0 +1,136 @@
+{
+  "meta": {
+    "appName": {
+      "de": "CaravanTechniker am Main",
+      "sk": "CaravanTechniker am Main"
+    },
+    "version": "1.0.0",
+    "updated": "2026-02-17"
+  },
+  "safety": {
+    "de": [
+      "12V Messungen: immer auch unter Last messen (Spannungsabfall). Masseverbindungen/Schraubpunkte prüfen, Sicherungen nicht nur ansehen, sondern messen.",
+      "230V Arbeiten nur mit entsprechender Qualifikation. Bei Unsicherheit: Fachbetrieb.",
+      "Gas: G607 ist eine Prüfung, keine Installation/Änderung."
+    ],
+    "sk": [
+      "12V merania: vždy meraj aj pod záťažou (pokles napätia). Skontroluj kostru/kontakty a poistky nemeraj iba pohľadom.",
+      "Práce na 230V vykonávaj iba s príslušným oprávnením. Pri neistote: servis.",
+      "Plyn: G607 je kontrola, nie inštalácia/zmeny."
+    ]
+  },
+  "trees": [
+    {
+      "id": "t01",
+      "title": {
+        "de": "01 12V Komplettausfall (alles tot)",
+        "sk": "01 12V úplný výpadok (všetko mŕtve)"
+      },
+      "subtitle": {
+        "de": "Kein Licht, keine Pumpe, keine Anzeige – Diagnose Schritt für Schritt.",
+        "sk": "Nesvieti nič, nejde pumpa, nič nezobrazuje – postupná diagnostika."
+      },
+      "tags": [
+        {
+          "de": "12V",
+          "sk": "12V"
+        },
+        {
+          "de": "spannung",
+          "sk": "napätie"
+        },
+        {
+          "de": "sicherung",
+          "sk": "poistka"
+        },
+        {
+          "de": "masse",
+          "sk": "kostra"
+        }
+      ],
+      "start": "q1",
+      "nodes": [
+        {
+          "id": "q1",
+          "type": "question",
+          "text": {
+            "de": "Ist die Bordspannung an der Aufbaubatterie ≥ 12,0 V (ohne Landstrom)?",
+            "sk": "Je napätie na palubnej batérii ≥ 12,0 V (bez externého 230V)?"
+          },
+          "yes": "q2",
+          "no": "r1"
+        },
+        {
+          "id": "r1",
+          "type": "result",
+          "text": {
+            "de": "Batterie tiefentladen/defekt oder getrennt. Batterie laden (passender Typ), Hauptschalter/Trennrelais prüfen, Batterieklemmen reinigen/anziehen.",
+            "sk": "Batéria je vybitá/defektná alebo odpojená. Nabíjaj správnym typom, skontroluj hlavný vypínač/odpojovač, svorky očisti a dotiahni."
+          }
+        },
+        {
+          "id": "q2",
+          "type": "question",
+          "text": {
+            "de": "Liegt am EBL/12V-Verteiler am Eingang (Batterie+) die gleiche Spannung an? (Messen direkt am Eingang, nicht am Kabelende.)",
+            "sk": "Je na vstupe EBL/12V rozvodu (BATT+) rovnaké napätie? (Meraj priamo na vstupe.)"
+          },
+          "yes": "q3",
+          "no": "r2"
+        },
+        {
+          "id": "r2",
+          "type": "result",
+          "text": {
+            "de": "Unterbrechung zwischen Batterie und EBL: Hauptsicherung nahe Batterie, Batterie-Trennschalter, Kabelbruch, Polklemme, Crimp/Schraubverbindung. Spannungsabfall unter Last testen.",
+            "sk": "Prerušenie medzi batériou a EBL: hlavná poistka pri batérii, odpojovač, poškodený kábel, svorka, spoj. Otestuj aj pokles napätia pod záťažou."
+          }
+        },
+        {
+          "id": "q3",
+          "type": "question",
+          "text": {
+            "de": "Sind die EBL-Ausgangssicherungen ok (messen) und liegt an einem 12V-Ausgang Spannung an?",
+            "sk": "Sú výstupné poistky EBL v poriadku (zmerať) a je na 12V výstupe napätie?"
+          },
+          "yes": "q4",
+          "no": "r3"
+        },
+        {
+          "id": "r3",
+          "type": "result",
+          "text": {
+            "de": "EBL schaltet nicht durch oder Sicherung/Board defekt: EBL Reset/Powercycle, Stecker/Flachstecker nachdrücken, interne Sicherungen/Relais prüfen. Falls weiterhin 0V: EBL Diagnose/Service.",
+            "sk": "EBL neprepína alebo je vadná poistka/elektronika: reset/powercycle, dotlač konektory, skontroluj relé/poistky. Ak stále 0V: diagnostika/servis EBL."
+          }
+        },
+        {
+          "id": "q4",
+          "type": "question",
+          "text": {
+            "de": "Funktioniert mindestens ein Verbraucher direkt an der Batterie (über eigene Sicherung) – z.B. 21W Prüflampe?",
+            "sk": "Funguje aspoň jedna záťaž priamo na batérii (cez vlastnú poistku) – napr. 21W skúšobná žiarovka?"
+          },
+          "yes": "r4",
+          "no": "r5"
+        },
+        {
+          "id": "r4",
+          "type": "result",
+          "text": {
+            "de": "Batterie ist grundsätzlich ok. Fokus: Verteilung/EBL/Minus/Massepunkte. Masseband Batterie→Karosserie und EBL→Masse messen (Spannungsfall).",
+            "sk": "Batéria je v zásade OK. Zameraj sa na rozvod/EBL/kostru. Zmeraj pokles na mínus vedení batéria→karoséria a EBL→kostra."
+          }
+        },
+        {
+          "id": "r5",
+          "type": "result",
+          "text": {
+            "de": "Batterie/Minusleitung hat Problem (auch wenn Spannung im Leerlauf ok wirkt): Unter Last bricht zusammen. Polklemmen, Masseband, Zellenschaden oder BMS Abschaltung prüfen.",
+            "sk": "Problém batérie alebo mínus vedenia (aj keď napätie naprázdno vyzerá OK): pod záťažou padá. Skontroluj svorky, kostru, poškodenie článkov alebo BMS odpojenie."
+          }
+        }
+      ]
+    }
+  ]
+}
