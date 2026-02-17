@@ -2,192 +2,861 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Caravan TaM</title>
-  <link rel="manifest" href="./manifest.webmanifest">
-  <meta name="theme-color" content="#dbefff">
+  <meta name="theme-color" content="#bcd9f4" />
   <style>
     :root{
-      --bg:#dbefff; --card:#ffffff; --muted:#334155; --text:#0b1220;
-      --accent:#2563eb; --yes:#15803d; --no:#b91c1c; --warn:#facc15;
-      --radius:18px; --shadow:0 10px 24px rgba(0,0,0,.10);
-      --fs:1.00;
+      --bg:#bcd9f4;          /* tmavšie modré pozadie */
+      --card:#ffffffcc;
+      --card2:#ffffffb8;
+      --text:#0b2239;
+      --muted:#32506a;
+      --btn:#ffffffd6;
+      --shadow:0 10px 30px rgba(0,0,0,.12);
+      --radius:18px;
+      --protoBg:#bcd9f4;     /* protokol plocha rovnaká ako pozadie */
+      --chip:#d9ebff;
+      --chipBorder:#a9c9ea;
     }
+
     *{box-sizing:border-box}
     body{
-      margin:0; background:var(--bg); color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-      font-size:calc(16px * var(--fs));
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: var(--bg);
+      color:var(--text);
     }
-    header{
-      position:sticky; top:0; z-index:10;
-      background:rgba(219,239,255,.92);
-      backdrop-filter:blur(10px);
-      border-bottom:1px solid rgba(15,23,42,.10);
+    .wrap{
+      max-width:1100px;
+      margin:22px auto;
+      padding:0 14px 24px;
     }
-    .wrap{max-width:980px; margin:0 auto; padding:14px}
-    .topbar{display:flex; gap:10px; align-items:center; justify-content:space-between}
-    .brand{font-weight:800; font-size:1.35rem}
-    .btnrow{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
-    button, .pill{
-      border:1px solid rgba(15,23,42,.18);
-      background:#fff; color:#0b1220;
-      padding:10px 14px; border-radius:999px;
-      font-weight:800; letter-spacing:.2px;
-      box-shadow:0 6px 14px rgba(0,0,0,.06);
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
     }
-    button:active{transform:scale(.99)}
-    .pill{display:inline-flex; align-items:center; gap:6px; font-weight:700; box-shadow:none}
-    .pill.small{padding:8px 10px; font-weight:800}
-    .grid{display:grid; grid-template-columns:1fr; gap:14px; padding:14px}
-    @media(min-width:900px){ .grid{grid-template-columns:1.1fr .9fr} }
+    h1{
+      font-size:34px;
+      margin:0;
+      letter-spacing:.2px;
+    }
+    .pills{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    .pill{
+      background:#fff;
+      border:1px solid rgba(0,0,0,.08);
+      border-radius:999px;
+      padding:10px 16px;
+      font-weight:700;
+      box-shadow:0 8px 16px rgba(0,0,0,.08);
+      cursor:pointer;
+      user-select:none;
+    }
+    .pill.secondary{ font-weight:700; opacity:.9; }
+    .pill:active{ transform:scale(.98); }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:18px;
+      margin-top:16px;
+    }
+    @media (max-width: 940px){
+      .grid{ grid-template-columns:1fr; }
+      h1{ font-size:28px; }
+    }
+
     .card{
       background:var(--card);
       border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      border:1px solid rgba(15,23,42,.10);
-      padding:14px;
+      box-shadow: var(--shadow);
+      padding:18px;
+      border:1px solid rgba(0,0,0,.06);
     }
-    h2{margin:0 0 6px 0; font-size:1.15rem}
-    .muted{color:var(--muted)}
-    input{
-      width:100%; border-radius:14px; padding:12px 14px;
-      border:1px solid rgba(15,23,42,.14);
-      outline:none; font-size:1rem;
+    .card h2{
+      margin:0 0 6px 0;
+      font-size:26px;
+    }
+    .hint{
+      color:var(--muted);
+      margin:0 0 14px 0;
+      font-weight:600;
+    }
+    .searchRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    input[type="text"]{
+      width:100%;
+      font-size:18px;
+      padding:14px 16px;
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,.10);
       background:#fff;
+      outline:none;
     }
-    .list{display:flex; flex-direction:column; gap:10px; margin-top:12px}
+    .miniBtn{
+      border-radius:999px;
+      padding:10px 16px;
+      border:1px solid rgba(0,0,0,.12);
+      background:var(--btn);
+      font-weight:800;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+
+    .tagChips{
+      display:none;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .tagBtn{
+      border-radius:999px;
+      padding:8px 12px;
+      border:1px solid rgba(0,0,0,.12);
+      background:#fff;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .tagBtn.active{
+      background:var(--chip);
+      border-color:var(--chipBorder);
+    }
+
+    .faultList{
+      margin-top:14px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
     .item{
       text-align:left;
-      border-radius:16px;
-      padding:12px 14px;
-      border:1px solid rgba(15,23,42,.12);
-      background:#fff;
-      box-shadow:0 6px 14px rgba(0,0,0,.05);
-    }
-    .item .t{font-weight:900}
-    .item .s{margin-top:2px; color:var(--muted)}
-    .tagsRow{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
-    .tagBtn{font-weight:900}
-    .tagBtn.active{background:rgba(37,99,235,.12); border-color:rgba(37,99,235,.35)}
-    .diagTitle{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:6px}
-    .badge{
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid rgba(0,0,0,.10);
+      background:var(--card2);
+      cursor:pointer;
       font-weight:900;
-      border-radius:999px;
-      padding:8px 10px;
-      background:rgba(2,132,199,.10);
-      border:1px solid rgba(2,132,199,.18);
+      box-shadow:0 10px 18px rgba(0,0,0,.06);
     }
-    .nodeText{font-size:1.22rem; font-weight:900; margin-top:8px}
-    .help{margin-top:8px; color:var(--muted)}
-    .answers{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px}
-    .ansYes{background:var(--yes); color:#fff; border:none; padding:16px 14px; border-radius:18px; font-size:1.1rem}
-    .ansNo{background:var(--no); color:#fff; border:none; padding:16px 14px; border-radius:18px; font-size:1.1rem}
-    .backWide{
-      grid-column:1 / -1;
-      background:var(--warn);
-      color:#0b1220;
-      border:none;
-      padding:16px 14px;
-      border-radius:18px;
-      font-size:1.1rem;
+    .item .sub{ display:block; font-weight:700; color:var(--muted); margin-top:6px; }
+
+    .diagTitle{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin:10px 0 6px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 14px;
+      background:#d9ebff;
+      border:1px solid #a9c9ea;
+      border-radius:999px;
+      font-weight:900;
+      width:fit-content;
+      max-width:100%;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .tagsBadge{
+      display:none; /* ✅ TAGY SCHOVANÉ (nerušia), ale tag filter ostáva */
+    }
+
+    .nodeText{
+      font-size:28px;
       font-weight:1000;
+      margin:14px 0 4px;
+    }
+    .nodeHelp{
+      margin:0 0 12px;
+      color:var(--muted);
+      font-weight:700;
+      font-size:16px;
+    }
+    .answers{
+      display:none;
+      grid-template-columns: 1fr 1fr;
+      gap:14px;
+      margin:14px 0 10px;
+    }
+    @media (max-width: 520px){
+      .answers{ grid-template-columns:1fr; }
+    }
+    .btnBig{
+      border:none;
+      border-radius:16px;
+      padding:18px 16px;
+      font-size:26px;
+      font-weight:1000;
+      cursor:pointer;
+      color:#fff;
+      box-shadow:0 12px 22px rgba(0,0,0,.18);
+    }
+    .yes{ background:#147a3b; }
+    .no{ background:#a81414; }
+
+    .backBtn{
+      width:100%;
+      margin-top:10px;
+      background:#f3cd19;
+      color:#0b2239;
+      border:none;
+      border-radius:16px;
+      padding:16px;
+      font-weight:1000;
+      font-size:24px;
+      cursor:pointer;
+      box-shadow:0 12px 22px rgba(0,0,0,.12);
+    }
+
+    .protoWrap{
+      margin-top:14px;
     }
     textarea{
-      width:100%; min-height:180px;
-      border-radius:14px;
-      border:1px solid rgba(15,23,42,.14);
-      padding:12px 14px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size:0.95rem;
+      width:100%;
+      min-height:190px;
+      resize:vertical;
+      font-size:18px;
       line-height:1.35;
-      background:#fff;
-      white-space:pre-wrap;
+      padding:14px 14px;
+      border-radius:14px;
+      border:1px solid rgba(0,0,0,.12);
+      background: var(--protoBg); /* ✅ bledomodrá ako pozadie */
+      color:var(--text);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      outline:none;
     }
-    .protoBtns{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
-    .protoBtns button{font-weight:900}
-    .footerRow{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
-    .tiny{font-size:.9rem; color:var(--muted)}
+    .protoBtns{
+      margin-top:12px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .protoHint{
+      margin-left:auto;
+      color:var(--muted);
+      font-weight:800;
+    }
+
+    .ver{
+      margin-top:10px;
+      font-weight:900;
+      color:rgba(0,0,0,.55);
+    }
   </style>
 </head>
 <body>
-<header>
   <div class="wrap">
     <div class="topbar">
-      <div class="brand">CaravanTechniker am Main</div>
-      <div class="btnrow">
-        <span class="pill small" id="pwaPill">PWA</span>
-        <span class="pill small" id="offlinePill">offline: ?</span>
-        <button id="langDE">DE</button>
-        <button id="langSK">SK</button>
-        <button id="adminBtn">ADMIN</button>
-        <button id="resetBtn">Reset</button>
+      <h1>CaravanTechniker am Main</h1>
+      <div class="pills">
+        <div class="pill" id="pwaPill">PWA</div>
+        <div class="pill secondary" id="offlinePill">offline: NO</div>
+        <div class="pill" id="langDE">DE</div>
+        <div class="pill" id="langSK">SK</div>
+        <div class="pill" id="adminBtn">ADMIN</div>
+        <div class="pill" id="resetBtn">Reset</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- LEFT -->
+      <div class="card">
+        <h2 id="hFaults">Störungen</h2>
+        <p class="hint" id="hHint">Wähle eine Störung oder suche. Funktioniert auch offline.</p>
+
+        <div class="searchRow">
+          <input id="search" type="text" placeholder="Suche (trittstufe, wasserpumpe, 12V...)" />
+          <button class="miniBtn" id="tagBtn">Tags ▼</button>
+          <button class="miniBtn" id="filterResetBtn">Filter Reset</button>
+        </div>
+
+        <div class="tagChips" id="tagChips"></div>
+        <div class="faultList" id="faultList"></div>
+
+        <div class="ver" id="ver">v0.0.0</div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="card">
+        <h2 id="hDiag">Diagnose</h2>
+        <p class="hint" id="diagEmpty">Wähle links eine Störung. Dann JA / NEIN klicken.</p>
+
+        <div class="diagTitle">
+          <div class="badge" id="faultTitleBadge" style="display:none"></div>
+          <div class="badge tagsBadge" id="faultTagsBadge" style="display:none"></div>
+        </div>
+
+        <div class="nodeText" id="nodeText"></div>
+        <div class="nodeHelp" id="nodeHelp"></div>
+
+        <div class="answers" id="answerBtns">
+          <button class="btnBig yes" id="yesBtn">JA</button>
+          <button class="btnBig no" id="noBtn">NEIN</button>
+        </div>
+
+        <button class="backBtn" id="backBtn">← SCHRITT ZURÜCK</button>
+
+        <div class="protoWrap">
+          <h2 id="hProto">Protokoll</h2>
+          <textarea id="proto" readonly></textarea>
+
+          <div class="protoBtns">
+            <button class="miniBtn" id="copyBtn">Kopieren</button>
+            <button class="miniBtn" id="clearPathBtn">Pfad löschen</button>
+            <button class="miniBtn" id="pdfBtn">PDF Download</button>
+            <div class="protoHint" id="protoHint"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</header>
 
-<div class="wrap">
-  <div class="grid">
+<script>
+/* Caravan TaM - stable UI + PDF export
+   - Tags badge hidden (but tag filtering stays)
+   - TXT download removed
+   - App bg darker blue
+   - Protocol area background light-blue like page
+   - PDF window background light-blue
+*/
 
-    <section class="card">
-      <h2 id="hFaults">Störungen</h2>
-      <div class="muted" id="hHint">Wähle eine Störung oder suche. Funktioniert auch offline.</div>
+const VERSION = "0.1.6";
 
-      <div style="margin-top:10px">
-        <input id="search" placeholder="Suche (trittstufe, wasserpumpe, 12V...)" />
-      </div>
+let LANG = localStorage.getItem("lang") || "de";
+let TREES = [];
+let currentTree = null;
+let currentNodeId = null;
+let path = [];
+let activeTag = "";
+let tagsOpen = false;
 
-      <div class="tagsRow">
-        <button class="tagBtn" id="tagBtn">Tags ▾</button>
-        <button class="tagBtn" id="filterResetBtn">Filter Reset</button>
-      </div>
+const el = {
+  pwaPill: document.getElementById("pwaPill"),
+  offlinePill: document.getElementById("offlinePill"),
+  langDE: document.getElementById("langDE"),
+  langSK: document.getElementById("langSK"),
+  adminBtn: document.getElementById("adminBtn"),
+  resetBtn: document.getElementById("resetBtn"),
 
-      <div class="tagsRow" id="tagChips" style="display:none"></div>
+  hFaults: document.getElementById("hFaults"),
+  hHint: document.getElementById("hHint"),
+  hDiag: document.getElementById("hDiag"),
+  diagEmpty: document.getElementById("diagEmpty"),
+  hProto: document.getElementById("hProto"),
 
-      <div class="list" id="faultList"></div>
+  search: document.getElementById("search"),
+  tagBtn: document.getElementById("tagBtn"),
+  filterResetBtn: document.getElementById("filterResetBtn"),
+  tagChips: document.getElementById("tagChips"),
+  faultList: document.getElementById("faultList"),
 
-      <div class="footerRow">
-        <span class="tiny" id="ver">v0.1.5</span>
-      </div>
-    </section>
+  faultTitleBadge: document.getElementById("faultTitleBadge"),
+  faultTagsBadge: document.getElementById("faultTagsBadge"),
 
-    <section class="card">
-      <h2 id="hDiag">Diagnose</h2>
-      <div class="muted" id="diagEmpty">Wähle links eine Störung. Dann JA / NEIN klicken.</div>
+  nodeText: document.getElementById("nodeText"),
+  nodeHelp: document.getElementById("nodeHelp"),
+  answerBtns: document.getElementById("answerBtns"),
+  yesBtn: document.getElementById("yesBtn"),
+  noBtn: document.getElementById("noBtn"),
+  backBtn: document.getElementById("backBtn"),
 
-      <div class="diagTitle">
-        <span class="badge" id="faultTitleBadge" style="display:none"></span>
-        <span class="badge" id="faultTagsBadge" style="display:none"></span>
-      </div>
+  proto: document.getElementById("proto"),
+  copyBtn: document.getElementById("copyBtn"),
+  clearPathBtn: document.getElementById("clearPathBtn"),
+  pdfBtn: document.getElementById("pdfBtn"),
+  protoHint: document.getElementById("protoHint"),
 
-      <div id="diag">
-        <div class="nodeText" id="nodeText"></div>
-        <div class="help" id="nodeHelp"></div>
+  ver: document.getElementById("ver"),
+};
 
-        <div class="answers" id="answerBtns" style="display:none">
-          <button class="ansYes" id="yesBtn">JA</button>
-          <button class="ansNo" id="noBtn">NEIN</button>
-          <button class="backWide" id="backBtn">← SCHRITT ZURÜCK</button>
-        </div>
-      </div>
+// i18n
+const I = {
+  de: {
+    faults:"Störungen",
+    hint:"Wähle eine Störung oder suche. Funktioniert auch offline.",
+    search:"Suche (trittstufe, wasserpumpe, 12V...)",
+    diag:"Diagnose",
+    empty:"Wähle links eine Störung. Dann JA / NEIN klicken.",
+    proto:"Protokoll",
+    copy:"Kopieren",
+    clear:"Pfad löschen",
+    yes:"JA",
+    no:"NEIN",
+    back:"← SCHRITT ZURÜCK",
+    tags:"Tags ▼",
+    filterReset:"Filter Reset",
+    reset:"Reset",
+    admin:"ADMIN",
+    time:"Zeit",
+    lang:"Sprache",
+    fault:"Störung",
+    tagsLabel:"Tags",
+    steps:"Schritte",
+    result:"Ergebnis",
+    pdf:"PDF Download",
+    copied:"Kopiert."
+  },
+  sk: {
+    faults:"Poruchy",
+    hint:"Vyber poruchu alebo hľadaj. Funguje aj offline.",
+    search:"Hľadať (trittstufe, wasserpumpe, 12V...)",
+    diag:"Diagnostika",
+    empty:"Vyber poruchu vľavo. Potom klikaj ÁNO / NIE.",
+    proto:"Protokol",
+    copy:"Kopírovať",
+    clear:"Vymazať cestu",
+    yes:"ÁNO",
+    no:"NIE",
+    back:"← KROK SPÄŤ",
+    tags:"Tagy ▼",
+    filterReset:"Reset filtra",
+    reset:"Reset",
+    admin:"ADMIN",
+    time:"Čas",
+    lang:"Jazyk",
+    fault:"Porucha",
+    tagsLabel:"Tagy",
+    steps:"Kroky",
+    result:"Výsledok",
+    pdf:"PDF Download",
+    copied:"Skopírované."
+  }
+};
+function T(k){ return (I[LANG] && I[LANG][k]) || k; }
 
-      <h2 style="margin-top:14px" id="hProto">Protokoll</h2>
-      <textarea id="proto" readonly></textarea>
+// robust text getter for {de,sk} objects
+function L(x){
+  if (x == null) return "";
+  if (typeof x === "string") return x;
+  if (typeof x === "number" || typeof x === "boolean") return String(x);
+  if (typeof x === "object"){
+    if (x[LANG] != null) return String(x[LANG]);
+    if (x.de != null) return String(x.de);
+    if (x.sk != null) return String(x.sk);
+    const v = Object.values(x)[0];
+    return v == null ? "" : String(v);
+  }
+  return String(x);
+}
 
-      <div class="protoBtns">
-        <button id="copyBtn">Kopieren</button>
-        <button id="clearPathBtn">Pfad löschen</button>
-        <button id="txtBtn">TXT Download</button>
-        <button id="pdfBtn">PDF Download</button>
-      </div>
+function nowLocal(){
+  try { return new Date().toLocaleString(undefined,{hour12:false}); }
+  catch { return new Date().toISOString(); }
+}
 
-      <div class="tiny" id="protoHint"></div>
-    </section>
+async function loadContent(){
+  try{
+    const r = await fetch("./content.json?v="+encodeURIComponent(VERSION), {cache:"no-store"});
+    const data = await r.json();
+    TREES = Array.isArray(data) ? data : (data.trees || []);
+  }catch(e){
+    TREES = [];
+  }
+}
 
-  </div>
-</div>
+function updateOffline(){
+  const on = navigator.onLine;
+  el.offlinePill.textContent = "offline: " + (on ? "NO" : "YES");
+}
+window.addEventListener("online", updateOffline);
+window.addEventListener("offline", updateOffline);
 
-<script src="./app.js?v=0.1.5"></script>
+function applyLangUI(){
+  document.documentElement.lang = (LANG==="de") ? "de" : "sk";
+  el.hFaults.textContent = T("faults");
+  el.hHint.textContent = T("hint");
+  el.search.placeholder = T("search");
+  el.hDiag.textContent = T("diag");
+  el.diagEmpty.textContent = T("empty");
+  el.hProto.textContent = T("proto");
+  el.copyBtn.textContent = T("copy");
+  el.clearPathBtn.textContent = T("clear");
+  el.yesBtn.textContent = T("yes");
+  el.noBtn.textContent = T("no");
+  el.backBtn.textContent = T("back");
+  el.tagBtn.textContent = T("tags");
+  el.filterResetBtn.textContent = T("filterReset");
+  el.resetBtn.textContent = T("reset");
+  el.adminBtn.textContent = T("admin");
+  el.pdfBtn.textContent = T("pdf");
+  el.ver.textContent = "v" + VERSION;
+  renderTagChips();
+  renderList();
+  renderNode();
+  renderProtocol();
+}
+
+// TAGS
+function allTags(){
+  const s = new Set();
+  for(const tr of TREES){
+    for(const tg of (tr.tags||[])) s.add(tg);
+  }
+  return Array.from(s).sort((a,b)=>a.localeCompare(b));
+}
+function renderTagChips(){
+  el.tagChips.innerHTML = "";
+  if(!tagsOpen){ el.tagChips.style.display="none"; return; }
+  el.tagChips.style.display="flex";
+  const tags = ["__ALL__"].concat(allTags());
+  for(const tg of tags){
+    const b = document.createElement("button");
+    b.className = "tagBtn" + ((activeTag===tg) ? " active" : "");
+    b.textContent = (tg==="__ALL__") ? "ALL" : tg;
+    b.onclick = ()=>{
+      activeTag = (activeTag===tg) ? "" : tg;
+      renderList();
+      renderTagChips();
+    };
+    el.tagChips.appendChild(b);
+  }
+}
+function filterReset(){
+  activeTag = "";
+  el.search.value = "";
+  renderList();
+  renderTagChips();
+}
+
+// LIST
+function matchTree(tr,q){
+  if(activeTag && activeTag!=="__ALL__"){
+    if(!(tr.tags||[]).includes(activeTag)) return false;
+  }
+  if(!q) return true;
+  const hay = (L(tr.title)+" "+L(tr.subtitle)+" "+(tr.tags||[]).join(" ")).toLowerCase();
+  return hay.includes(q);
+}
+function renderList(){
+  const q = (el.search.value||"").trim().toLowerCase();
+  el.faultList.innerHTML = "";
+  const list = TREES.filter(tr=>matchTree(tr,q));
+  list.forEach((tr)=>{
+    const item = document.createElement("button");
+    item.className = "item";
+    item.innerHTML = `${escapeHtml(L(tr.title))}<span class="sub">${escapeHtml(L(tr.subtitle))}</span>`;
+    item.onclick = ()=>selectTree(tr);
+    el.faultList.appendChild(item);
+  });
+}
+
+function selectTree(tr){
+  currentTree = tr;
+  currentNodeId = tr.start || tr.root || null;
+  path = [];
+
+  el.faultTitleBadge.style.display = "inline-flex";
+  el.faultTitleBadge.textContent = L(tr.title);
+
+  // ✅ tagy sa nechávajú v dátach (filter), ale badge neruší
+  el.faultTagsBadge.style.display = "none";
+  el.faultTagsBadge.textContent = "#"+(tr.tags||[]).join(" #");
+
+  renderNode();
+  renderProtocol();
+}
+
+// NODE / FLOW
+function node(){
+  if(!currentTree || !currentNodeId) return null;
+  return (currentTree.nodes||currentTree.tree||{})[currentNodeId] || null;
+}
+
+function renderNode(){
+  if(!currentTree){
+    el.answerBtns.style.display="none";
+    el.nodeText.textContent="";
+    el.nodeHelp.textContent="";
+    return;
+  }
+  const n = node();
+  if(!n){
+    el.nodeText.textContent = (LANG==="de") ? "Fehler: Node fehlt im Baum." : "Chyba: chýba uzol v strome.";
+    el.nodeHelp.textContent = (LANG==="de") ? "Prüfe content.json." : "Skontroluj content.json.";
+    el.answerBtns.style.display="none";
+    return;
+  }
+
+  if(n.type==="question"){
+    el.nodeText.textContent = L(n.text);
+    el.nodeHelp.textContent = L(n.help);
+    el.answerBtns.style.display="grid";
+  } else if(n.type==="result"){
+    const cause = L(n.cause);
+    const action = L(n.action);
+    el.nodeText.textContent = (LANG==="de")
+      ? ("Ergebnis: " + cause)
+      : ("Výsledok: " + cause);
+    el.nodeHelp.textContent = (action ? ((LANG==="de") ? ("Aktion: "+action) : ("Akcia: "+action)) : "");
+    el.answerBtns.style.display="none";
+  } else if(n.type==="action"){
+    el.nodeText.textContent = L(n.text);
+    el.nodeHelp.textContent = L(n.help);
+    el.answerBtns.style.display="grid";
+  } else {
+    el.nodeText.textContent = L(n.text);
+    el.nodeHelp.textContent = L(n.help);
+    el.answerBtns.style.display="grid";
+  }
+}
+
+function go(nextId, answerLabel){
+  const n = node();
+  if(!n) return;
+
+  // store protocol step as text
+  if(n.type==="question"){
+    path.push({ q: L(n.text), a: answerLabel });
+  } else if(n.type==="action"){
+    path.push({ q: L(n.text), a: answerLabel });
+  }
+
+  currentNodeId = nextId || null;
+  renderNode();
+  renderProtocol();
+}
+
+function yes(){
+  const n = node(); if(!n) return;
+  if(n.type==="question") return go(n.yes, (LANG==="de")?"[JA]":"[ÁNO]");
+  if(n.type==="action") return go(n.next || currentNodeId, (LANG==="de")?"[JA]":"[ÁNO]");
+}
+function no(){
+  const n = node(); if(!n) return;
+  if(n.type==="question") return go(n.no, (LANG==="de")?"[NEIN]":"[NIE]");
+  if(n.type==="action") return go(n.next || currentNodeId, (LANG==="de")?"[NEIN]":"[NIE]");
+}
+
+function back(){
+  if(!currentTree) return;
+  if(path.length===0){
+    currentNodeId = currentTree.start || currentTree.root || null;
+    renderNode(); renderProtocol();
+    return;
+  }
+  path.pop();
+
+  // replay from start using stored question text matching
+  const replay = [...path];
+  path = [];
+  currentNodeId = currentTree.start || currentTree.root || null;
+
+  for(const st of replay){
+    const n = node();
+    if(!n) break;
+    if(n.type==="question"){
+      if(st.a.includes("JA") || st.a.includes("ÁNO")) go(n.yes, st.a);
+      else go(n.no, st.a);
+    } else if(n.type==="action"){
+      go(n.next || currentNodeId, st.a);
+    } else {
+      // try continue
+      break;
+    }
+  }
+  renderNode();
+  renderProtocol();
+}
+
+// PROTOCOL
+function renderProtocol(){
+  if(!currentTree){
+    el.proto.value = "";
+    return;
+  }
+  const title = L(currentTree.title);
+  const tags = (currentTree.tags||[]).join(", ");
+  const steps = path.map((st, i)=>`${i+1}. ${st.q} ${st.a}`).join("\n");
+
+  // if at result node, include result/cause/action
+  let resultBlock = "";
+  const n = node();
+  if(n && n.type==="result"){
+    const cause = L(n.cause);
+    const action = L(n.action);
+    resultBlock =
+      `\n\n${T("result")}:\n` +
+      `${cause}\n` +
+      (action ? `${action}\n` : "");
+  }
+
+  const txt =
+`${T("time")}: ${nowLocal()}
+${T("lang")}: ${LANG.toUpperCase()}
+${T("fault")}: ${title}
+${T("tagsLabel")}: ${tags}
+
+${T("steps")}:
+${steps}${resultBlock}
+`;
+  el.proto.value = txt.trim() + "\n";
+}
+
+function escapeHtml(s){
+  return String(s||"").replace(/[&<>"']/g, c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+  }[c]));
+}
+
+// PDF export
+function downloadPdf(){
+  const safe = escapeHtml(el.proto.value);
+  const w = window.open("", "_blank");
+  if(!w) return;
+
+  w.document.write(`
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Caravan TaM Protocol</title>
+<style>
+  body{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+    padding:18px;
+    background:#bcd9f4; /* ✅ bledomodré ako app pozadie */
+    color:#0b2239;
+  }
+  pre{
+    white-space:pre-wrap;
+    font-size:14px;
+    line-height:1.35;
+    margin:0;
+    background:transparent; /* ✅ žiadna biela plocha */
+  }
+</style>
+</head>
+<body>
+<pre>${safe}</pre>
+<script>window.onload=()=>{window.print();}</script>
+</body>
+</html>
+`);
+  w.document.close();
+}
+
+function hardReset(){
+  activeTag = "";
+  tagsOpen = false;
+  currentTree = null;
+  currentNodeId = null;
+  path = [];
+  el.faultTitleBadge.style.display="none";
+  el.faultTagsBadge.style.display="none";
+  el.search.value = "";
+  el.tagChips.style.display="none";
+  renderList();
+  renderNode();
+  el.proto.value = "";
+}
+
+async function admin(){
+  const choice = prompt("ADMIN\\n1 = Import content.json\\n2 = Export content.json");
+  if(!choice) return;
+
+  if(choice.trim()==="1"){
+    const inp = document.createElement("input");
+    inp.type="file";
+    inp.accept="application/json,.json";
+    inp.onchange = async ()=>{
+      const f = inp.files && inp.files[0];
+      if(!f) return;
+      const txt = await f.text();
+      try{
+        const data = JSON.parse(txt);
+        const arr = Array.isArray(data) ? data : (data.trees || []);
+        localStorage.setItem("content_override", JSON.stringify(arr));
+        TREES = arr;
+        hardReset();
+        applyLangUI();
+        alert("Import OK");
+      }catch(e){
+        alert("Import ERROR: JSON invalid");
+      }
+    };
+    inp.click();
+  }
+
+  if(choice.trim()==="2"){
+    const data = JSON.stringify(TREES, null, 2);
+    const blob = new Blob([data], {type:"application/json;charset=utf-8"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `content_export_${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+  }
+}
+
+// boot
+(async function(){
+  // content override from localStorage (admin import)
+  const ov = localStorage.getItem("content_override");
+  if(ov){
+    try{ TREES = JSON.parse(ov); }catch{ TREES = []; }
+  }else{
+    await loadContent();
+  }
+
+  // handlers
+  el.langDE.onclick = ()=>{ LANG="de"; localStorage.setItem("lang", LANG); applyLangUI(); };
+  el.langSK.onclick = ()=>{ LANG="sk"; localStorage.setItem("lang", LANG); applyLangUI(); };
+  el.resetBtn.onclick = ()=>hardReset();
+  el.search.oninput = ()=>renderList();
+
+  el.tagBtn.onclick = ()=>{
+    tagsOpen = !tagsOpen;
+    renderTagChips();
+  };
+  el.filterResetBtn.onclick = ()=>filterReset();
+
+  el.yesBtn.onclick = ()=>yes();
+  el.noBtn.onclick = ()=>no();
+  el.backBtn.onclick = ()=>back();
+
+  el.copyBtn.onclick = async ()=>{
+    try{
+      await navigator.clipboard.writeText(el.proto.value);
+      el.protoHint.textContent = T("copied");
+    }catch{
+      el.protoHint.textContent = "";
+    }
+    setTimeout(()=>el.protoHint.textContent="", 1000);
+  };
+
+  el.clearPathBtn.onclick = ()=>{
+    path = [];
+    if(currentTree) currentNodeId = currentTree.start || currentTree.root || null;
+    renderNode();
+    renderProtocol();
+  };
+
+  el.pdfBtn.onclick = ()=>downloadPdf();
+  el.adminBtn.onclick = ()=>admin();
+
+  updateOffline();
+  applyLangUI();
+})();
+</script>
 </body>
 </html>
