@@ -1,120 +1,88 @@
-<!doctype html>
-<html lang="sk">
+<!DOCTYPE html>
+<html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Caravan TaM</title>
-  <link rel="manifest" href="./manifest.webmanifest">
-  <meta name="theme-color" content="#dbefff">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CaravanTechniker am Main</title>
+
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#dbeefe">
+
   <style>
-    :root{--bg:#dbefff;--card:#ffffff;--muted:#334155;--text:#0b1220;--accent:#2563eb;--danger:#dc2626;--ok:#16a34a;--fs:1;}
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;font-size:calc(16px * var(--fs));}
-    header{position:sticky;top:0;background:rgba(219,239,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(15,23,42,.12);padding:14px 14px 10px;z-index:10}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    h1{font-size:18px;margin:0;letter-spacing:.2px}
-    .pill{padding:6px 10px;border-radius:999px;background:rgba(15,23,42,.04);color:var(--text);border:1px solid rgba(15,23,42,.12);font-size:12px}
-    .pill button{all:unset;cursor:pointer}
-    main{padding:14px;max-width:980px;margin:0 auto}
-    .grid{display:grid;grid-template-columns:1fr;gap:12px}
-    @media (min-width:860px){.grid{grid-template-columns:360px 1fr}}
-    .card{background:var(--card);border:1px solid rgba(15,23,42,.10);border-radius:16px;padding:12px;box-shadow:0 8px 22px rgba(15,23,42,.10)}
-    .card h2{font-size:14px;margin:0 0 8px;color:var(--text)}
-    .muted{color:var(--muted);font-size:12px;line-height:1.35}
-    input[type="search"]{width:100%;padding:10px 12px;border-radius:12px;border:1px solid rgba(15,23,42,.18);background:#ffffff;color:var(--text);outline:none}
-    .list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
-    .item{padding:10px 10px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);cursor:pointer}
-    .item:hover{border-color:rgba(93,228,199,.35)}
-    .item .t{font-size:13px;font-weight:650}
-    .item .s{font-size:12px;color:var(--muted);margin-top:4px}
-    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-    .btn{padding:10px 12px;border-radius:14px;border:1px solid rgba(15,23,42,.18);background:rgba(15,23,42,.04);cursor:pointer;font-weight:650;font-size:13px;color:var(--text)}
-    .btn.primary{border-color:rgba(37,99,235,.65);background:rgba(37,99,235,.12)}
-    .btn.ok{border-color:rgba(22,163,74,.65);background:rgba(22,163,74,.14)}
-    .btn.danger{border-color:rgba(220,38,38,.65);background:rgba(220,38,38,.14)}
-    .btn.small{padding:6px 10px;border-radius:999px;font-size:12px}
-    .btn:active{transform:translateY(1px)}
-    .qa{display:flex;flex-direction:column;gap:10px}
-    .q{font-size:16px;font-weight:750;line-height:1.25}
-    .a{padding:10px 12px;border-radius:14px;border:1px dashed rgba(255,255,255,.14);background:rgba(255,255,255,.03);font-size:13px;line-height:1.35}
-    .path{margin-top:10px}
-    .path h3{margin:0 0 6px;font-size:13px}
-    .path ol{margin:0;padding-left:18px;color:var(--muted);font-size:12px;line-height:1.5}
-    .footer{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    textarea{width:100%;min-height:160px;border-radius:14px;border:1px solid rgba(15,23,42,.18);background:#ffffff;color:var(--text);padding:10px 12px;font-size:12px;line-height:1.4}
-    .small{font-size:11px;color:var(--muted)}
-    .badge{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);font-size:11px;color:var(--muted);margin-right:6px}
+    :root {
+      --font-scale: 1;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #eaf4ff;
+      color: #000;
+      font-size: calc(16px * var(--font-scale));
+    }
+
+    header {
+      background: #dbeefe;
+      padding: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    button {
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid #999;
+      background: #fff;
+      cursor: pointer;
+      font-size: inherit;
+    }
+
+    .container {
+      padding: 16px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .tree-item {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      cursor: pointer;
+    }
+
+    .tree-item:hover {
+      background: #f2f8ff;
+    }
+
+    h1, h2 {
+      margin-top: 0;
+    }
+
+    .back-btn {
+      margin-bottom: 12px;
+    }
   </style>
 </head>
 <body>
+
 <header>
-  <div class="row" style="justify-content:space-between">
-    <div class="row">
-      <h1>Caravan TaM</h1>
-      <span class="pill" id="offlinePill" title="Offline status">offline: ?</span>
-      <span class="pill" id="pwaPill" title="PWA">PWA</span>
-    </div>
-    <div class="row">
-      <span class="pill"><button id="langBtn">SK</button></span>
-      <span class="pill"><button id="fontMinus" class="btn small" type="button">A−</button> <span class="small" id="fontLabel">Písmo</span> <button id="fontPlus" class="btn small" type="button">A+</button></span>
-      <span class="pill"><button id="resetBtn">Reset</button></span>
-    </div>
-  </div>
+  <strong>CaravanTechniker am Main</strong>
+  <span id="offlineState">offline: NIE</span>
+  <button onclick="setLang('de')">DE</button>
+  <button onclick="setLang('sk')">SK</button>
+  <button onclick="fontDown()">A-</button>
+  <button onclick="fontUp()">A+</button>
+  <button onclick="resetApp()">Reset</button>
 </header>
 
-<main>
-  <div class="grid">
-    <section class="card">
-      <h2 id="hFaults">Poruchy</h2>
-      <div class="muted" id="hHint">Vyber poruchu alebo hľadaj. Funguje aj offline.</div>
-      <div style="margin-top:10px">
-        <input id="search" type="search" placeholder="Hľadať (trittstufe, wasserpumpe, 12V...)">
-      </div>
-      <div class="chips" id="tagChips" aria-label="Tagy"></div>
-      <div class="list" id="faultList"></div>
-      <div class="footer">
-        <button class="btn" id="installBtn" style="display:none">Inštalovať</button>
-        <span class="small" id="ver"></span>
-      </div>
-    </section>
+<div class="container" id="app"></div>
 
-    <section class="card">
-      <h2 id="hDiag">Diagnostika</h2>
-      <div id="diagEmpty" class="muted">Vyber poruchu vľavo. Potom klikaj ÁNO / NIE.</div>
-
-      <div id="diag" style="display:none">
-        <div class="qa">
-          <div>
-            <div class="badge" id="faultTitleBadge"></div>
-            <div class="badge" id="faultTagsBadge"></div>
-          </div>
-          <div class="q" id="nodeText"></div>
-          <div class="a" id="nodeHelp" style="display:none"></div>
-          <div class="btns" id="answerBtns"></div>
-          <div class="btns" style="margin-top:10px">
-            <button class="btn" id="backBtn" type="button" disabled>Späť</button>
-          </div>
-        </div>
-
-        <div class="path">
-          <h3 id="hPath">Cesta</h3>
-          <ol id="pathList"></ol>
-        </div>
-
-        <div style="margin-top:12px">
-          <h3 id="hProto">Protokol (detail)</h3>
-          <textarea id="proto" readonly></textarea>
-          <div class="btns" style="margin-top:10px">
-            <button class="btn primary" id="copyBtn">Kopírovať</button>
-            <button class="btn" id="clearPathBtn">Vymazať cestu</button>
-          </div>
-          <div class="small" id="protoHint"></div>
-        </div>
-      </div>
-    </section>
-  </div>
-</main>
-
-<script src="./app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
