@@ -2,647 +2,627 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>CaravanTechniker am Main</title>
   <style>
     :root{
-      --bg:#bcd9ef;
-      --bg2:#a9cfea;
-      --card:#d8ecfb;
-      --card2:#cfe6fa;
-      --text:#0b1b2a;
-      --muted:#506070;
-      --border: rgba(0,0,0,.15);
-      --shadow: 0 10px 25px rgba(0,0,0,.12);
-      --btnRadius: 22px;
+      --bg1:#9ec7e6;     /* tmavšie modré pozadie */
+      --bg2:#cfe7f8;     /* bledomodré karty */
+      --card:#d9ecfb;
+      --ink:#0b1b2a;
+      --muted:#4b647a;
+      --btn:#ffffff;
+      --shadow: 0 10px 30px rgba(0,0,0,.12);
+      --radius: 22px;
     }
+
+    /* cca -10% celá app */
+    html, body { height:100%; }
     body{
       margin:0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color:var(--text);
-      background: linear-gradient(180deg,var(--bg2),var(--bg));
+      font-size: 90%;
+      color:var(--ink);
+      background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 45%, #e9f5ff 100%);
     }
-    .wrap{ max-width: 980px; margin: 0 auto; padding: 18px 14px 40px; }
-    .header{
-      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
-      margin-bottom:12px;
+
+    .wrap{ max-width: 980px; margin: 0 auto; padding: 18px 14px 34px; }
+    .top{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:14px;
+      padding: 6px 2px 14px;
     }
+    .brand{ flex:1; min-width: 260px; }
+    /* CaravanTechniker am Main menšie */
     .brand h1{
-      margin:0; font-size: 44px; font-weight: 900; letter-spacing: -0.5px;
-    }
-    .brand .sub{
-      margin-top:2px; font-size: 18px; color:var(--muted); font-weight: 700;
-    }
-    .topBtns{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
-    .chipBtn{
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.7);
-      padding: 14px 18px;
-      border-radius: 999px;
+      margin:0;
+      font-size: 2.35rem; /* menšie než predtým */
+      letter-spacing:.2px;
+      line-height:1.05;
       font-weight: 900;
-      box-shadow: var(--shadow);
-      cursor:pointer;
-      user-select:none;
+      text-shadow: 0 1px 0 rgba(255,255,255,.35);
     }
-    .chipBtn:active{ transform: translateY(1px); }
+    /* Wohnmobil Diagnose väčšie */
+    .brand .sub{
+      margin-top:6px;
+      font-size: 1.35rem; /* väčšie */
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .actions{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end;
+    }
+    .pill{
+      border:0;
+      background: rgba(255,255,255,.85);
+      padding: 12px 16px;
+      border-radius: 999px;
+      font-weight: 800;
+      letter-spacing:.2px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.12);
+      cursor:pointer;
+    }
+    .pill:active{ transform: translateY(1px); }
+
     .grid{
       display:grid;
       grid-template-columns: 1fr;
-      gap: 14px;
+      gap: 16px;
     }
+
     .card{
-      background: linear-gradient(180deg, var(--card), var(--card2));
-      border:1px solid var(--border);
-      border-radius: 26px;
+      background: rgba(217,236,251,.85);
+      border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 16px;
+      padding: 18px;
+      backdrop-filter: blur(6px);
     }
     .card h2{
-      margin: 2px 0 10px; font-size: 40px; letter-spacing:-0.3px;
+      margin:0 0 10px;
+      font-size: 2.2rem;
+      font-weight: 900;
     }
-    .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .hint{ color: var(--muted); font-weight: 650; margin: 0 0 12px; }
     .search{
       width:100%;
-      padding: 16px 18px;
-      border-radius: 20px;
-      border:1px solid var(--border);
-      font-size: 18px;
+      padding: 14px 16px;
+      border-radius: 999px;
+      border: 2px solid rgba(11,27,42,.10);
       background: rgba(255,255,255,.75);
       outline:none;
+      font-size: 1.05rem;
+      font-weight: 650;
     }
+
     .list{
-      margin-top: 10px;
+      margin-top: 14px;
       display:flex;
       flex-direction:column;
-      gap: 10px;
+      gap: 12px;
     }
     .item{
-      padding: 14px 14px;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.55);
-      cursor:pointer;
-    }
-    .item b{ font-size: 20px; display:block; margin-bottom: 2px; }
-    .item span{ color: var(--muted); font-weight: 700; }
-    .btnBig{
-      width:100%;
-      padding: 18px 18px;
-      border-radius: var(--btnRadius);
-      border: 1px solid var(--border);
-      font-size: 30px;
-      font-weight: 1000;
-      cursor:pointer;
-      box-shadow: var(--shadow);
-      user-select:none;
-    }
-    .btnYes{ background:#177a37; color:#fff; }
-    .btnNo{ background:#b01212; color:#fff; }
-    .btnBack{ background:#f2c400; color:#111; }
-    .question{
-      font-size: 30px;
-      font-weight: 1000;
-      margin: 10px 0 12px;
-    }
-    .resultTitle{
-      font-size: 32px;
-      font-weight: 1000;
-      margin: 8px 0 4px;
-    }
-    .resultText{ font-size: 22px; font-weight: 800; color: var(--text); }
-    .protoWrap{
-      background: rgba(255,255,255,.35);
-      border: 1px solid var(--border);
       border-radius: 18px;
-      padding: 10px;
-      margin-top: 10px;
+      padding: 14px 14px;
+      background: rgba(255,255,255,.35);
+      border: 2px solid rgba(11,27,42,.08);
+      cursor:pointer;
     }
+    .item:active{ transform: translateY(1px); }
+    .item .t{
+      font-size: 1.25rem;
+      font-weight: 900;
+      margin:0 0 4px;
+    }
+    .item .s{
+      margin:0;
+      color: var(--muted);
+      font-weight: 650;
+      font-size: 1.02rem;
+    }
+    .ver{ margin-top: 10px; color: var(--muted); font-weight: 800; }
+
+    .q{
+      margin-top: 4px;
+      font-size: 1.85rem;
+      font-weight: 950;
+      line-height: 1.08;
+    }
+
+    .btnRow{
+      display:flex;
+      gap: 12px;
+      margin-top: 12px;
+      flex-wrap:wrap;
+    }
+    .bigBtn{
+      flex: 1 1 160px;
+      border:0;
+      border-radius: 20px;
+      padding: 16px 18px;
+      font-size: 1.6rem;
+      font-weight: 950;
+      cursor:pointer;
+      box-shadow: 0 10px 24px rgba(0,0,0,.15);
+      color:#fff;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+    .yes{ background:#167a35; }
+    .no{ background:#b11111; }
+    .back{
+      background:#f1c40f;
+      color:#1b1b1b;
+      flex: 1 1 100%;
+    }
+
+    .proto{
+      margin-top: 14px;
+    }
+    .proto h3{
+      margin: 0 0 8px;
+      font-size: 1.5rem;
+      font-weight: 950;
+    }
+    /* biela plocha pod písmom -> bledomodrá */
     textarea{
       width:100%;
-      min-height: 210px;
+      min-height: 190px;
       resize: vertical;
       border-radius: 16px;
-      border: 1px solid var(--border);
-      padding: 10px 12px;
-      font-size: 18px;
-      background: rgba(255,255,255,.75);
+      padding: 14px;
+      border: 2px solid rgba(11,27,42,.12);
+      background: rgba(207,231,248,.95);
+      font-size: 1.05rem;
+      font-weight: 650;
+      color: var(--ink);
       outline:none;
     }
-    .smallBtns{ display:flex; gap: 10px; flex-wrap:wrap; margin-top: 10px; }
+
+    .smallRow{
+      display:flex; gap: 10px; margin-top: 10px; flex-wrap:wrap;
+    }
     .smallBtn{
-      padding: 14px 16px;
-      border-radius: 18px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.75);
+      border:0;
+      padding: 12px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.85);
       font-weight: 900;
       cursor:pointer;
-      box-shadow: var(--shadow);
+      box-shadow: 0 6px 18px rgba(0,0,0,.12);
     }
-    .footerInfo{
-      margin-top: 8px;
-      font-weight: 800;
-      color: var(--muted);
+
+    @media (max-width: 520px){
+      .brand h1{ font-size: 2.15rem; }
+      .brand .sub{ font-size: 1.25rem; }
+      .card h2{ font-size: 2.0rem; }
+      .q{ font-size: 1.6rem; }
+      .bigBtn{ font-size: 1.45rem; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="header">
+    <div class="top">
       <div class="brand">
-        <h1>CaravanTechniker am Main</h1>
-        <div class="sub" id="subtitleLine"></div>
+        <h1 id="appTitle">CaravanTechniker am Main</h1>
+        <div class="sub" id="appSub">Wohnmobil Diagnose</div>
       </div>
-      <div class="topBtns">
-        <button class="chipBtn" id="btnDE">DE</button>
-        <button class="chipBtn" id="btnSK">SK</button>
-        <button class="chipBtn" id="btnAdmin">ADMIN</button>
-        <button class="chipBtn" id="btnReset">RESET</button>
+      <div class="actions">
+        <button class="pill" id="langDE">DE</button>
+        <button class="pill" id="langSK">SK</button>
+        <button class="pill" id="adminBtn">ADMIN</button>
+        <button class="pill" id="resetBtn">RESET</button>
       </div>
     </div>
 
     <div class="grid">
-      <div class="card">
-        <h2 id="hFaults"></h2>
-        <input class="search" id="search" placeholder="" />
-        <div class="list" id="faultList"></div>
-        <div class="footerInfo" id="ver"></div>
-      </div>
 
-      <div class="card">
-        <h2 id="hDiag"></h2>
+      <section class="card">
+        <h2 id="faultsTitle">Störungen</h2>
+        <p class="hint" id="faultsHint">Wähle eine Störung oder suche. Funktioniert auch offline.</p>
+        <input class="search" id="search" placeholder="Suche (trittstufe, wasserpumpe, 12V...)" />
+        <div class="list" id="list"></div>
+        <div class="ver" id="ver"></div>
+      </section>
 
-        <div id="diagBox">
-          <div class="question" id="qText"></div>
+      <section class="card">
+        <h2 id="diagTitle">Diagnose</h2>
+        <p class="hint" id="diagHint">Wähle links eine Störung. Dann JA / NEIN klicken.</p>
+        <div class="q" id="question">Wähle links eine Störung.</div>
 
-          <div class="row" style="gap:12px">
-            <button class="btnBig btnYes" id="btnYes"></button>
-            <button class="btnBig btnNo" id="btnNo"></button>
-          </div>
+        <div class="btnRow">
+          <button class="bigBtn yes" id="yesBtn">JA</button>
+          <button class="bigBtn no" id="noBtn">NEIN</button>
+          <button class="bigBtn back" id="backBtn">← SCHRITT ZURÜCK</button>
+        </div>
 
-          <div style="margin-top:12px">
-            <button class="btnBig btnBack" id="btnBack"></button>
-          </div>
-
-          <div style="margin-top:12px">
-            <div class="resultTitle" id="resTitle"></div>
-            <div class="resultText" id="resText"></div>
-          </div>
-
-          <div class="protoWrap">
-            <div style="font-size:22px;font-weight:1000;margin:0 0 8px" id="hProto"></div>
-            <textarea id="proto" readonly></textarea>
-
-            <div class="smallBtns">
-              <button class="smallBtn" id="btnCopy"></button>
-              <button class="smallBtn" id="btnClearPath"></button>
-              <button class="smallBtn" id="btnPDF"></button>
-            </div>
+        <div class="proto">
+          <h3 id="protoTitle">Protokoll</h3>
+          <textarea id="proto" readonly></textarea>
+          <div class="smallRow">
+            <button class="smallBtn" id="copyBtn">Kopieren</button>
+            <button class="smallBtn" id="clearPathBtn">Pfad löschen</button>
+            <button class="smallBtn" id="pdfBtn">PDF Download</button>
           </div>
         </div>
-      </div>
+      </section>
+
     </div>
   </div>
 
 <script>
-/** ====== FALLBACK CONTENT (aby to nikdy nebolo prázdne) ====== */
-const DEFAULT_CONTENT = {
-  version: "0.1.5-fallback",
-  trees: [
-    {
-      id: "01_01",
-      title: { de: "01 12V komplett ausgefallen (Aufbau tot)", sk: "01 12V úplne vypadnuté (nadstavba mŕtva)" },
-      subtitle: { de: "Kein Licht, keine Pumpe, Panel dunkel.", sk: "Nesvieti, nejde pumpa, panel tmavý." },
-      tags: ["12v","aufbau","ebl","hauptschalter","sicherung","totalausfall","batterie"],
-      start: "tree_01_01_start",
-      nodes: {
-        "tree_01_01_start": {
-          type: "question",
-          text: { de: "Ist der Hauptschalter für den Aufbau eingeschaltet?", sk: "Je hlavný vypínač nadstavby zapnutý?" },
-          yes: "tree_01_01_hauptschalter_ok",
-          no: "tree_01_01_hauptschalter_off"
-        },
-        "tree_01_01_hauptschalter_off": {
-          type: "result",
-          cause: { de: "Hauptschalter war AUS.", sk: "Hlavný vypínač bol VYPNUTÝ." },
-          action: { de: "Schalter einschalten. Danach prüfen ob Licht, Pumpe oder Panel wieder funktionieren.", sk: "Zapni vypínač. Potom skontroluj či funguje svetlo, pumpa alebo panel." }
-        },
-        "tree_01_01_hauptschalter_ok": {
-          type: "question",
-          text: { de: "Sind Aufbaubatterien angeschlossen und liegt die Spannung über 12,0 V?", sk: "Sú palubné batérie pripojené a majú napätie nad 12,0 V?" },
-          yes: "tree_01_01_battery_ok",
-          no: "tree_01_01_battery_low"
-        },
-        "tree_01_01_battery_low": {
-          type: "result",
-          cause: { de: "Batterien leer / nicht korrekt angeschlossen.", sk: "Batérie sú vybité / nie sú správne pripojené." },
-          action: { de: "Batterien laden oder korrekt anschließen. Hauptsicherung nahe Batterie prüfen.", sk: "Nabi alebo správne pripoj batérie. Skontroluj hlavnú poistku pri batérii." }
-        },
-        "tree_01_01_battery_ok": {
-          type: "result",
-          cause: { de: "Batteriespannung OK, Fehler liegt weiter im Aufbau-System.", sk: "Napätie batérie OK, chyba je ďalej v systéme nadstavby." },
-          action: { de: "EBL prüfen: Batteriespannung am Eingang, Hauptsicherung, Masseverbindung.", sk: "Skontroluj EBL: napätie na vstupe, hlavnú poistku a kostru." }
-        }
-      }
+(() => {
+  const LS_LANG = "lang";
+  const LS_OVERRIDE = "content_override";
+
+  let LANG = localStorage.getItem(LS_LANG) || "de";
+  let TREES = [];
+  let currentTree = null;
+  let currentNodeId = null;
+  let path = [];
+
+  const el = {
+    appSub: document.getElementById("appSub"),
+    faultsTitle: document.getElementById("faultsTitle"),
+    faultsHint: document.getElementById("faultsHint"),
+    diagTitle: document.getElementById("diagTitle"),
+    diagHint: document.getElementById("diagHint"),
+    search: document.getElementById("search"),
+    list: document.getElementById("list"),
+    ver: document.getElementById("ver"),
+    question: document.getElementById("question"),
+    proto: document.getElementById("proto"),
+    yesBtn: document.getElementById("yesBtn"),
+    noBtn: document.getElementById("noBtn"),
+    backBtn: document.getElementById("backBtn"),
+    copyBtn: document.getElementById("copyBtn"),
+    clearPathBtn: document.getElementById("clearPathBtn"),
+    pdfBtn: document.getElementById("pdfBtn"),
+    langDE: document.getElementById("langDE"),
+    langSK: document.getElementById("langSK"),
+    resetBtn: document.getElementById("resetBtn"),
+    adminBtn: document.getElementById("adminBtn"),
+  };
+
+  const I18N = {
+    de: {
+      sub: "Wohnmobil Diagnose",
+      faultsTitle: "Störungen",
+      faultsHint: "Wähle eine Störung oder suche. Funktioniert auch offline.",
+      searchPh: "Suche (trittstufe, wasserpumpe, 12V...)",
+      diagTitle: "Diagnose",
+      diagHint: "Wähle links eine Störung. Dann JA / NEIN klicken.",
+      pickLeft: "Wähle links eine Störung.",
+      yes: "JA",
+      no: "NEIN",
+      back: "← SCHRITT ZURÜCK",
+      protoTitle: "Protokoll",
+      copy: "Kopieren",
+      clear: "Pfad löschen",
+      pdf: "PDF Download",
+      copied: "Kopiert",
+      adminPrompt: "ADMIN\n1 = Import content.json\n2 = Export content.json",
+      importOk: "Import OK",
+      importErr: "Import ERROR: JSON invalid",
+      resetOk: "Reset OK",
+      pdfTitle: "CaravanTechniker am Main – Protokoll"
+    },
+    sk: {
+      sub: "Diagnostika obytných vozidiel",
+      faultsTitle: "Poruchy",
+      faultsHint: "Vyber poruchu alebo hľadaj. Funguje aj offline.",
+      searchPh: "Hľadať (trittstufe, wasserpumpe, 12V...)",
+      diagTitle: "Diagnostika",
+      diagHint: "Vyber poruchu vľavo. Potom klikaj ÁNO / NIE.",
+      pickLeft: "Vyber poruchu vľavo.",
+      yes: "ÁNO",
+      no: "NIE",
+      back: "← SPÄŤ",
+      protoTitle: "Protokol",
+      copy: "Kopírovať",
+      clear: "Vymazať cestu",
+      pdf: "PDF Download",
+      copied: "Skopírované",
+      adminPrompt: "ADMIN\n1 = Import content.json\n2 = Export content.json",
+      importOk: "Import OK",
+      importErr: "Import ERROR: neplatný JSON",
+      resetOk: "Reset OK",
+      pdfTitle: "CaravanTechniker am Main – Protokol"
     }
-  ]
-};
+  };
 
-/** ====== I18N UI ====== */
-const I18N = {
-  de: {
-    subtitle:"Wohnmobil Diagnose",
-    faults:"Störungen",
-    diag:"Diagnose",
-    proto:"Protokoll",
-    searchPH:"Suche (trittstufe, wasserpumpe, 12V...)",
-    yes:"JA",
-    no:"NEIN",
-    back:"← SCHRITT ZURÜCK",
-    copy:"Kopieren",
-    clear:"Pfad löschen",
-    pdf:"PDF Download",
-    copied:"Kopiert",
-    chooseFault:"Wähle links eine Störung.",
-    adminPrompt:"ADMIN\n1 = Import content.json\n2 = Export content.json\n(Import überschreibt lokal)",
-    importOk:"Import OK",
-    importErr:"Import ERROR: JSON ungültig",
-    loadErr:"FEHLER: content.json konnte nicht geladen werden"
-  },
-  sk: {
-    subtitle:"Diagnostika obytných vozidiel",
-    faults:"Poruchy",
-    diag:"Diagnostika",
-    proto:"Protokol",
-    searchPH:"Hľadať (stupienok, pumpa, 12V...)",
-    yes:"ÁNO",
-    no:"NIE",
-    back:"← SPÄŤ",
-    copy:"Kopírovať",
-    clear:"Vymazať cestu",
-    pdf:"PDF Download",
-    copied:"Skopírované",
-    chooseFault:"Vyber vľavo poruchu.",
-    adminPrompt:"ADMIN\n1 = Import content.json\n2 = Export content.json\n(Import prepíše lokálne)",
-    importOk:"Import OK",
-    importErr:"Import ERROR: neplatný JSON",
-    loadErr:"CHYBA: content.json sa nepodarilo načítať"
-  }
-};
+  const T = (k) => (I18N[LANG] && I18N[LANG][k]) ? I18N[LANG][k] : (I18N.de[k] || k);
 
-let LANG = localStorage.getItem("lang") || "de";
-let TREES = [];
-let CONTENT_VERSION = "n/a";
+  function applyLangUI(){
+    document.documentElement.lang = LANG;
+    el.appSub.textContent = T("sub");
+    el.faultsTitle.textContent = T("faultsTitle");
+    el.faultsHint.textContent = T("faultsHint");
+    el.search.placeholder = T("searchPh");
+    el.diagTitle.textContent = T("diagTitle");
+    el.diagHint.textContent = T("diagHint");
 
-let currentTree = null;
-let currentNodeId = null;
-let path = []; // {q, a}
+    el.yesBtn.textContent = T("yes");
+    el.noBtn.textContent = T("no");
+    el.backBtn.textContent = T("back");
 
-/** ====== HELPERS ====== */
-const $ = (id)=>document.getElementById(id);
-const T = (k)=> (I18N[LANG] && I18N[LANG][k]) ? I18N[LANG][k] : k;
+    document.getElementById("protoTitle").textContent = T("protoTitle");
+    el.copyBtn.textContent = T("copy");
+    el.clearPathBtn.textContent = T("clear");
+    el.pdfBtn.textContent = T("pdf");
 
-function pick(obj){
-  if(!obj) return "";
-  if(typeof obj === "string") return obj;
-  if(obj[LANG]) return obj[LANG];
-  if(obj.de) return obj.de;
-  if(obj.sk) return obj.sk;
-  const keys = Object.keys(obj);
-  return keys.length ? obj[keys[0]] : "";
-}
-
-function normalizeTrees(data){
-  // podporíme: {version, trees:[...]} alebo priamo [...]
-  if(Array.isArray(data)) return {version:"array", trees:data};
-  if(data && Array.isArray(data.trees)) return {version: data.version || "obj", trees:data.trees};
-  return {version:"invalid", trees:[]};
-}
-
-/** ====== LOAD CONTENT ====== */
-async function loadContent(){
-  // 1) local override (admin import)
-  const ov = localStorage.getItem("content_override");
-  if(ov){
-    try{
-      const parsed = JSON.parse(ov);
-      const norm = normalizeTrees(parsed);
-      if(norm.trees.length){
-        CONTENT_VERSION = "override";
-        TREES = norm.trees;
-        return;
-      }
-    }catch(e){}
+    if(!currentTree){
+      el.question.textContent = T("pickLeft");
+    } else {
+      renderNode();
+    }
+    renderList();
+    renderProto();
   }
 
-  // 2) fetch content.json
-  try{
-    const r = await fetch("./content.json", { cache:"no-store" });
-    if(!r.ok) throw new Error("HTTP " + r.status);
-    const data = await r.json();
-    const norm = normalizeTrees(data);
-    if(!norm.trees.length) throw new Error("Invalid JSON structure");
-    CONTENT_VERSION = norm.version || "content.json";
-    TREES = norm.trees;
-  }catch(err){
-    // 3) fallback
-    console.error("content load failed:", err);
-    const norm = normalizeTrees(DEFAULT_CONTENT);
-    CONTENT_VERSION = DEFAULT_CONTENT.version;
-    TREES = norm.trees;
+  async function loadContent(){
+    // 1) override z ADMIN importu
+    const ov = localStorage.getItem(LS_OVERRIDE);
+    if(ov){
+      try { TREES = JSON.parse(ov); }
+      catch { TREES = []; }
+      return;
+    }
 
-    // zobraz chybu do listu
-    $("faultList").innerHTML =
-      `<div class="item"><b>${T("loadErr")}</b><span>${String(err?.message || err)}</span></div>`;
-  }
-}
-
-/** ====== RENDER LIST ====== */
-function renderList(){
-  const q = ($("search").value || "").trim().toLowerCase();
-
-  const items = TREES
-    .map(t=>{
-      const title = pick(t.title);
-      const sub = pick(t.subtitle);
-      const idPrefix = (t.id || "").replaceAll("_"," ").trim();
-      const hay = (idPrefix + " " + title + " " + sub + " " + (t.tags||[]).join(" ")).toLowerCase();
-      return {t, title, sub, idPrefix, hay};
-    })
-    .filter(x => !q || x.hay.includes(q));
-
-  if(!items.length){
-    $("faultList").innerHTML = `<div class="item"><b>—</b><span>${q ? "No match" : "No trees loaded"}</span></div>`;
-    return;
+    // 2) default content.json zo servera
+    const res = await fetch("./content.json", {cache:"no-store"});
+    const data = await res.json();
+    TREES = Array.isArray(data) ? data : (data.trees || []);
   }
 
-  $("faultList").innerHTML = items.map(x=>{
-    // „01 01 …“ zobrazujem vždy ako prefix + title
-    const label = (x.idPrefix ? (x.idPrefix + " ") : "") + x.title;
-    return `<div class="item" data-id="${x.t.id}">
-      <b>${escapeHtml(label)}</b>
-      <span>${escapeHtml(x.sub || "")}</span>
-    </div>`;
-  }).join("");
-
-  [...$("faultList").querySelectorAll(".item[data-id]")].forEach(el=>{
-    el.onclick = ()=>selectTree(el.getAttribute("data-id"));
-  });
-}
-
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g, m=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[m]));
-}
-
-/** ====== SELECT TREE / NODE ====== */
-function selectTree(treeId){
-  currentTree = TREES.find(t=>t.id===treeId) || null;
-  path = [];
-  currentNodeId = currentTree ? (currentTree.start || currentTree.root || null) : null;
-  renderNode();
-  renderProtocol();
-}
-
-function getNode(id){
-  if(!currentTree || !currentTree.nodes) return null;
-  return currentTree.nodes[id] || null;
-}
-
-function renderNode(){
-  $("resTitle").textContent = "";
-  $("resText").textContent = "";
-
-  if(!currentTree){
-    $("qText").textContent = T("chooseFault");
-    $("btnYes").style.display = "none";
-    $("btnNo").style.display = "none";
-    $("btnBack").style.display = "none";
-    return;
+  function cleanTitleText(s){
+    // odstráni prefix typu "01 " alebo "01 01 " na začiatku title, aby sa to neduplikovalo
+    if(!s) return "";
+    return String(s).replace(/^\s*(\d{1,3}\s+)+/,"").trim();
   }
 
-  const node = getNode(currentNodeId);
-  if(!node){
-    $("qText").textContent = "Node not found: " + String(currentNodeId);
-    $("btnYes").style.display = "none";
-    $("btnNo").style.display = "none";
-    $("btnBack").style.display = "inline-block";
-    return;
+  function treeDisplayTitle(tree){
+    // Chceš LEN 1x "01" – zoberieme iba prvý segment z id (01_01 -> 01)
+    const id = tree.id || "";
+    const prefix = id.split("_")[0] || "";
+    const raw = (tree.title && tree.title[LANG]) ? tree.title[LANG] : ((tree.title && tree.title.de) ? tree.title.de : "");
+    const base = cleanTitleText(raw);
+    return prefix ? `${prefix} ${base}` : base;
   }
 
-  $("btnYes").style.display = "inline-block";
-  $("btnNo").style.display = "inline-block";
-  $("btnBack").style.display = "inline-block";
-
-  if(node.type === "question"){
-    $("qText").textContent = pick(node.text);
-  }else if(node.type === "result"){
-    $("qText").textContent = "";
-    $("resTitle").textContent = (LANG==="de") ? "Ergebnis:" : "Výsledok:";
-    const c = pick(node.cause);
-    const a = pick(node.action);
-    $("resText").textContent = (c ? (c + "\n") : "") + (a ? a : "");
-  }else{
-    $("qText").textContent = "Unsupported node type";
-  }
-}
-
-function answer(isYes){
-  if(!currentTree) return;
-  const node = getNode(currentNodeId);
-  if(!node || node.type !== "question") return;
-
-  const ansLabel = isYes ? T("yes") : T("no");
-  path.push({ q: pick(node.text), a: ansLabel });
-
-  currentNodeId = isYes ? node.yes : node.no;
-  renderNode();
-  renderProtocol();
-}
-
-function back(){
-  if(!currentTree) return;
-  if(!path.length){
-    currentNodeId = currentTree.start || currentTree.root || null;
-    renderNode(); renderProtocol();
-    return;
-  }
-  // jednoducho: reset a replay path-1
-  const replay = path.slice(0, -1);
-  currentNodeId = currentTree.start || currentTree.root || null;
-  path = [];
-  for(const step of replay){
-    const node = getNode(currentNodeId);
-    if(!node || node.type!=="question") break;
-    const yes = (step.a === T("yes"));
-    path.push(step);
-    currentNodeId = yes ? node.yes : node.no;
-  }
-  renderNode(); renderProtocol();
-}
-
-/** ====== PROTOCOL ====== */
-function renderProtocol(){
-  if(!currentTree){
-    $("proto").value = "";
-    return;
-  }
-  const now = new Date();
-  const title = pick(currentTree.title);
-  const idPrefix = (currentTree.id || "").replaceAll("_"," ").trim();
-  const faultLine = (idPrefix ? (idPrefix + " ") : "") + title;
-
-  const steps = path.map((p,i)=> `${i+1}. ${p.q} [${p.a}]`).join("\n");
-
-  // ak je výsledok
-  let resultTxt = "";
-  const node = getNode(currentNodeId);
-  if(node && node.type==="result"){
-    const c = pick(node.cause);
-    const a = pick(node.action);
-    resultTxt = "\n\n" + ((LANG==="de") ? "Ergebnis:\n" : "Výsledok:\n") + (c ? c + "\n" : "") + (a ? a : "");
+  function treeDisplaySubtitle(tree){
+    const s = tree.subtitle?.[LANG] ?? tree.subtitle?.de ?? "";
+    return s || "";
   }
 
-  const proto =
-`${(LANG==="de")?"Zeit":"Čas"}: ${now.toLocaleString()}
-${(LANG==="de")?"Sprache":"Jazyk"}: ${LANG.toUpperCase()}
-${(LANG==="de")?"Störung":"Porucha"}: ${faultLine}
+  function renderList(){
+    const q = (el.search.value || "").trim().toLowerCase();
+    el.list.innerHTML = "";
+    const trees = (TREES || []).slice();
 
-${(LANG==="de")?"Schritte":"Kroky"}:
-${steps || "-"}` + resultTxt;
+    const filtered = trees.filter(t => {
+      const title = treeDisplayTitle(t).toLowerCase();
+      const sub = treeDisplaySubtitle(t).toLowerCase();
+      const tags = (t.tags || []).join(" ").toLowerCase();
+      return !q || title.includes(q) || sub.includes(q) || tags.includes(q);
+    });
 
-  $("proto").value = proto;
-}
+    filtered.forEach(tree => {
+      const div = document.createElement("div");
+      div.className = "item";
+      const t = document.createElement("p");
+      t.className = "t";
+      t.textContent = treeDisplayTitle(tree);
+      const s = document.createElement("p");
+      s.className = "s";
+      s.textContent = treeDisplaySubtitle(tree);
+      div.appendChild(t);
+      div.appendChild(s);
+      div.onclick = () => {
+        currentTree = tree;
+        currentNodeId = tree.start || tree.root || null;
+        path = [];
+        renderNode();
+        renderProto();
+      };
+      el.list.appendChild(div);
+    });
 
-/** ====== PDF (print window) ====== */
-function downloadPDF(){
-  const txt = $("proto").value || "";
-  const w = window.open("", "_blank");
-  if(!w) return;
-  w.document.open();
-  w.document.write(`<pre style="font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:14px; white-space:pre-wrap;">${escapeHtml(txt)}</pre>`);
-  w.document.close();
-  w.focus();
-  setTimeout(()=>w.print(), 250);
-}
-
-/** ====== ADMIN ====== */
-function admin(){
-  const choice = prompt(T("adminPrompt"));
-  if(!choice) return;
-
-  if(choice.trim()==="1"){
-    const inp = document.createElement("input");
-    inp.type="file";
-    inp.accept="application/json,.json";
-    inp.onchange = async ()=>{
-      const f = inp.files && inp.files[0];
-      if(!f) return;
-      const txt = await f.text();
-      try{
-        const parsed = JSON.parse(txt);
-        // uložíme presne to, čo importuješ (array aj object)
-        localStorage.setItem("content_override", JSON.stringify(parsed));
-        alert(T("importOk"));
-        hardReset(true);
-      }catch(e){
-        alert(T("importErr"));
-      }
-    };
-    inp.click();
+    // verzia
+    const ver = (TREES && TREES.version) ? TREES.version : (TREES && TREES[0] && TREES[0].version ? TREES[0].version : "");
+    // ak je content ako array, verzia môže byť v prvom objekte alebo mimo – necháme len ak existuje
+    el.ver.textContent = (window.APP_VERSION ? `v${window.APP_VERSION}` : (ver ? `v${ver}` : "v0.1.5"));
   }
 
-  if(choice.trim()==="2"){
-    const payload = JSON.stringify({ version: CONTENT_VERSION, trees: TREES }, null, 2);
-    const blob = new Blob([payload], {type:"application/json;charset=utf-8"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "content_export.json";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(()=>URL.revokeObjectURL(a.href), 1500);
+  function currentNode(){
+    if(!currentTree || !currentNodeId) return null;
+    return currentTree.nodes?.[currentNodeId] || null;
   }
-}
 
-/** ====== RESET ====== */
-function hardReset(reload=false){
-  currentTree = null;
-  currentNodeId = null;
-  path = [];
-  $("search").value = "";
-  $("proto").value = "";
-  $("resTitle").textContent = "";
-  $("resText").textContent = "";
-  $("qText").textContent = T("chooseFault");
-  if(reload){
-    init(); // znovu načíta
-  }else{
+  function nodeText(node){
+    if(!node) return "";
+    if(node.text && typeof node.text === "object"){
+      return node.text[LANG] ?? node.text.de ?? "";
+    }
+    if(typeof node.text === "string") return node.text;
+    return "";
+  }
+
+  function renderNode(){
+    const node = currentNode();
+    if(!currentTree || !node){
+      el.question.textContent = T("pickLeft");
+      return;
+    }
+
+    if(node.type === "question"){
+      el.question.textContent = nodeText(node) || "";
+    } else if(node.type === "result"){
+      const cause = node.cause?.[LANG] ?? node.cause?.de ?? "";
+      const action = node.action?.[LANG] ?? node.action?.de ?? "";
+      el.question.textContent = (cause ? `Výsledok: ${cause}` : "Výsledok") + (action ? `\nAkcia: ${action}` : "");
+    } else {
+      el.question.textContent = nodeText(node) || "";
+    }
+  }
+
+  function answer(val){
+    const node = currentNode();
+    if(!node || node.type !== "question") return;
+    path.push({ nodeId: currentNodeId, answer: val });
+    const next = (val === "yes") ? node.yes : node.no;
+    currentNodeId = next || null;
+    renderNode();
+    renderProto();
+  }
+
+  function back(){
+    if(path.length === 0) return;
+    const last = path.pop();
+    currentNodeId = last.nodeId;
+    renderNode();
+    renderProto();
+  }
+
+  function renderProto(){
+    if(!currentTree){
+      el.proto.value = "";
+      return;
+    }
+
+    const now = new Date();
+    const dt = now.toLocaleString(LANG === "sk" ? "sk-SK" : "de-DE");
+    const title = treeDisplayTitle(currentTree);
+    const tags = (currentTree.tags || []).join(", ");
+
+    let out = "";
+    out += `Zeit: ${dt}\n`;
+    out += `Sprache: ${LANG.toUpperCase()}\n`;
+    out += `${LANG === "sk" ? "Porucha" : "Störung"}: ${title}\n`;
+    if(tags) out += `Tags: ${tags}\n\n`;
+
+    out += `${LANG === "sk" ? "Kroky" : "Schritte"}:\n`;
+
+    path.forEach((p, idx) => {
+      const n = currentTree.nodes?.[p.nodeId];
+      const q = nodeText(n);
+      const aTxt = (p.answer === "yes") ? T("yes") : T("no");
+      out += `${idx+1}. ${q} [${aTxt}]\n`;
+    });
+
+    const node = currentNode();
+    if(node && node.type === "result"){
+      const cause = node.cause?.[LANG] ?? node.cause?.de ?? "";
+      const action = node.action?.[LANG] ?? node.action?.de ?? "";
+      out += `\n${LANG === "sk" ? "Výsledok" : "Ergebnis"}:\n`;
+      if(cause) out += `${cause}\n`;
+      if(action) out += `${action}\n`;
+    }
+
+    el.proto.value = out.trim();
+  }
+
+  function hardReset(){
+    currentTree = null;
+    currentNodeId = null;
+    path = [];
+    el.search.value = "";
     renderList();
     renderNode();
-    renderProtocol();
+    renderProto();
   }
-}
 
-/** ====== APPLY LANGUAGE ====== */
-function applyLangUI(){
-  document.documentElement.lang = LANG;
-  $("subtitleLine").textContent = T("subtitle");
-  $("hFaults").textContent = T("faults");
-  $("hDiag").textContent = T("diag");
-  $("hProto").textContent = T("proto");
-  $("search").placeholder = T("searchPH");
-  $("btnYes").textContent = T("yes");
-  $("btnNo").textContent = T("no");
-  $("btnBack").textContent = T("back");
-  $("btnCopy").textContent = T("copy");
-  $("btnClearPath").textContent = T("clear");
-  $("btnPDF").textContent = T("pdf");
-  if(!currentTree) $("qText").textContent = T("chooseFault");
-  $("ver").textContent = "v" + String(CONTENT_VERSION || "n/a");
-}
+  async function admin(){
+    const choice = prompt(T("adminPrompt"));
+    if(!choice) return;
+    const c = choice.trim();
 
-/** ====== INIT ====== */
-async function init(){
-  applyLangUI();
-  await loadContent();
-  applyLangUI();
-  renderList();
-  renderNode();
-  renderProtocol();
-}
+    if(c === "1"){
+      const inp = document.createElement("input");
+      inp.type = "file";
+      inp.accept = "application/json,.json";
+      inp.onchange = async () => {
+        const f = inp.files && inp.files[0];
+        if(!f) return;
+        const txt = await f.text();
+        try{
+          const data = JSON.parse(txt);
+          const arr = Array.isArray(data) ? data : (data.trees || []);
+          localStorage.setItem(LS_OVERRIDE, JSON.stringify(arr));
+          TREES = arr;
+          hardReset();
+          applyLangUI();
+          alert(T("importOk"));
+        }catch(e){
+          alert(T("importErr"));
+        }
+      };
+      inp.click();
+    }
 
-$("btnDE").onclick = ()=>{ LANG="de"; localStorage.setItem("lang",LANG); applyLangUI(); renderList(); renderNode(); renderProtocol(); };
-$("btnSK").onclick = ()=>{ LANG="sk"; localStorage.setItem("lang",LANG); applyLangUI(); renderList(); renderNode(); renderProtocol(); };
-$("btnAdmin").onclick = ()=>admin();
-$("btnReset").onclick = ()=>{
-  // reset = zmaže override + stav
-  localStorage.removeItem("content_override");
-  hardReset(true);
-};
+    if(c === "2"){
+      const data = JSON.stringify(TREES, null, 2);
+      const blob = new Blob([data], {type:"application/json;charset=utf-8"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `content_export_${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+    }
+  }
 
-$("search").oninput = ()=>renderList();
+  function downloadPdf(){
+    const txt = el.proto.value || "";
+    const safe = txt.replace(/[&<>]/g, (m)=>({ "&":"&amp;", "<":"&lt;", ">":"&gt;" }[m]));
+    const html = `
+      <!doctype html><html><head><meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title>${T("pdfTitle")}</title>
+      <style>
+        body{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; padding: 20px;}
+        pre{white-space: pre-wrap; font-size: 14px; line-height: 1.35;}
+      </style>
+      </head><body>
+      <pre>${safe}</pre>
+      <script>window.onload=()=>{ window.print(); }<\/script>
+      </body></html>
+    `;
+    const w = window.open("", "_blank");
+    if(!w) return;
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  }
 
-$("btnYes").onclick = ()=>answer(true);
-$("btnNo").onclick = ()=>answer(false);
-$("btnBack").onclick = ()=>back();
+  // handlers
+  el.langDE.onclick = () => { LANG="de"; localStorage.setItem(LS_LANG, LANG); applyLangUI(); };
+  el.langSK.onclick = () => { LANG="sk"; localStorage.setItem(LS_LANG, LANG); applyLangUI(); };
+  el.resetBtn.onclick = () => { hardReset(); alert(T("resetOk")); };
+  el.search.oninput = () => renderList();
+  el.yesBtn.onclick = () => answer("yes");
+  el.noBtn.onclick = () => answer("no");
+  el.backBtn.onclick = () => back();
+  el.copyBtn.onclick = async () => {
+    try{
+      await navigator.clipboard.writeText(el.proto.value || "");
+      const old = el.copyBtn.textContent;
+      el.copyBtn.textContent = T("copied");
+      setTimeout(()=>el.copyBtn.textContent = old, 900);
+    }catch{}
+  };
+  el.clearPathBtn.onclick = () => { path = []; if(currentTree) currentNodeId = currentTree.start || currentTree.root || null; renderNode(); renderProto(); };
+  el.pdfBtn.onclick = () => downloadPdf();
+  el.adminBtn.onclick = () => admin();
 
-$("btnCopy").onclick = async ()=>{
-  try{
-    await navigator.clipboard.writeText($("proto").value || "");
-    // malý vizuál netreba, stačí ticho
-  }catch(e){}
-};
-
-$("btnClearPath").onclick = ()=>{
-  path = [];
-  if(currentTree) currentNodeId = currentTree.start || currentTree.root || null;
-  renderNode(); renderProtocol();
-};
-
-$("btnPDF").onclick = ()=>downloadPDF();
-
-init();
+  // boot
+  (async () => {
+    await loadContent();
+    hardReset();
+    applyLangUI();
+  })();
+})();
 </script>
 </body>
 </html>
