@@ -1,834 +1,189 @@
 <!doctype html>
 <html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Caravan TaM</title>
-  <style>
-    :root{
-      --bg: #b9d7f0;          /* pozadie stránky (tmavšie modré) */
-      --card: #eaf4ff;        /* karty */
-      --stroke:#c7d9ea;
-      --text:#0b1a2a;
-      --muted:#4c5a6a;
-      --pill:#ffffff;
-      --pillStroke:#d6dee8;
-      --tag:#d7ecff;
-      --shadow: 0 12px 26px rgba(0,0,0,.08);
-      --radius: 22px;
-    }
-    *{ box-sizing:border-box; }
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      color:var(--text);
-      background: linear-gradient(180deg, var(--bg), #cfe7fb 45%, #d8ecff 100%);
-    }
-    .wrap{ max-width:1200px; margin: 18px auto 40px; padding: 0 14px; }
-    .topbar{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px; flex-wrap:wrap;
-      margin-bottom:14px;
-    }
-    .brand{
-      font-weight:800; font-size:34px; letter-spacing:.2px;
-    }
-    .pills{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    .pill{
-      background:var(--pill);
-      border:1px solid var(--pillStroke);
-      padding:12px 18px;
-      border-radius:999px;
-      font-weight:700;
-      box-shadow: 0 6px 14px rgba(0,0,0,.06);
-      user-select:none;
-    }
-    .pill.btn{ cursor:pointer; }
-    .pill.btn:active{ transform: translateY(1px); }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CaravanTechniker am Main – Wohnmobil Diagnose</title>
 
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:16px;
-    }
-    @media (max-width: 980px){
-      .grid{ grid-template-columns: 1fr; }
-      .brand{ font-size:28px; }
-    }
-    .card{
-      background:var(--card);
-      border:1px solid var(--stroke);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding:18px;
-    }
-    h2{ margin:0 0 6px; font-size:30px; }
-    .sub{ color:var(--muted); margin:0 0 14px; }
+<style>
+:root{
+  --bg:#b9d7f0;
+  --card:#eaf4ff;
+  --stroke:#c7d9ea;
+  --text:#0b1a2a;
+  --muted:#4c5a6a;
+  --tag:#d7ecff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,Segoe UI,Roboto,Arial;
+  background:linear-gradient(180deg,var(--bg),#d8ecff);
+  color:var(--text)
+}
+.wrap{max-width:1200px;margin:16px auto;padding:0 12px}
+.top{
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px
+}
+.brand{font-size:30px;font-weight:900}
+.brand small{display:block;font-size:14px;opacity:.75}
 
-    .searchRow{
-      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
-      margin-bottom:10px;
-    }
-    input[type="search"]{
-      flex:1;
-      min-width: 240px;
-      font-size:18px;
-      padding:14px 16px;
-      border-radius:999px;
-      border:1px solid var(--stroke);
-      outline:none;
-      background:#ffffff;
-    }
-    .btnSmall{
-      padding:12px 16px;
-      border-radius:999px;
-      border:1px solid var(--stroke);
-      background:#fff;
-      font-weight:800;
-      cursor:pointer;
-    }
+.pill{padding:10px 16px;border-radius:999px;border:1px solid var(--stroke);
+background:#fff;font-weight:800;cursor:pointer}
+.pills{display:flex;gap:8px;flex-wrap:wrap}
 
-    .list{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      margin-top:10px;
-    }
-    .item{
-      text-align:left;
-      width:100%;
-      border:1px solid var(--stroke);
-      background:#fff;
-      border-radius:18px;
-      padding:14px 14px;
-      cursor:pointer;
-      box-shadow: 0 8px 18px rgba(0,0,0,.05);
-    }
-    .itemTitle{ font-weight:900; font-size:18px; margin:0; }
-    .itemSub{ margin:4px 0 0; color:var(--muted); }
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
 
-    .chips{ display:none; flex-wrap:wrap; gap:8px; margin-top:10px; }
-    .chip{
-      border:1px solid var(--stroke);
-      background: var(--tag);
-      padding:8px 12px;
-      border-radius:999px;
-      font-weight:800;
-      cursor:pointer;
-    }
-    .chip.active{ outline: 3px solid rgba(0,0,0,.12); }
+.card{
+  background:var(--card);
+  border:1px solid var(--stroke);
+  border-radius:18px;
+  padding:16px
+}
+h2{margin:0 0 6px;font-size:26px}
+.sub{color:var(--muted);margin-bottom:10px}
 
-    .diagTop{
-      display:flex; flex-direction:column; gap:10px;
-      margin-bottom:12px;
-    }
-    .badgeRow{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-    }
-    .badge{
-      display:none;
-      padding:10px 14px;
-      border-radius:999px;
-      border:1px solid var(--stroke);
-      background:#d8ecff;
-      font-weight:900;
-    }
-    .tagline{
-      display:none;               /* SCHOVANÉ default */
-      border:1px solid var(--stroke);
-      background:#d8ecff;
-      padding:10px 12px;
-      border-radius: 999px;
-      font-weight:800;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width:100%;
-    }
+.search{display:flex;gap:8px}
+.search input{
+  flex:1;padding:12px;border-radius:999px;border:1px solid var(--stroke)
+}
 
-    .nodeQ{
-      font-size:28px; font-weight:950; margin:0 0 6px;
-    }
-    .nodeHelp{ color:var(--muted); margin:0 0 10px; }
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.chip{
+  background:var(--tag);
+  border:1px solid var(--stroke);
+  border-radius:999px;
+  padding:6px 12px;
+  font-weight:800;
+  cursor:pointer
+}
+.chip.active{outline:3px solid rgba(0,0,0,.15)}
 
-    .answers{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:14px;
-      margin-top:12px;
-    }
-    @media (max-width: 520px){
-      .answers{ grid-template-columns:1fr; }
-    }
-    .big{
-      border:none;
-      border-radius:18px;
-      padding:18px 16px;
-      font-size:22px;
-      font-weight:950;
-      cursor:pointer;
-      box-shadow: 0 10px 18px rgba(0,0,0,.10);
-    }
-    .yes{ background:#177a3a; color:#fff; }
-    .no{ background:#b21818; color:#fff; }
+.list{display:flex;flex-direction:column;gap:8px}
+.item{
+  background:#fff;
+  border:1px solid var(--stroke);
+  border-radius:14px;
+  padding:12px;
+  cursor:pointer
+}
+.item b{font-size:17px}
+.item span{display:block;color:var(--muted)}
 
-    .back{
-      margin-top:12px;
-      width:100%;
-      border:none;
-      border-radius:18px;
-      padding:18px 16px;
-      font-size:22px;
-      font-weight:950;
-      cursor:pointer;
-      background:#f2c20e;
-      color:#1d1d1d;
-      box-shadow: 0 10px 18px rgba(0,0,0,.10);
-    }
+.big{
+  width:100%;padding:16px;border-radius:16px;
+  border:none;font-size:22px;font-weight:900;cursor:pointer
+}
+.yes{background:#177a3a;color:#fff}
+.no{background:#b21818;color:#fff}
+.back{background:#f2c20e;color:#000;margin-top:10px}
 
-    .protoArea{
-      margin-top:14px;
-      border:1px solid var(--stroke);
-      border-radius:18px;
-      padding:14px;
-      background:#cfe7fb;       /* svetlomodré ako pozadie */
-    }
-    textarea{
-      width:100%;
-      min-height:180px;
-      resize:vertical;
-      font-size:16px;
-      padding:14px;
-      border-radius:14px;
-      border:1px solid var(--stroke);
-      background:#cfe7fb;       /* rovnaké ako kontajner */
-      outline:none;
-      color:var(--text);
-    }
-    .protoBtns{
-      display:flex; gap:10px; flex-wrap:wrap;
-      margin-top:12px;
-    }
-    .btn{
-      padding:12px 16px;
-      border-radius:999px;
-      border:1px solid var(--stroke);
-      background:#fff;
-      font-weight:900;
-      cursor:pointer;
-    }
-    .mutedLine{ color:var(--muted); font-weight:800; margin-top:8px; }
-    .ver{ color:rgba(11,26,42,.55); font-weight:900; margin-top:10px; }
-  </style>
+textarea{
+  width:100%;min-height:160px;
+  background:#cfe7fb;border:1px solid var(--stroke);
+  border-radius:12px;padding:12px
+}
+</style>
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <div class="brand">CaravanTechniker am Main</div>
-      <div class="pills">
-        <div class="pill" id="pwaPill">PWA</div>
-        <div class="pill" id="offlinePill">offline: ?</div>
-        <div class="pill btn" id="langDE">DE</div>
-        <div class="pill btn" id="langSK">SK</div>
-        <div class="pill btn" id="adminBtn">ADMIN</div>
-        <div class="pill btn" id="resetBtn">Reset</div>
-      </div>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      CaravanTechniker am Main
+      <small id="brandSub"></small>
     </div>
-
-    <div class="grid">
-      <!-- LEFT -->
-      <div class="card">
-        <h2 id="hFaults">Störungen</h2>
-        <p class="sub" id="hHint">Wähle eine Störung oder suche. Funktioniert auch offline.</p>
-
-        <div class="searchRow">
-          <input id="search" type="search" placeholder="Suche (trittstufe, wasserpumpe, 12V...)" />
-          <button class="btnSmall" id="tagBtn">Tags ▼</button>
-          <button class="btnSmall" id="filterResetBtn">Filter Reset</button>
-        </div>
-
-        <div class="chips" id="tagChips"></div>
-
-        <div class="list" id="faultList"></div>
-        <div class="ver" id="ver">v0.0.0</div>
-      </div>
-
-      <!-- RIGHT -->
-      <div class="card">
-        <h2 id="hDiag">Diagnose</h2>
-        <p class="sub" id="diagEmpty">Wähle links eine Störung. Dann JA / NEIN klicken.</p>
-
-        <div class="diagTop">
-          <div class="badgeRow">
-            <div class="badge" id="faultTitleBadge"></div>
-            <div class="tagline" id="faultTagsLine"></div>
-          </div>
-
-          <p class="nodeQ" id="nodeText"></p>
-          <p class="nodeHelp" id="nodeHelp"></p>
-
-          <div class="answers" id="answerBtns" style="display:none;">
-            <button class="big yes" id="yesBtn">JA</button>
-            <button class="big no" id="noBtn">NEIN</button>
-          </div>
-
-          <button class="back" id="backBtn" style="display:none;">← SCHRITT ZURÜCK</button>
-        </div>
-
-        <div class="protoArea">
-          <h2 id="hProto" style="font-size:26px;margin:0 0 10px;">Protokoll</h2>
-          <textarea id="proto" readonly></textarea>
-
-          <div class="protoBtns">
-            <button class="btn" id="copyBtn">Kopieren</button>
-            <button class="btn" id="clearPathBtn">Pfad löschen</button>
-            <button class="btn" id="pdfBtn">PDF Download</button>
-          </div>
-          <div class="mutedLine" id="protoHint"></div>
-        </div>
-      </div>
+    <div class="pills">
+      <div class="pill" id="langDE">DE</div>
+      <div class="pill" id="langSK">SK</div>
+      <div class="pill" id="adminBtn">ADMIN</div>
+      <div class="pill" id="resetBtn">RESET</div>
     </div>
   </div>
 
-  <script>
-    // ===== Version bump, aby sa cache menej bila
-    const VERSION = "0.2.0";
+  <div class="grid">
+    <div class="card">
+      <h2 id="hFaults"></h2>
+      <div class="search">
+        <input id="search">
+      </div>
+      <div class="chips" id="categoryChips"></div>
+      <div class="list" id="faultList"></div>
+    </div>
 
-    // ===== DOM
-    const el = {
-      pwaPill: document.getElementById("pwaPill"),
-      offlinePill: document.getElementById("offlinePill"),
-      langDE: document.getElementById("langDE"),
-      langSK: document.getElementById("langSK"),
-      adminBtn: document.getElementById("adminBtn"),
-      resetBtn: document.getElementById("resetBtn"),
+    <div class="card">
+      <h2 id="hDiag"></h2>
+      <p class="sub" id="nodeText"></p>
+      <button class="big yes" id="yesBtn">ÁNO</button>
+      <button class="big no" id="noBtn">NIE</button>
+      <button class="big back" id="backBtn">← SPÄŤ</button>
+      <textarea id="proto" readonly></textarea>
+      <button class="pill" id="pdfBtn">PDF</button>
+    </div>
+  </div>
+</div>
 
-      hFaults: document.getElementById("hFaults"),
-      hHint: document.getElementById("hHint"),
-      hDiag: document.getElementById("hDiag"),
-      diagEmpty: document.getElementById("diagEmpty"),
-      hProto: document.getElementById("hProto"),
+<script>
+const I={
+de:{sub:"Wohnmobil Diagnose",faults:"Störungen",diag:"Diagnose"},
+sk:{sub:"Diagnostika obytných vozidiel",faults:"Poruchy",diag:"Diagnostika"}
+};
+let LANG=localStorage.lang||"de";
+let TREES=[],tree=null,node=null,path=[],cat="";
 
-      search: document.getElementById("search"),
-      tagBtn: document.getElementById("tagBtn"),
-      filterResetBtn: document.getElementById("filterResetBtn"),
-      tagChips: document.getElementById("tagChips"),
-      faultList: document.getElementById("faultList"),
+function L(x){return typeof x==="object"?x[LANG]:x}
+function applyLang(){
+  brandSub.textContent=I[LANG].sub;
+  hFaults.textContent=I[LANG].faults;
+  hDiag.textContent=I[LANG].diag;
+}
 
-      faultTitleBadge: document.getElementById("faultTitleBadge"),
-      faultTagsLine: document.getElementById("faultTagsLine"),
+async function load(){
+  const r=await fetch("content.json");
+  const d=await r.json();
+  TREES=d.trees||d;
+  renderCats();renderList()
+}
 
-      nodeText: document.getElementById("nodeText"),
-      nodeHelp: document.getElementById("nodeHelp"),
-      answerBtns: document.getElementById("answerBtns"),
-      yesBtn: document.getElementById("yesBtn"),
-      noBtn: document.getElementById("noBtn"),
-      backBtn: document.getElementById("backBtn"),
+function renderCats(){
+  categoryChips.innerHTML="";
+  [...new Set(TREES.map(t=>t.category?.key))].forEach(k=>{
+    if(!k)return;
+    const b=document.createElement("div");
+    b.className="chip"+(cat===k?" active":"");
+    b.textContent=L(TREES.find(t=>t.category.key===k).category.label);
+    b.onclick=()=>{cat=cat===k?"":k;renderCats();renderList()};
+    categoryChips.appendChild(b);
+  })
+}
 
-      proto: document.getElementById("proto"),
-      copyBtn: document.getElementById("copyBtn"),
-      clearPathBtn: document.getElementById("clearPathBtn"),
-      pdfBtn: document.getElementById("pdfBtn"),
-      protoHint: document.getElementById("protoHint"),
+function renderList(){
+  faultList.innerHTML="";
+  TREES.filter(t=>!cat||t.category.key===cat)
+    .forEach(t=>{
+      const d=document.createElement("div");
+      d.className="item";
+      d.innerHTML=`<b>${L(t.title)}</b><span>${L(t.subtitle)}</span>`;
+      d.onclick=()=>{tree=t;node=t.nodes[t.start];path=[];renderNode()};
+      faultList.appendChild(d);
+    })
+}
 
-      ver: document.getElementById("ver"),
-    };
+function renderNode(){
+  nodeText.textContent=L(node.text||node.cause||"");
+  proto.value=path.map(p=>p.q+" "+p.a).join("\n");
+}
 
-    // ===== i18n
-    const I = {
-      de:{
-        faults:"Störungen",
-        hint:"Wähle eine Störung oder suche. Funktioniert auch offline.",
-        diag:"Diagnose",
-        empty:"Wähle links eine Störung. Dann JA / NEIN klicken.",
-        proto:"Protokoll",
-        search:"Suche (trittstufe, wasserpumpe, 12V...)",
-        tags:"Tags",
-        filterReset:"Filter Reset",
-        yes:"JA",
-        no:"NEIN",
-        back:"← SCHRITT ZURÜCK",
-        copy:"Kopieren",
-        clear:"Pfad löschen",
-        pdf:"PDF Download",
-        copied:"Kopiert.",
-        importOk:"Import OK",
-        importErr:"Import ERROR: JSON invalid",
-        adminPrompt:"ADMIN\\n1 = Import content.json\\n2 = Export content.json",
-        nodeMissing:"Fehler: Node fehlt im Baum.",
-        nodeMissingHelp:"Prüfe content.json.",
-        time:"Zeit",
-        lang:"Sprache",
-        fault:"Störung",
-        tagsLabel:"Tags",
-        steps:"Schritte",
-        result:"Ergebnis",
-      },
-      sk:{
-        faults:"Poruchy",
-        hint:"Vyber poruchu alebo hľadaj. Funguje aj offline.",
-        diag:"Diagnostika",
-        empty:"Vyber poruchu vľavo. Potom klikaj ÁNO / NIE.",
-        proto:"Protokol",
-        search:"Hľadať (trittstufe, wasserpumpe, 12V...)",
-        tags:"Tagy",
-        filterReset:"Reset filtra",
-        yes:"ÁNO",
-        no:"NIE",
-        back:"← KROK SPÄŤ",
-        copy:"Kopírovať",
-        clear:"Vymazať cestu",
-        pdf:"PDF Download",
-        copied:"Skopírované.",
-        importOk:"Import OK",
-        importErr:"Import ERROR: JSON neplatný",
-        adminPrompt:"ADMIN\\n1 = Import content.json\\n2 = Export content.json",
-        nodeMissing:"Chyba: chýba uzol v strome.",
-        nodeMissingHelp:"Skontroluj content.json.",
-        time:"Čas",
-        lang:"Jazyk",
-        fault:"Porucha",
-        tagsLabel:"Tagy",
-        steps:"Kroky",
-        result:"Výsledok",
-      }
-    };
+yesBtn.onclick=()=>{path.push({q:L(node.text),a:"[YES]"});node=tree.nodes[node.yes];renderNode()}
+noBtn.onclick=()=>{path.push({q:L(node.text),a:"[NO]"});node=tree.nodes[node.no];renderNode()}
+backBtn.onclick=()=>{location.reload()}
+langDE.onclick=()=>{LANG="de";localStorage.lang="de";applyLang()}
+langSK.onclick=()=>{LANG="sk";localStorage.lang="sk";applyLang()}
+resetBtn.onclick=()=>{localStorage.clear();location.reload()}
+adminBtn.onclick=()=>alert("ADMIN IMPORT cez pôvodnú verziu")
 
-    // ===== State
-    let LANG = localStorage.getItem("lang") || "de";
-    let TREES = [];
-    let currentTree = null;
-    let currentNodeId = null;
-    let path = [];
-    let tagsOpen = false;
-    let activeTag = "";
-
-    function T(k){ return (I[LANG] && I[LANG][k]) ? I[LANG][k] : k; }
-
-    // object {de,sk} -> string
-    function L(x){
-      if(x == null) return "";
-      if(typeof x === "string") return x;
-      if(typeof x === "number" || typeof x === "boolean") return String(x);
-      if(typeof x === "object"){
-        if(x[LANG] != null) return String(x[LANG]);
-        if(x.de != null) return String(x.de);
-        if(x.sk != null) return String(x.sk);
-        const v = Object.values(x)[0];
-        return v == null ? "" : String(v);
-      }
-      return String(x);
-    }
-
-    function nowLocal(){
-      try{ return new Date().toLocaleString(undefined,{hour12:false}); }
-      catch{ return new Date().toISOString(); }
-    }
-
-    function applyLangUI(){
-      document.documentElement.lang = (LANG==="de") ? "de" : "sk";
-      el.hFaults.textContent = T("faults");
-      el.hHint.textContent = T("hint");
-      el.hDiag.textContent = T("diag");
-      el.diagEmpty.textContent = T("empty");
-      el.hProto.textContent = T("proto");
-      el.search.placeholder = T("search");
-      el.tagBtn.textContent = T("tags") + " ▼";
-      el.filterResetBtn.textContent = T("filterReset");
-      el.yesBtn.textContent = T("yes");
-      el.noBtn.textContent = T("no");
-      el.backBtn.textContent = T("back");
-      el.copyBtn.textContent = T("copy");
-      el.clearPathBtn.textContent = T("clear");
-      el.pdfBtn.textContent = T("pdf");
-      el.ver.textContent = "v" + VERSION;
-    }
-
-    function updateOffline(){
-      el.offlinePill.textContent = "offline: " + (navigator.onLine ? "NO" : "YES");
-    }
-
-    // ===== Load content
-    async function loadContent(){
-      // 1) override from localStorage (ADMIN import)
-      const ov = localStorage.getItem("content_override");
-      if(ov){
-        try{ TREES = JSON.parse(ov) || []; return; }
-        catch{ TREES = []; }
-      }
-      // 2) fetch default content.json from same folder
-      try{
-        const r = await fetch("./content.json?v="+encodeURIComponent(VERSION), {cache:"no-store"});
-        const data = await r.json();
-        TREES = Array.isArray(data) ? data : (data.trees || []);
-      }catch(e){
-        TREES = [];
-      }
-    }
-
-    // ===== Tags
-    function allTags(){
-      const s = new Set();
-      for(const tr of TREES){
-        for(const tg of (tr.tags || [])) s.add(tg);
-      }
-      return Array.from(s).sort((a,b)=>a.localeCompare(b));
-    }
-
-    function renderTagChips(){
-      if(!tagsOpen){
-        el.tagChips.style.display = "none";
-        return;
-      }
-      el.tagChips.style.display = "flex";
-      el.tagChips.innerHTML = "";
-      const tags = ["__ALL__"].concat(allTags());
-      for(const tg of tags){
-        const b = document.createElement("button");
-        b.className = "chip" + ((activeTag === tg) ? " active" : "");
-        b.textContent = (tg==="__ALL__") ? "ALL" : tg;
-        b.onclick = () => {
-          activeTag = (activeTag === tg) ? "" : tg;
-          renderList();
-          renderTagChips();
-        };
-        el.tagChips.appendChild(b);
-      }
-    }
-
-    function filterReset(){
-      activeTag = "";
-      el.search.value = "";
-      renderList();
-      renderTagChips();
-    }
-
-    // ===== List
-    function matchTree(tr, q){
-      if(activeTag && activeTag !== "__ALL__"){
-        if(!(tr.tags||[]).includes(activeTag)) return false;
-      }
-      if(!q) return true;
-      const hay = (L(tr.title)+" "+L(tr.subtitle)+" "+(tr.tags||[]).join(" ")).toLowerCase();
-      return hay.includes(q);
-    }
-
-    function renderList(){
-      const q = (el.search.value||"").trim().toLowerCase();
-      el.faultList.innerHTML = "";
-      const list = TREES.filter(tr => matchTree(tr,q));
-      list.forEach((tr)=>{
-        const item = document.createElement("button");
-        item.className = "item";
-        const t = document.createElement("div");
-        t.className = "itemTitle";
-        t.textContent = L(tr.title);
-        const s = document.createElement("div");
-        s.className = "itemSub";
-        s.textContent = L(tr.subtitle);
-        item.appendChild(t);
-        item.appendChild(s);
-        item.onclick = ()=>selectTree(tr);
-        el.faultList.appendChild(item);
-      });
-
-      if(list.length === 0){
-        const empty = document.createElement("div");
-        empty.className = "item";
-        empty.style.cursor="default";
-        empty.innerHTML = "<div class='itemTitle'>—</div><div class='itemSub'>No matches / Žiadne výsledky</div>";
-        el.faultList.appendChild(empty);
-      }
-    }
-
-    // ===== Tree / Node
-    function selectTree(tr){
-      currentTree = tr;
-      currentNodeId = tr.start || tr.root || null;
-      path = [];
-
-      el.faultTitleBadge.style.display = "inline-flex";
-      el.faultTitleBadge.textContent = L(tr.title);
-
-      // TAGY: schované default, iba keď tagsOpen == true
-      const tagText = "#"+(tr.tags||[]).join(" #");
-      el.faultTagsLine.textContent = tagText;
-      el.faultTagsLine.style.display = tagsOpen ? "inline-flex" : "none";
-
-      renderNode();
-      renderProtocol();
-    }
-
-    function node(){
-      if(!currentTree || !currentNodeId) return null;
-      const n = (currentTree.nodes||{})[currentNodeId];
-      return n || null;
-    }
-
-    function renderNode(){
-      const n = node();
-      if(!currentTree){
-        el.answerBtns.style.display = "none";
-        el.backBtn.style.display = "none";
-        el.nodeText.textContent = "";
-        el.nodeHelp.textContent = "";
-        return;
-      }
-      if(!n){
-        el.nodeText.textContent = T("nodeMissing");
-        el.nodeHelp.textContent = T("nodeMissingHelp");
-        el.answerBtns.style.display = "none";
-        el.backBtn.style.display = (path.length>0) ? "block" : "none";
-        return;
-      }
-
-      el.diagEmpty.textContent = ""; // hide hint once selected
-
-      if(n.type === "question"){
-        el.nodeText.textContent = L(n.text);
-        el.nodeHelp.textContent = L(n.help);
-        el.answerBtns.style.display = "grid";
-        el.backBtn.style.display = (path.length>0) ? "block" : "none";
-      } else if(n.type === "result"){
-        const cause = L(n.cause);
-        const action = L(n.action);
-        el.nodeText.textContent = (LANG==="de") ? ("Ergebnis: " + cause) : ("Výsledok: " + cause);
-        el.nodeHelp.textContent = (LANG==="de") ? ("Aktion: " + action) : ("Akcia: " + action);
-        el.answerBtns.style.display = "none";
-        el.backBtn.style.display = (path.length>0) ? "block" : "none";
-      } else if(n.type === "action"){
-        el.nodeText.textContent = L(n.text);
-        el.nodeHelp.textContent = L(n.help);
-        el.answerBtns.style.display = "none";
-        el.backBtn.style.display = (path.length>0) ? "block" : "none";
-      } else {
-        el.nodeText.textContent = "Unknown node type";
-        el.nodeHelp.textContent = "";
-        el.answerBtns.style.display = "none";
-      }
-    }
-
-    function go(nextId, answerLabel){
-      const n = node();
-      if(!n) return;
-      path.push({ q: L(n.text) || L(n.cause) || L(n.action) || "", a: answerLabel });
-      currentNodeId = nextId || null;
-      renderNode();
-      renderProtocol();
-    }
-
-    function yes(){
-      const n = node(); if(!n) return;
-      if(n.type === "question") return go(n.yes, "["+T("yes")+"]");
-      if(n.type === "action") return go(n.next || currentNodeId, "["+T("yes")+"]");
-    }
-    function no(){
-      const n = node(); if(!n) return;
-      if(n.type === "question") return go(n.no, "["+T("no")+"]");
-      if(n.type === "action") return go(n.next || currentNodeId, "["+T("no")+"]");
-    }
-
-    function back(){
-      if(!currentTree) return;
-      if(path.length === 0){
-        currentNodeId = currentTree.start || currentTree.root || null;
-        renderNode();
-        renderProtocol();
-        return;
-      }
-      path.pop();
-
-      // replay from start by simulating answers (stable enough for our tree)
-      const replay = [...path];
-      path = [];
-      currentNodeId = currentTree.start || currentTree.root || null;
-
-      for(const st of replay){
-        const n = node();
-        if(!n || n.type !== "question") break;
-        if(st.a.includes(T("yes"))) { path.push(st); currentNodeId = n.yes; }
-        else { path.push(st); currentNodeId = n.no; }
-      }
-      renderNode();
-      renderProtocol();
-    }
-
-    function clearPath(){
-      if(!currentTree) return;
-      path = [];
-      currentNodeId = currentTree.start || currentTree.root || null;
-      renderNode();
-      renderProtocol();
-    }
-
-    // ===== Protocol
-    function renderProtocol(){
-      if(!currentTree){
-        el.proto.value = "";
-        return;
-      }
-      const lines = [];
-      lines.push(`${T("time")}: ${nowLocal()}`);
-      lines.push(`${T("lang")}: ${(LANG==="de")?"DE":"SK"}`);
-      lines.push(`${T("fault")}: ${L(currentTree.title)}`);
-      lines.push(`${T("tagsLabel")}: ${(currentTree.tags||[]).join(", ")}`);
-      lines.push("");
-      lines.push(`${T("steps")}:`);
-      let i = 1;
-      for(const st of path){
-        if(st.q) lines.push(`${i}. ${st.q} ${st.a}`);
-        i++;
-      }
-      lines.push("");
-      const n = node();
-      if(n && n.type==="result"){
-        lines.push(`${T("result")}:`);
-        lines.push(L(n.cause));
-        lines.push(L(n.action));
-      }
-      el.proto.value = lines.join("\n");
-    }
-
-    async function copyProto(){
-      try{
-        await navigator.clipboard.writeText(el.proto.value);
-        el.protoHint.textContent = T("copied");
-      }catch{
-        el.protoHint.textContent = "";
-      }
-      setTimeout(()=>el.protoHint.textContent="", 1000);
-    }
-
-    // ===== PDF (print)
-    function escapeHtml(s){
-      return (s||"").replace(/[&<>"']/g, c=>({
-        "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
-      }[c]));
-    }
-    function downloadPdf(){
-      const w = window.open("", "_blank");
-      const safe = escapeHtml(el.proto.value);
-      w.document.write(`
-        <html><head><meta charset="utf-8">
-        <title>Caravan TaM Protocol</title>
-        <style>
-          body{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-                padding:18px; background:#cfe7fb; }
-          pre{ white-space: pre-wrap; font-size:14px; line-height:1.35; }
-        </style></head>
-        <body><pre>${safe}</pre>
-        <script>window.onload=()=>{window.print();};<\/script>
-        </body></html>
-      `);
-      w.document.close();
-    }
-
-    // ===== ADMIN import/export
-    async function admin(){
-      const choice = prompt(T("adminPrompt"));
-      if(!choice) return;
-
-      if(choice.trim()==="1"){
-        const inp = document.createElement("input");
-        inp.type="file";
-        inp.accept="application/json,.json";
-        inp.onchange = async ()=>{
-          const f = inp.files && inp.files[0];
-          if(!f) return;
-          const txt = await f.text();
-          try{
-            const data = JSON.parse(txt);
-            const arr = Array.isArray(data) ? data : (data.trees || []);
-            localStorage.setItem("content_override", JSON.stringify(arr));
-            TREES = arr;
-            hardResetUI();
-            alert(T("importOk"));
-          }catch(e){
-            alert(T("importErr"));
-          }
-        };
-        inp.click();
-      }
-
-      if(choice.trim()==="2"){
-        const data = JSON.stringify(TREES, null, 2);
-        const blob = new Blob([data], {type:"application/json;charset=utf-8"});
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `content_export_${Date.now()}.json`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
-      }
-    }
-
-    function hardResetUI(){
-      activeTag = "";
-      tagsOpen = false;
-      currentTree = null;
-      currentNodeId = null;
-      path = [];
-      el.search.value = "";
-      el.tagChips.style.display="none";
-      el.faultTitleBadge.style.display="none";
-      el.faultTagsLine.style.display="none";
-      el.diagEmpty.textContent = T("empty");
-      el.nodeText.textContent = "";
-      el.nodeHelp.textContent = "";
-      el.answerBtns.style.display = "none";
-      el.backBtn.style.display = "none";
-      el.proto.value = "";
-      renderList();
-      renderTagChips();
-    }
-
-    function resetAll(){
-      // reset content override + basic UI state
-      localStorage.removeItem("content_override");
-      // nechávam jazyk, ale môžeš odstrániť aj toto:
-      // localStorage.removeItem("lang");
-      location.reload();
-    }
-
-    // ===== Boot
-    (async function boot(){
-      updateOffline();
-      window.addEventListener("online", updateOffline);
-      window.addEventListener("offline", updateOffline);
-
-      await loadContent();
-
-      // handlers
-      el.langDE.onclick = ()=>{ LANG="de"; localStorage.setItem("lang", LANG); applyLangUI(); renderList(); renderNode(); renderProtocol(); };
-      el.langSK.onclick = ()=>{ LANG="sk"; localStorage.setItem("lang", LANG); applyLangUI(); renderList(); renderNode(); renderProtocol(); };
-
-      el.resetBtn.onclick = resetAll;
-      el.search.oninput = renderList;
-
-      el.tagBtn.onclick = ()=>{
-        tagsOpen = !tagsOpen;
-        // tag line v diagnose tiež len keď tagsOpen
-        el.faultTagsLine.style.display = (currentTree && tagsOpen) ? "inline-flex" : "none";
-        renderTagChips();
-      };
-      el.filterResetBtn.onclick = filterReset;
-
-      el.yesBtn.onclick = yes;
-      el.noBtn.onclick = no;
-      el.backBtn.onclick = back;
-
-      el.copyBtn.onclick = copyProto;
-      el.clearPathBtn.onclick = clearPath;
-      el.pdfBtn.onclick = downloadPdf;
-
-      el.adminBtn.onclick = admin;
-
-      // init UI
-      applyLangUI();
-      hardResetUI();
-    })();
-  </script>
+applyLang();load();
+</script>
 </body>
 </html>
