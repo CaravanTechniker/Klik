@@ -1,0 +1,1843 @@
+[
+  {
+    "id": "01_total_12v",
+    "category": "Elektrik",
+    "title": {
+      "de": "12V komplett ausgefallen (Aufbau tot)",
+      "sk": "12V úplne vypadnuté (nadstavba mŕtva)"
+    },
+    "subtitle": {
+      "de": "Kein Licht, keine Pumpe, Panel dunkel.",
+      "sk": "Nesvieti, nejde pumpa, panel tmavý."
+    },
+    "tags": [
+      "12v",
+      "totalausfall",
+      "aufbau",
+      "ebl",
+      "hauptschalter",
+      "hauptsicherung"
+    ],
+    "start": "01_total_12v_q1",
+    "nodes": {
+      "01_total_12v_q1": {
+        "type": "question",
+        "text": {
+          "de": "Ist der Hauptschalter Aufbau eingeschaltet?",
+          "sk": "Je hlavný vypínač nadstavby zapnutý?"
+        },
+        "yes": "01_total_12v_q2",
+        "no": "01_total_12v_r1"
+      },
+      "01_total_12v_r1": {
+        "type": "result",
+        "cause": {
+          "de": "Hauptschalter war AUS.",
+          "sk": "Hlavný vypínač bol VYPNUTÝ."
+        },
+        "action": {
+          "de": "Schalter einschalten. Danach Funktion prüfen (Licht/Pumpe/Panel).",
+          "sk": "Zapni vypínač. Potom otestuj svetlo/pumpu/panel."
+        }
+      },
+      "01_total_12v_q2": {
+        "type": "question",
+        "text": {
+          "de": "Liegt Batteriespannung an der Aufbaubatterie > 12,0 V an?",
+          "sk": "Je na palubnej batérii napätie > 12,0 V?"
+        },
+        "yes": "01_total_12v_q3",
+        "no": "01_total_12v_r2"
+      },
+      "01_total_12v_r2": {
+        "type": "result",
+        "cause": {
+          "de": "Aufbaubatterie leer/abgeklemmt.",
+          "sk": "Palubná batéria je vybitá/odpojená."
+        },
+        "action": {
+          "de": "Batterie laden/anschließen. Hauptsicherung nahe Batterie prüfen.",
+          "sk": "Nabi/pripoj batériu. Skontroluj hlavnú poistku pri batérii."
+        }
+      },
+      "01_total_12v_q3": {
+        "type": "question",
+        "text": {
+          "de": "Ist die Hauptsicherung (nahe Batterie/EBL) intakt?",
+          "sk": "Je hlavná poistka (pri batérii/EBL) v poriadku?"
+        },
+        "yes": "01_total_12v_q4",
+        "no": "01_total_12v_r3"
+      },
+      "01_total_12v_r3": {
+        "type": "result",
+        "cause": {
+          "de": "Hauptsicherung defekt.",
+          "sk": "Hlavná poistka je spálená."
+        },
+        "action": {
+          "de": "Sicherung ersetzen (richtiger Wert). Ursache: Kurzschluss prüfen.",
+          "sk": "Vymeň poistku (správna hodnota). Skontroluj príčinu skratu."
+        }
+      },
+      "01_total_12v_q4": {
+        "type": "question",
+        "text": {
+          "de": "Hat das Bedienpanel/EBL irgendeine Anzeige/LED?",
+          "sk": "Svieti panel/EBL aspoň nejako (LED/zobrazenie)?"
+        },
+        "yes": "01_total_12v_q5",
+        "no": "01_total_12v_r4"
+      },
+      "01_total_12v_r4": {
+        "type": "result",
+        "cause": {
+          "de": "EBL/Panel ohne Versorgung.",
+          "sk": "EBL/panel bez napájania."
+        },
+        "action": {
+          "de": "Plus/Masse am EBL Eingang messen. Massepunkt prüfen. Wenn OK: EBL intern möglich.",
+          "sk": "Zmeraj + a kostru na vstupe EBL. Skontroluj kostru. Ak OK: možná porucha EBL."
+        }
+      },
+      "01_total_12v_q5": {
+        "type": "question",
+        "text": {
+          "de": "Funktioniert 230V Landstrom? (Ladegerät aktiv)",
+          "sk": "Funguje 230V prívod? (nabíjačka beží)"
+        },
+        "yes": "01_total_12v_r5",
+        "no": "01_total_12v_r6"
+      },
+      "01_total_12v_r5": {
+        "type": "result",
+        "cause": {
+          "de": "12V-Ausfall bei vorhandenem 230V weist auf EBL/Verteilung hin.",
+          "sk": "12V výpadok pri 230V ukazuje na EBL/rozvod."
+        },
+        "action": {
+          "de": "Sicherungen im EBL, Verteilerausgänge, Relais prüfen.",
+          "sk": "Skontroluj poistky v EBL, výstupy rozvodu, relé."
+        }
+      },
+      "01_total_12v_r6": {
+        "type": "result",
+        "cause": {
+          "de": "Kein 230V – mögliches Gesamtproblem Versorgung.",
+          "sk": "Nie je 230V – možný problém napájania."
+        },
+        "action": {
+          "de": "Wenn 12V nur aus Batterie: EBL Eingang/Schalter/Sicherung prüfen. 230V separat prüfen.",
+          "sk": "Ak 12V ide len z batérie: vstup EBL/vypínač/poistka. 230V rieš zvlášť."
+        }
+      }
+    }
+  },
+  {
+    "id": "02_partial_12v",
+    "category": "Elektrik",
+    "title": {
+      "de": "12V funktioniert teilweise",
+      "sk": "12V funguje len čiastočne"
+    },
+    "subtitle": {
+      "de": "Einige Verbraucher gehen, andere nicht.",
+      "sk": "Niektoré veci idú, iné nie."
+    },
+    "tags": [
+      "12v",
+      "teilweise",
+      "sicherung",
+      "kontakt",
+      "masse",
+      "ebl"
+    ],
+    "start": "02_partial_12v_q1",
+    "nodes": {
+      "02_partial_12v_q1": {
+        "type": "question",
+        "text": {
+          "de": "Fallen alle Verbraucher aus oder nur einzelne?",
+          "sk": "Vypadlo všetko alebo len niektoré spotrebiče?"
+        },
+        "yes": "02_partial_12v_q2",
+        "no": "02_partial_12v_q3"
+      },
+      "02_partial_12v_q2": {
+        "type": "question",
+        "text": {
+          "de": "Ist es nur an einem Bereich (z.B. Licht) oder auch Pumpe/Heizung?)",
+          "sk": "Je to len jedna oblasť (svetlá) alebo aj pumpa/kúrenie?"
+        },
+        "yes": "02_partial_12v_q3",
+        "no": "02_partial_12v_q3"
+      },
+      "02_partial_12v_q3": {
+        "type": "question",
+        "text": {
+          "de": "Sind betroffene Verbraucher an derselben Sicherungsgruppe?",
+          "sk": "Sú problémové spotrebiče na rovnakej poistke?"
+        },
+        "yes": "02_partial_12v_q4",
+        "no": "02_partial_12v_q5"
+      },
+      "02_partial_12v_q4": {
+        "type": "question",
+        "text": {
+          "de": "Ist die betreffende Sicherung durchgebrannt?",
+          "sk": "Je daná poistka spálená?"
+        },
+        "yes": "02_partial_12v_r1",
+        "no": "02_partial_12v_q6"
+      },
+      "02_partial_12v_r1": {
+        "type": "result",
+        "cause": {
+          "de": "Sicherung der Gruppe defekt.",
+          "sk": "Poistka danej vetvy je spálená."
+        },
+        "action": {
+          "de": "Sicherung ersetzen. Wenn erneut: Kurzschluss/Überlast am Stromkreis prüfen.",
+          "sk": "Vymeň poistku. Ak znovu: skrat/preťaženie vo vetve."
+        }
+      },
+      "02_partial_12v_q6": {
+        "type": "question",
+        "text": {
+          "de": "Liegt Spannung am Sicherungsausgang an?",
+          "sk": "Je napätie na výstupe poistky?"
+        },
+        "yes": "02_partial_12v_r2",
+        "no": "02_partial_12v_r3"
+      },
+      "02_partial_12v_r2": {
+        "type": "result",
+        "cause": {
+          "de": "Sicherung OK, Spannung vorhanden – Problem liegt am Verbraucher/Leitung.",
+          "sk": "Poistka OK, napätie je – problém je spotrebič/vedenie."
+        },
+        "action": {
+          "de": "Stecker/Schalter/Leitung bis Verbraucher prüfen. Kontakt/Steckverbinder reinigen.",
+          "sk": "Skontroluj konektor/spínač/vedenie k spotrebiču. Prečisti kontakty."
+        }
+      },
+      "02_partial_12v_r3": {
+        "type": "result",
+        "cause": {
+          "de": "Keine Spannung hinter Sicherung trotz intakter Sicherung.",
+          "sk": "Za poistkou nie je napätie aj keď je poistka OK."
+        },
+        "action": {
+          "de": "Sicherungssitz/Verteiler/EBL Ausgang prüfen. Korrosion/lose Kontakte möglich.",
+          "sk": "Skontroluj päticu poistky/rozvod/výstup EBL. Možná korózia/uvoľnený kontakt."
+        }
+      },
+      "02_partial_12v_q5": {
+        "type": "question",
+        "text": {
+          "de": "Ist ein gemeinsamer Massepunkt betroffen (flackernd/schwach)?",
+          "sk": "Je problém na spoločnej kostre (bliká/slabé)?"
+        },
+        "yes": "02_partial_12v_r4",
+        "no": "02_partial_12v_r5"
+      },
+      "02_partial_12v_r4": {
+        "type": "result",
+        "cause": {
+          "de": "Masseproblem wahrscheinlich.",
+          "sk": "Pravdepodobne problém kostry."
+        },
+        "action": {
+          "de": "Massepunkte prüfen, reinigen, nachziehen. Spannungsabfall messen.",
+          "sk": "Skontroluj kostry, očisti, dotiahni. Zmeraj úbytok napätia."
+        }
+      },
+      "02_partial_12v_r5": {
+        "type": "result",
+        "cause": {
+          "de": "Kein gemeinsamer Zusammenhang – einzelner Verbraucher prüfen.",
+          "sk": "Bez spoločnej príčiny – rieš jednotlivý spotrebič."
+        },
+        "action": {
+          "de": "Zielgerichtet den betroffenen Stromkreis verfolgen (Sicherung → Schalter → Gerät).",
+          "sk": "Sleduj vetvu (poistka → spínač → zariadenie)."
+        }
+      }
+    }
+  },
+  {
+    "id": "03_fuse_blows",
+    "category": "Elektrik",
+    "title": {
+      "de": "Sicherung fliegt sofort",
+      "sk": "Poistka okamžite vyhadzuje"
+    },
+    "subtitle": {
+      "de": "Kurzschluss oder Überlast im Stromkreis.",
+      "sk": "Skrat alebo preťaženie vo vetve."
+    },
+    "tags": [
+      "sicherung",
+      "kurzschluss",
+      "ueberlast",
+      "12v"
+    ],
+    "start": "03_fuse_blows_q1",
+    "nodes": {
+      "03_fuse_blows_q1": {
+        "type": "question",
+        "text": {
+          "de": "Fliegt die Sicherung sofort beim Einschalten?",
+          "sk": "Vyhodí poistku hneď po zapnutí?"
+        },
+        "yes": "03_fuse_blows_q2",
+        "no": "03_fuse_blows_q3"
+      },
+      "03_fuse_blows_q2": {
+        "type": "question",
+        "text": {
+          "de": "Passiert es auch ohne angeschlossenen Verbraucher (Stecker ab)?",
+          "sk": "Stane sa to aj bez pripojeného spotrebiča (odpojený konektor)?"
+        },
+        "yes": "03_fuse_blows_r1",
+        "no": "03_fuse_blows_r2"
+      },
+      "03_fuse_blows_r1": {
+        "type": "result",
+        "cause": {
+          "de": "Kurzschluss in Leitung/Verteilung wahrscheinlich.",
+          "sk": "Pravdepodobne skrat vo vedení/rozvode."
+        },
+        "action": {
+          "de": "Leitung auf Scheuerstellen prüfen, Isolationsmessung, Klemmen/Verteiler kontrollieren.",
+          "sk": "Skontroluj vodič na predratie, izoláciu, svorky/rozvod."
+        }
+      },
+      "03_fuse_blows_r2": {
+        "type": "result",
+        "cause": {
+          "de": "Kurzschluss/Defekt im Verbraucher wahrscheinlich.",
+          "sk": "Pravdepodobne skrat/porucha spotrebiča."
+        },
+        "action": {
+          "de": "Verbraucher einzeln prüfen/ersetzen. Test mit Ersatzlast (Lampe) sinnvoll.",
+          "sk": "Otestuj spotrebič samostatne/vymeň. Pomôže test so záťažou (žiarovka)."
+        }
+      },
+      "03_fuse_blows_q3": {
+        "type": "question",
+        "text": {
+          "de": "Fliegt sie erst unter Last nach Sekunden/Minuten?",
+          "sk": "Vyhodí až pod záťažou po sekundách/minútach?"
+        },
+        "yes": "03_fuse_blows_r3",
+        "no": "03_fuse_blows_q4"
+      },
+      "03_fuse_blows_r3": {
+        "type": "result",
+        "cause": {
+          "de": "Überlast oder thermischer Fehler.",
+          "sk": "Preťaženie alebo tepelný problém."
+        },
+        "action": {
+          "de": "Stromaufnahme messen. Richtige Sicherungsgröße und Leitungsquerschnitt prüfen.",
+          "sk": "Zmeraj prúd. Skontroluj správnu poistku a prierez vodiča."
+        }
+      },
+      "03_fuse_blows_q4": {
+        "type": "question",
+        "text": {
+          "de": "Ist die Sicherung korrekt dimensioniert (nicht zu klein)?",
+          "sk": "Je poistka správnej hodnoty (nie príliš malá)?"
+        },
+        "yes": "03_fuse_blows_r4",
+        "no": "03_fuse_blows_r5"
+      },
+      "03_fuse_blows_r4": {
+        "type": "result",
+        "cause": {
+          "de": "Sicherung zu klein oder falscher Typ.",
+          "sk": "Poistka je príliš malá alebo zlý typ."
+        },
+        "action": {
+          "de": "Sicherung gemäß Hersteller/Leitung ersetzen (nicht überdimensionieren).",
+          "sk": "Vymeň podľa výrobcu/vedenia (nepredimenzovať)."
+        }
+      },
+      "03_fuse_blows_r5": {
+        "type": "result",
+        "cause": {
+          "de": "Sicherung korrekt – Fehler im Kreis bleibt.",
+          "sk": "Poistka je správna – chyba ostáva vo vetve."
+        },
+        "action": {
+          "de": "Systematisch trennen: Verbraucher abstecken, Abschnitt für Abschnitt testen.",
+          "sk": "Systematicky odpájať: spotrebiče, potom úseky vedenia."
+        }
+      }
+    }
+  },
+  {
+    "id": "04_charger",
+    "category": "Elektrik",
+    "title": {
+      "de": "230V Ladegerät lädt nicht",
+      "sk": "Nabíjačka nenabíja"
+    },
+    "subtitle": {
+      "de": "Landstrom da, aber Batterie bleibt leer.",
+      "sk": "230V je, ale batéria sa nenabíja."
+    },
+    "tags": [
+      "230v",
+      "ladegeraet",
+      "ebl",
+      "batterie",
+      "profil"
+    ],
+    "start": "04_charger_q1",
+    "nodes": {
+      "04_charger_q1": {
+        "type": "question",
+        "text": {
+          "de": "Liegt 230V Landstrom an (FI/LS an)?",
+          "sk": "Je prítomných 230V (FI/istič zapnutý)?"
+        },
+        "yes": "04_charger_q2",
+        "no": "04_charger_r1"
+      },
+      "04_charger_r1": {
+        "type": "result",
+        "cause": {
+          "de": "Kein 230V an der Anlage.",
+          "sk": "Nie je 230V v systéme."
+        },
+        "action": {
+          "de": "Landstromkabel, CEE, FI/LS, Steckdosen prüfen.",
+          "sk": "Skontroluj prívod, CEE, FI/ističe, zásuvky."
+        }
+      },
+      "04_charger_q2": {
+        "type": "question",
+        "text": {
+          "de": "Zeigt das Ladegerät LED/Status oder Geräusch (Lüfter)?",
+          "sk": "Signalizuje nabíjačka stav (LED/ventilátor)?"
+        },
+        "yes": "04_charger_q3",
+        "no": "04_charger_r2"
+      },
+      "04_charger_r2": {
+        "type": "result",
+        "cause": {
+          "de": "Ladegerät ohne Funktion.",
+          "sk": "Nabíjačka bez funkcie."
+        },
+        "action": {
+          "de": "230V Eingang am Ladegerät messen. Wenn vorhanden: Ladegerät defekt möglich.",
+          "sk": "Zmeraj 230V na vstupe nabíjačky. Ak je: možná porucha nabíjačky."
+        }
+      },
+      "04_charger_q3": {
+        "type": "question",
+        "text": {
+          "de": "Steigt Batteriespannung beim Laden sichtbar (z.B. 12,4 → 13,8V)?",
+          "sk": "Stúpa napätie batérie pri nabíjaní (napr. 12,4 → 13,8V)?"
+        },
+        "yes": "04_charger_r3",
+        "no": "04_charger_q4"
+      },
+      "04_charger_r3": {
+        "type": "result",
+        "cause": {
+          "de": "Laden funktioniert, Problem eher Anzeige/Verbrauch.",
+          "sk": "Nabíjanie funguje, problém skôr indikácia/spotreba."
+        },
+        "action": {
+          "de": "Panel-Anzeige kalibrieren, Verbraucher prüfen, Batteriegesundheit testen.",
+          "sk": "Skontroluj panel, spotrebu, otestuj batériu."
+        }
+      },
+      "04_charger_q4": {
+        "type": "question",
+        "text": {
+          "de": "Ist der Batterietyp/Profil im Ladegerät/EBL korrekt (AGM/GEL/LiFePO4)?",
+          "sk": "Je správny typ batérie v nastavení (AGM/GEL/LiFePO4)?"
+        },
+        "yes": "04_charger_q5",
+        "no": "04_charger_r4"
+      },
+      "04_charger_r4": {
+        "type": "result",
+        "cause": {
+          "de": "Falsches Ladeprofil kann zu geringer Ladespannung führen.",
+          "sk": "Zlé nabíjacie nastavenie môže znížiť napätie."
+        },
+        "action": {
+          "de": "Profil korrekt einstellen. Bei LiFePO4 ggf. Booster/Ladegerät kompatibel prüfen.",
+          "sk": "Nastav správny profil. Pri LiFePO4 skontroluj kompatibilitu nabíjačky/boosteru."
+        }
+      },
+      "04_charger_q5": {
+        "type": "question",
+        "text": {
+          "de": "Ist die Batteriesicherung/Trennrelais zwischen Ladegerät/EBL und Batterie OK?",
+          "sk": "Je poistka/odpojovač medzi nabíjačkou/EBL a batériou OK?"
+        },
+        "yes": "04_charger_r5",
+        "no": "04_charger_r6"
+      },
+      "04_charger_r5": {
+        "type": "result",
+        "cause": {
+          "de": "Verbindung OK – Ladegerät liefert aber nicht ausreichend.",
+          "sk": "Spojenie OK – nabíjačka nedáva výkon."
+        },
+        "action": {
+          "de": "Ausgangsstrom/Spannung messen. Ladegerät defekt oder zu schwach.",
+          "sk": "Zmeraj výstupný prúd/napätie. Nabíjačka môže byť chybná alebo slabá."
+        }
+      },
+      "04_charger_r6": {
+        "type": "result",
+        "cause": {
+          "de": "Unterbrechung zwischen Ladegerät/EBL und Batterie.",
+          "sk": "Prerušenie medzi nabíjačkou/EBL a batériou."
+        },
+        "action": {
+          "de": "Sicherung/Relais/Steckverbindung instandsetzen.",
+          "sk": "Oprav poistku/relé/konektor."
+        }
+      }
+    }
+  },
+  {
+    "id": "05_solar",
+    "category": "Elektrik",
+    "title": {
+      "de": "Solar System lädt nicht",
+      "sk": "Solár nenabíja"
+    },
+    "subtitle": {
+      "de": "Regler zeigt 0A oder keine PV.",
+      "sk": "Regulátor ukazuje 0A alebo žiadne PV."
+    },
+    "tags": [
+      "solar",
+      "regler",
+      "pv",
+      "mc4",
+      "sicherung"
+    ],
+    "start": "05_solar_q1",
+    "nodes": {
+      "05_solar_q1": {
+        "type": "question",
+        "text": {
+          "de": "Zeigt der Solarregler irgendeine Anzeige/LED?",
+          "sk": "Ukazuje regulátor nejaký stav (LED/displej)?"
+        },
+        "yes": "05_solar_q2",
+        "no": "05_solar_r1"
+      },
+      "05_solar_r1": {
+        "type": "result",
+        "cause": {
+          "de": "Solarregler ohne Versorgung oder defekt.",
+          "sk": "Regulátor bez napájania alebo chybný."
+        },
+        "action": {
+          "de": "Batterieseite prüfen: Sicherung +/Masse zum Regler messen.",
+          "sk": "Skontroluj batériovú stranu: poistku, +/kostru k regulátoru."
+        }
+      },
+      "05_solar_q2": {
+        "type": "question",
+        "text": {
+          "de": "Siehst du am Regler eine PV-Spannung (z.B. > 18V bei Sonne)?",
+          "sk": "Vidíš PV napätie na regulátore (napr. >18V na slnku)?"
+        },
+        "yes": "05_solar_q3",
+        "no": "05_solar_r2"
+      },
+      "05_solar_r2": {
+        "type": "result",
+        "cause": {
+          "de": "Keine PV-Spannung am Eingang.",
+          "sk": "Na vstupe nie je PV napätie."
+        },
+        "action": {
+          "de": "PV-Sicherung/Stecker/MC4 prüfen, Kabelbruch oder Schalter (falls vorhanden).",
+          "sk": "Skontroluj PV poistku/MC4/káble, prípadne PV vypínač."
+        }
+      },
+      "05_solar_q3": {
+        "type": "question",
+        "text": {
+          "de": "Fließt Ladestrom zur Batterie (Anzeige Regler) ?",
+          "sk": "Tečie nabíjací prúd do batérie (ukazuje regulátor)?"
+        },
+        "yes": "05_solar_r3",
+        "no": "05_solar_q4"
+      },
+      "05_solar_r3": {
+        "type": "result",
+        "cause": {
+          "de": "Solar lädt, Batterie evtl. voll oder Verbrauch höher.",
+          "sk": "Solar nabíja, batéria môže byť plná alebo spotreba vysoká."
+        },
+        "action": {
+          "de": "Batteriespannung/Verbrauch prüfen. Log/History im Regler ansehen.",
+          "sk": "Skontroluj napätie/spotrebu. Pozri históriu/log v regulátore."
+        }
+      },
+      "05_solar_q4": {
+        "type": "question",
+        "text": {
+          "de": "Ist die Batterie-Spannung am Regler gleich wie direkt an der Batterie?",
+          "sk": "Je napätie na regulátore rovnaké ako priamo na batérii?"
+        },
+        "yes": "05_solar_r4",
+        "no": "05_solar_r5"
+      },
+      "05_solar_r4": {
+        "type": "result",
+        "cause": {
+          "de": "Spannung OK – Regler-Einstellung/Temperatursensor prüfen.",
+          "sk": "Napätie OK – skontroluj nastavenia/senzor teploty."
+        },
+        "action": {
+          "de": "Batterietyp/Absorption/Float prüfen. Bei LiFePO4 korrektes Profil.",
+          "sk": "Skontroluj profil batérie. Pri LiFePO4 správne nastavenie."
+        }
+      },
+      "05_solar_r5": {
+        "type": "result",
+        "cause": {
+          "de": "Spannungsabfall/Verbindungsproblem zur Batterie.",
+          "sk": "Úbytok napätia/problém vedenia k batérii."
+        },
+        "action": {
+          "de": "Kabelquerschnitt, Sicherungshalter, Masse prüfen. Übergangswiderstände beheben.",
+          "sk": "Prierez vodiča, držiak poistky, kostra. Odstráň prechodové odpory."
+        }
+      }
+    }
+  },
+  {
+    "id": "06_shuts_off",
+    "category": "Elektrik",
+    "title": {
+      "de": "Aufbau Batterie schaltet sich selbst ab",
+      "sk": "Nadstavba sa sama vypína"
+    },
+    "subtitle": {
+      "de": "Spontane Abschaltung, später wieder OK.",
+      "sk": "Samovoľné vypnutie, potom zas ide."
+    },
+    "tags": [
+      "abschaltung",
+      "unterspannung",
+      "bms",
+      "masse",
+      "last"
+    ],
+    "start": "06_shuts_off_q1",
+    "nodes": {
+      "06_shuts_off_q1": {
+        "type": "question",
+        "text": {
+          "de": "Passiert es bei hoher Last (z.B. Pumpe/Wechselrichter)?",
+          "sk": "Stane sa to pri veľkej záťaži (pumpa/invertor)?"
+        },
+        "yes": "06_shuts_off_q2",
+        "no": "06_shuts_off_q3"
+      },
+      "06_shuts_off_q2": {
+        "type": "question",
+        "text": {
+          "de": "Fällt die Spannung dabei unter 11,5 V?",
+          "sk": "Padá napätie pod 11,5 V?"
+        },
+        "yes": "06_shuts_off_r1",
+        "no": "06_shuts_off_r2"
+      },
+      "06_shuts_off_r1": {
+        "type": "result",
+        "cause": {
+          "de": "Unterspannung durch schwache Batterie oder zu dünne Leitungen.",
+          "sk": "Podnapätie kvôli slabej batérii alebo tenkým káblom."
+        },
+        "action": {
+          "de": "Batterie testen, Kabelquerschnitt/Übergänge prüfen. Spannungsabfall messen.",
+          "sk": "Otestuj batériu, prierez/prechody. Zmeraj úbytok napätia."
+        }
+      },
+      "06_shuts_off_r2": {
+        "type": "result",
+        "cause": {
+          "de": "Abschaltung trotz stabiler Spannung – Schutz/Steuerung möglich.",
+          "sk": "Vypnutie aj pri stabilnom napätí – možná ochrana/riadenie."
+        },
+        "action": {
+          "de": "EBL/Booster/Inverter Schutzmeldungen prüfen. Temperatur/Überstrom.",
+          "sk": "Skontroluj ochrany EBL/booster/invertor. Teplota/nadprúd."
+        }
+      },
+      "06_shuts_off_q3": {
+        "type": "question",
+        "text": {
+          "de": "Schaltet der Hauptschalter/Panel ab und nach Minuten wieder ein?",
+          "sk": "Vypne sa panel/hlavný vypínač a po chvíli zas ide?"
+        },
+        "yes": "06_shuts_off_r3",
+        "no": "06_shuts_off_q4"
+      },
+      "06_shuts_off_r3": {
+        "type": "result",
+        "cause": {
+          "de": "Thermischer Schutz oder Kontaktproblem am Hauptschalter/Relais.",
+          "sk": "Tepelná ochrana alebo zlý kontakt na vypínači/relé."
+        },
+        "action": {
+          "de": "Schalter/Relais/Steckkontakte prüfen. Wärme/korrodierte Kontakte.",
+          "sk": "Skontroluj vypínač/relé/kontakty. Teplo/korózia."
+        }
+      },
+      "06_shuts_off_q4": {
+        "type": "question",
+        "text": {
+          "de": "Sind alle Masseverbindungen fest (Batterie-, Chassis-, EBL-Masse)?",
+          "sk": "Sú všetky kostry pevné (batéria, karoséria, EBL)?"
+        },
+        "yes": "06_shuts_off_r4",
+        "no": "06_shuts_off_r5"
+      },
+      "06_shuts_off_r4": {
+        "type": "result",
+        "cause": {
+          "de": "Masseverbindung OK – Ursache eher Batterie/Schutzgerät.",
+          "sk": "Kostry OK – príčina skôr batéria/ochranné zariadenie."
+        },
+        "action": {
+          "de": "Batteriegesundheit (Innenwiderstand), BMS (LiFePO4) Logs prüfen.",
+          "sk": "Skontroluj stav batérie (vnútorný odpor), BMS logy (LiFePO4)."
+        }
+      },
+      "06_shuts_off_r5": {
+        "type": "result",
+        "cause": {
+          "de": "Lose/korrodierte Masse kann Abschaltungen verursachen.",
+          "sk": "Uvoľnená/korodovaná kostra spôsobí vypínanie."
+        },
+        "action": {
+          "de": "Massepunkte reinigen, nachziehen, ggf. neue Masseleitung legen.",
+          "sk": "Očisti kostry, dotiahni, prípadne sprav novú kostru."
+        }
+      }
+    }
+  },
+  {
+    "id": "07_voltage_drop",
+    "category": "Elektrik",
+    "title": {
+      "de": "Spannung bricht unter Last ein (Spannungsabfall)",
+      "sk": "Napätie padá pod záťažou (úbytok napätia)"
+    },
+    "subtitle": {
+      "de": "Licht wird schwach, Pumpe langsam, Geräte schalten ab.",
+      "sk": "Svetlá slabnú, pumpa spomaľuje, zariadenia sa vypínajú."
+    },
+    "tags": [
+      "spannungsabfall",
+      "last",
+      "kabel",
+      "masse",
+      "kontakt",
+      "sicherung"
+    ],
+    "start": "07_voltage_drop_q1",
+    "nodes": {
+      "07_voltage_drop_q1": {
+        "type": "question",
+        "text": {
+          "de": "Tritt das Problem nur auf, wenn ein größerer Verbraucher eingeschaltet wird (Pumpe/Heizung/Wechselrichter)?",
+          "sk": "Deje sa to len vtedy, keď zapneš väčší spotrebič (pumpa/kúrenie/invertor)?"
+        },
+        "yes": "07_voltage_drop_q2",
+        "no": "07_voltage_drop_q3"
+      },
+      "07_voltage_drop_q2": {
+        "type": "question",
+        "text": {
+          "de": "Fällt die Batteriespannung direkt an der Aufbaubatterie dabei deutlich ab (z.B. > 0,7 V)?",
+          "sk": "Padá pri tom napätie priamo na palubnej batérii výrazne (napr. > 0,7 V)?"
+        },
+        "yes": "07_voltage_drop_r1",
+        "no": "07_voltage_drop_q4"
+      },
+      "07_voltage_drop_r1": {
+        "type": "result",
+        "cause": {
+          "de": "Batterie schwach (hoher Innenwiderstand) oder BMS/Schutz schaltet unter Last.",
+          "sk": "Batéria je slabá (vysoký vnútorný odpor) alebo BMS/ochrana vypína pod záťažou."
+        },
+        "action": {
+          "de": "Batterietest unter Last (Spannung + Strom). Pole/Schrauben/Adapter prüfen. Bei LiFePO4: BMS-Logs/Fehlercodes prüfen.",
+          "sk": "Otestuj batériu pod záťažou (napätie + prúd). Skontroluj póly/skrutky/adaptéry. Pri LiFePO4 skontroluj BMS logy/chyby."
+        }
+      },
+      "07_voltage_drop_q3": {
+        "type": "question",
+        "text": {
+          "de": "Ist das Verhalten eher dauerhaft (Licht immer schwach) und nicht nur bei Lastspitzen?",
+          "sk": "Je to skôr trvalé (svetlá stále slabé) a nie len pri špičke záťaže?"
+        },
+        "yes": "07_voltage_drop_r2",
+        "no": "07_voltage_drop_q4"
+      },
+      "07_voltage_drop_r2": {
+        "type": "result",
+        "cause": {
+          "de": "Grundsätzlich zu geringe Versorgungsspannung oder falsche Mess-/Anzeigequelle.",
+          "sk": "Základne nízke napájacie napätie alebo zlá meracia/indikačná vetva."
+        },
+        "action": {
+          "de": "Spannung direkt an Batterie und am EBL/Verteiler vergleichen. Panel-Anzeige nicht allein vertrauen. Sicherungshalter/Stecker auf Wärme/Korrosion prüfen.",
+          "sk": "Porovnaj napätie priamo na batérii a na EBL/rozvode. Nespoliehaj sa len na panel. Skontroluj držiaky poistiek/konektory na teplo/koróziu."
+        }
+      },
+      "07_voltage_drop_q4": {
+        "type": "question",
+        "text": {
+          "de": "Fällt die Spannung erst weiter hinten im System ab (z.B. am Verbraucher), aber an der Batterie bleibt sie stabil?",
+          "sk": "Padá napätie až ďalej v systéme (napr. pri spotrebiči), ale na batérii ostáva stabilné?"
+        },
+        "yes": "07_voltage_drop_q5",
+        "no": "07_voltage_drop_q6"
+      },
+      "07_voltage_drop_q5": {
+        "type": "question",
+        "text": {
+          "de": "Hast du einen deutlichen Spannungsabfall zwischen Batterie+ und Verbraucher+ (> 0,5 V unter Last)?",
+          "sk": "Máš výrazný úbytok medzi batéria+ a spotrebič+ (> 0,5 V pod záťažou)?"
+        },
+        "yes": "07_voltage_drop_r3",
+        "no": "07_voltage_drop_q7"
+      },
+      "07_voltage_drop_r3": {
+        "type": "result",
+        "cause": {
+          "de": "Übergangswiderstand im Pluspfad (Sicherungshalter, Relais, Schalter, Steckverbindung, zu dünnes/geschädigtes Kabel).",
+          "sk": "Prechodový odpor v plus vetve (držiak poistky, relé, vypínač, konektor, tenký/poškodený kábel)."
+        },
+        "action": {
+          "de": "Unter Last Abschnitt für Abschnitt messen (Batterie+ → Sicherung → EBL → Verbraucher). Verdächtige Stellen: warme Sicherungshalter, oxidierte Stecker, lose Schrauben. Kontakt instandsetzen, Kabelquerschnitt prüfen.",
+          "sk": "Meraj pod záťažou po úsekoch (batéria+ → poistka → EBL → spotrebič). Podozrivé sú teplé držiaky poistiek, oxidované konektory, uvoľnené skrutky. Oprav kontakty, skontroluj prierez."
+        }
+      },
+      "07_voltage_drop_q6": {
+        "type": "question",
+        "text": {
+          "de": "Tritt das Problem bei mehreren verschiedenen Verbrauchern auf?",
+          "sk": "Deje sa to pri viacerých rôznych spotrebičoch?"
+        },
+        "yes": "07_voltage_drop_q7",
+        "no": "07_voltage_drop_r4"
+      },
+      "07_voltage_drop_r4": {
+        "type": "result",
+        "cause": {
+          "de": "Fehler liegt wahrscheinlich am einzelnen Stromkreis/Verbraucher (Schalter/Stecker/Leitung/defektes Gerät).",
+          "sk": "Chyba je pravdepodobne v jednej vetve alebo priamo v spotrebiči (spínač/konektor/vedenie/zariadenie)."
+        },
+        "action": {
+          "de": "Nur den betroffenen Stromkreis verfolgen (Sicherung → Schalter → Gerät). Unter Last messen. Gerät testweise mit externer 12V-Quelle prüfen.",
+          "sk": "Sleduj len túto vetvu (poistka → spínač → zariadenie). Meraj pod záťažou. Zariadenie otestuj aj z externého 12V zdroja."
+        }
+      },
+      "07_voltage_drop_q7": {
+        "type": "question",
+        "text": {
+          "de": "Hast du einen deutlichen Spannungsabfall zwischen Batterie- (Masse) und Verbraucher- (> 0,3 V unter Last)?",
+          "sk": "Máš výrazný úbytok medzi batéria- (kostra) a spotrebič- (> 0,3 V pod záťažou)?"
+        },
+        "yes": "07_voltage_drop_r5",
+        "no": "07_voltage_drop_r6"
+      },
+      "07_voltage_drop_r5": {
+        "type": "result",
+        "cause": {
+          "de": "Masseproblem (lose/korrodierte Massepunkte, dünne Masseleitung, schlechter Kontakt am Chassis).",
+          "sk": "Problém kostry (uvoľnené/korodované kostriace body, tenká kostra, zlý kontakt na karosérii)."
+        },
+        "action": {
+          "de": "Massepunkte reinigen/nachziehen. Zusatz-Masseleitung (Batterie- ↔ Chassis ↔ EBL) prüfen/legen. Unter Last Spannungsabfall erneut messen.",
+          "sk": "Očisti a dotiahni kostriace body. Skontroluj/pridaj pomocnú kostru (batéria- ↔ karoséria ↔ EBL). Znova zmeraj úbytok pod záťažou."
+        }
+      },
+      "07_voltage_drop_r6": {
+        "type": "result",
+        "cause": {
+          "de": "Kein großer Spannungsabfall messbar – Ursache kann Messpunkt/Anzeige, intermittenter Kontakt oder Schutzabschaltung sein.",
+          "sk": "Nevidno veľký úbytok – príčina môže byť merací bod/indikácia, prerušovaný kontakt alebo ochranné vypínanie."
+        },
+        "action": {
+          "de": "Messung direkt an Batterie und an EBL unter realer Last wiederholen. Steckverbinder bewegen (Wackeltest) und auf Temperatur achten. Falls LiFePO4: BMS/Booster/Inverter Schutzmeldungen prüfen.",
+          "sk": "Zopakuj meranie priamo na batérii a na EBL pri reálnej záťaži. Urob „wackel test“ konektorov a sleduj teplo. Pri LiFePO4 skontroluj ochrany BMS/booster/invertor."
+        }
+      }
+    }
+  },
+  {
+    "id": "08_no_charge_while_driving",
+    "category": "Elektrik",
+    "title": {
+      "de": "Motor läuft, Batterie lädt nicht (Fahrt)",
+      "sk": "Motor beží, ale batéria sa počas jazdy nenabíja"
+    },
+    "subtitle": {
+      "de": "Kein Ladestrom von Lichtmaschine zur Aufbaubatterie.",
+      "sk": "Žiadny nabíjací prúd z alternátora do palubnej batérie."
+    },
+    "tags": [
+      "booster",
+      "dplus",
+      "lichtmaschine",
+      "euro6",
+      "trennrelais"
+    ],
+    "start": "08_drive_q1",
+    "nodes": {
+      "08_drive_q1": {
+        "type": "question",
+        "text": {
+          "de": "Steigt die Spannung der Aufbaubatterie bei laufendem Motor über ca. 13,5 V?",
+          "sk": "Stúpne napätie palubnej batérie pri bežiacom motore nad cca 13,5 V?"
+        },
+        "yes": "08_drive_r1",
+        "no": "08_drive_q2"
+      },
+      "08_drive_r1": {
+        "type": "result",
+        "cause": {
+          "de": "Laden während der Fahrt grundsätzlich aktiv.",
+          "sk": "Nabíjanie počas jazdy v zásade funguje."
+        },
+        "action": {
+          "de": "Ladestrom prüfen (A). Wenn schwach: Booster-Leistung, Kabelquerschnitt und Sicherungen prüfen.",
+          "sk": "Skontroluj nabíjací prúd (A). Ak je slabý: výkon boostera, prierez káblov a poistky."
+        }
+      },
+      "08_drive_q2": {
+        "type": "question",
+        "text": {
+          "de": "Handelt es sich um ein Fahrzeug mit Euro-6-Abgasnorm?",
+          "sk": "Ide o vozidlo s emisnou normou Euro 6?"
+        },
+        "yes": "08_drive_q3",
+        "no": "08_drive_q5"
+      },
+      "08_drive_q3": {
+        "type": "question",
+        "text": {
+          "de": "Ist ein Ladebooster (DC-DC) verbaut?",
+          "sk": "Je namontovaný nabíjací booster (DC-DC)?"
+        },
+        "yes": "08_drive_q4",
+        "no": "08_drive_r2"
+      },
+      "08_drive_r2": {
+        "type": "result",
+        "cause": {
+          "de": "Euro 6 ohne Booster – Lichtmaschine lädt Aufbaubatterie nicht korrekt.",
+          "sk": "Euro 6 bez boostera – alternátor nenabíja palubnú batériu správne."
+        },
+        "action": {
+          "de": "DC-DC-Booster nachrüsten. Trennrelais allein reicht bei Euro 6 nicht aus.",
+          "sk": "Doplň DC-DC booster. Samotné relé pri Euro 6 nestačí."
+        }
+      },
+      "08_drive_q4": {
+        "type": "question",
+        "text": {
+          "de": "Zeigt der Booster Status (LED/App) und ist er freigegeben?",
+          "sk": "Signalizuje booster stav (LED/aplikácia) a je povolený?"
+        },
+        "yes": "08_drive_q6",
+        "no": "08_drive_r3"
+      },
+      "08_drive_r3": {
+        "type": "result",
+        "cause": {
+          "de": "Booster bekommt kein Freigabesignal (D+/IGN/Remote).",
+          "sk": "Booster nedostáva povoľovací signál (D+/IGN/Remote)."
+        },
+        "action": {
+          "de": "D+/IGN-Signal messen, Sicherung prüfen, Konfiguration/App kontrollieren.",
+          "sk": "Zmeraj D+/IGN signál, skontroluj poistku a nastavenie/aplikáciu."
+        }
+      },
+      "08_drive_q5": {
+        "type": "question",
+        "text": {
+          "de": "Ist ein Trennrelais zwischen Starter- und Aufbaubatterie verbaut?",
+          "sk": "Je medzi štartovacou a palubnou batériou separačné relé?"
+        },
+        "yes": "08_drive_q6",
+        "no": "08_drive_r4"
+      },
+      "08_drive_r4": {
+        "type": "result",
+        "cause": {
+          "de": "Keine Verbindung zwischen Starter- und Aufbaubatterie während der Fahrt.",
+          "sk": "Počas jazdy nie je spojenie medzi štartovacou a palubnou batériou."
+        },
+        "action": {
+          "de": "Relais oder Booster nachrüsten. Sicherstellen, dass Schaltsignal vorhanden ist.",
+          "sk": "Doplň relé alebo booster. Zabezpeč, aby bol prítomný spínací signál."
+        }
+      },
+      "08_drive_q6": {
+        "type": "question",
+        "text": {
+          "de": "Sind Sicherungen und Kabel auf beiden Seiten (Starter/Booster/Aufbau) intakt?",
+          "sk": "Sú poistky a káble na oboch stranách (štart/booster/nadstavba) v poriadku?"
+        },
+        "yes": "08_drive_q7",
+        "no": "08_drive_r5"
+      },
+      "08_drive_r5": {
+        "type": "result",
+        "cause": {
+          "de": "Unterbrechung oder Spannungsabfall in der Ladeleitung.",
+          "sk": "Prerušenie alebo úbytok napätia v nabíjacej vetve."
+        },
+        "action": {
+          "de": "Sicherungshalter, Massepunkte und Kabelquerschnitt prüfen. Unter Last messen.",
+          "sk": "Skontroluj držiaky poistiek, kostry a prierez káblov. Meraj pod záťažou."
+        }
+      },
+      "08_drive_q7": {
+        "type": "question",
+        "text": {
+          "de": "Liegt an der Starterbatterie bei laufendem Motor ca. 14–14,5 V an?",
+          "sk": "Je na štartovacej batérii pri bežiacom motore cca 14–14,5 V?"
+        },
+        "yes": "08_drive_r6",
+        "no": "08_drive_r7"
+      },
+      "08_drive_r6": {
+        "type": "result",
+        "cause": {
+          "de": "Lichtmaschine arbeitet, Problem liegt im Übertragungsweg.",
+          "sk": "Alternátor funguje, problém je v prenose k palubnej batérii."
+        },
+        "action": {
+          "de": "Booster/Relais-Eingang messen, Spannungsabfall prüfen, Konfiguration kontrollieren.",
+          "sk": "Zmeraj vstup boostera/relé, úbytok napätia a nastavenie."
+        }
+      },
+      "08_drive_r7": {
+        "type": "result",
+        "cause": {
+          "de": "Lichtmaschine oder Fahrzeug-Ladesystem fehlerhaft.",
+          "sk": "Porucha alternátora alebo nabíjacieho systému vozidla."
+        },
+        "action": {
+          "de": "Fahrzeugdiagnose, Generator, Riemen, Masseband Motor prüfen.",
+          "sk": "Diagnostika vozidla, alternátor, remeň, motorová kostra."
+        }
+      }
+    }
+  },
+  {
+    "id": "09_inverter_issue",
+    "category": "Elektrik",
+    "title": {
+      "de": "Wechselrichter funktioniert nicht / schaltet ab",
+      "sk": "Menič (invertor) nefunguje / vypína sa"
+    },
+    "subtitle": {
+      "de": "Kein 230V aus dem Inverter oder Abschaltung unter Last.",
+      "sk": "Žiadne 230V z meniča alebo vypínanie pod záťažou."
+    },
+    "tags": [
+      "wechselrichter",
+      "inverter",
+      "230v",
+      "abschaltung",
+      "unterspannung",
+      "ueberlast"
+    ],
+    "start": "09_inv_q1",
+    "nodes": {
+      "09_inv_q1": {
+        "type": "question",
+        "text": {
+          "de": "Gibt der Wechselrichter überhaupt 230V aus (LED/Anzeige aktiv)?",
+          "sk": "Dáva menič vôbec 230V (LED/displej aktívny)?"
+        },
+        "yes": "09_inv_q2",
+        "no": "09_inv_q3"
+      },
+      "09_inv_q2": {
+        "type": "question",
+        "text": {
+          "de": "Schaltet der Wechselrichter ab, sobald eine Last zugeschaltet wird?",
+          "sk": "Vypne sa menič hneď po pripojení záťaže?"
+        },
+        "yes": "09_inv_q4",
+        "no": "09_inv_r1"
+      },
+      "09_inv_r1": {
+        "type": "result",
+        "cause": {
+          "de": "Wechselrichter liefert stabil – Problem eher am Verbraucher oder 230V-Verteilung.",
+          "sk": "Menič dodáva stabilne – problém je skôr v spotrebiči alebo 230V rozvode."
+        },
+        "action": {
+          "de": "Verbraucher direkt am Inverter testen. Umschaltrelais/Steckdosen/LS prüfen.",
+          "sk": "Otestuj spotrebič priamo na meniči. Skontroluj prepínacie relé/zásuvky/ističe."
+        }
+      },
+      "09_inv_q3": {
+        "type": "question",
+        "text": {
+          "de": "Ist der Wechselrichter eingeschaltet und korrekt versorgt (12V an den Klemmen)?",
+          "sk": "Je menič zapnutý a má správne napájanie (12V na svorkách)?"
+        },
+        "yes": "09_inv_r2",
+        "no": "09_inv_r3"
+      },
+      "09_inv_r2": {
+        "type": "result",
+        "cause": {
+          "de": "Inverter eingeschaltet, aber keine 230V-Ausgabe – interner Fehler möglich.",
+          "sk": "Menič je zapnutý, ale nedáva 230V – možná vnútorná porucha."
+        },
+        "action": {
+          "de": "Fehlermeldung/Code prüfen. Reset durchführen. Herstellerangaben prüfen.",
+          "sk": "Skontroluj chybové hlásenie/kód. Urob reset. Pozri pokyny výrobcu."
+        }
+      },
+      "09_inv_r3": {
+        "type": "result",
+        "cause": {
+          "de": "Keine oder zu geringe 12V-Versorgung am Wechselrichter.",
+          "sk": "Žiadne alebo slabé 12V napájanie meniča."
+        },
+        "action": {
+          "de": "Batteriespannung direkt am Inverter messen. Sicherungen, Trennschalter und Masse prüfen.",
+          "sk": "Zmeraj napätie priamo na meniči. Skontroluj poistky, odpojovač a kostru."
+        }
+      },
+      "09_inv_q4": {
+        "type": "question",
+        "text": {
+          "de": "Sinkt die Batteriespannung beim Einschalten der Last unter ca. 11,5 V?",
+          "sk": "Padá napätie batérie pri zapnutí záťaže pod cca 11,5 V?"
+        },
+        "yes": "09_inv_r4",
+        "no": "09_inv_q5"
+      },
+      "09_inv_r4": {
+        "type": "result",
+        "cause": {
+          "de": "Unterspannung – Batterie schwach oder Kabelquerschnitt zu klein.",
+          "sk": "Podnapätie – slabá batéria alebo malý prierez káblov."
+        },
+        "action": {
+          "de": "Batterie unter Last testen. Kabelquerschnitt/Länge prüfen. Übergangswiderstände beseitigen.",
+          "sk": "Otestuj batériu pod záťažou. Skontroluj prierez/dĺžku káblov. Odstráň prechodové odpory."
+        }
+      },
+      "09_inv_q5": {
+        "type": "question",
+        "text": {
+          "de": "Wird die maximale Leistung des Wechselrichters überschritten?",
+          "sk": "Nie je prekročený maximálny výkon meniča?"
+        },
+        "yes": "09_inv_r5",
+        "no": "09_inv_q6"
+      },
+      "09_inv_r5": {
+        "type": "result",
+        "cause": {
+          "de": "Überlastschutz aktiv – Anlaufstrom zu hoch oder Gerät ungeeignet.",
+          "sk": "Aktívna ochrana proti preťaženiu – vysoký rozbehový prúd alebo nevhodné zariadenie."
+        },
+        "action": {
+          "de": "Leistungsdaten prüfen. Test mit kleinerer Last. Ggf. stärkeren Inverter einsetzen.",
+          "sk": "Skontroluj výkonové údaje. Otestuj s menšou záťažou. Prípadne použi silnejší menič."
+        }
+      },
+      "09_inv_q6": {
+        "type": "question",
+        "text": {
+          "de": "Schaltet der Wechselrichter erst nach einiger Zeit (Wärme) ab?",
+          "sk": "Vypne sa menič až po čase (prehriatie)?"
+        },
+        "yes": "09_inv_r6",
+        "no": "09_inv_r7"
+      },
+      "09_inv_r6": {
+        "type": "result",
+        "cause": {
+          "de": "Thermische Abschaltung durch schlechte Belüftung oder Dauerlast.",
+          "sk": "Tepelná ochrana kvôli zlému chladeniu alebo trvalej záťaži."
+        },
+        "action": {
+          "de": "Belüftung verbessern, Lüfter prüfen, Dauerlast reduzieren.",
+          "sk": "Zlepši chladenie, skontroluj ventilátor, zníž trvalú záťaž."
+        }
+      },
+      "09_inv_r7": {
+        "type": "result",
+        "cause": {
+          "de": "Kein klarer Fehler – intermittenter Kontakt oder Schutzlogik.",
+          "sk": "Bez jasnej chyby – prerušovaný kontakt alebo ochranná logika."
+        },
+        "action": {
+          "de": "Wackeltest an Kabeln/Anschlüssen. Logs/Fehlerhistorie auslesen (falls möglich).",
+          "sk": "Urob wackel test káblov/spojov. Prečítaj logy/históriu chýb (ak je možné)."
+        }
+      }
+    }
+  },
+  {
+    "id": "10_landstrom_fi_trips",
+    "category": "Elektrik",
+    "title": {
+      "de": "Landstrom/230V: FI oder Sicherung fliegt",
+      "sk": "230V/landstrom: FI alebo istič vyhadzuje"
+    },
+    "subtitle": {
+      "de": "Sobald eingesteckt oder beim Einschalten fällt FI/LS.",
+      "sk": "Hneď po pripojení alebo po zapnutí vyhodí FI/istič."
+    },
+    "tags": [
+      "230v",
+      "landstrom",
+      "fi",
+      "ls",
+      "kurzschluss",
+      "isolation"
+    ],
+    "start": "10_230_q1",
+    "nodes": {
+      "10_230_q1": {
+        "type": "question",
+        "text": {
+          "de": "Fliegt der FI/LS sofort beim Einstecken des Landstromkabels?",
+          "sk": "Vyhodí FI/istič hneď pri zapojení landstrom kábla?"
+        },
+        "yes": "10_230_q2",
+        "no": "10_230_q3"
+      },
+      "10_230_q2": {
+        "type": "question",
+        "text": {
+          "de": "Fliegt er auch, wenn im Wohnmobil alle 230V-Verbraucher ausgeschaltet und alle Stecker gezogen sind?",
+          "sk": "Vyhodí to aj keď sú všetky 230V spotrebiče vypnuté a vytiahnuté zo zásuviek?"
+        },
+        "yes": "10_230_r1",
+        "no": "10_230_r2"
+      },
+      "10_230_r1": {
+        "type": "result",
+        "cause": {
+          "de": "Fehler im Einspeiseweg (Landstromeingang, Kabel, FI/LS, Ladegerät, 230V-Verteilung) oder Isolationsfehler gegen Erde.",
+          "sk": "Chyba v prívode (vstup 230V, kábel, FI/ističe, nabíjačka, rozvod) alebo izolačná chyba na PE."
+        },
+        "action": {
+          "de": "Landstromkabel/CEE-Stecker prüfen, Anschlussdose und FI/LS kontrollieren. Nacheinander trennen: Ladegerät ausstecken, ggf. Wechselrichter-Ladegerät Kombi trennen. Wenn bleibt: Isolationsmessung/Service.",
+          "sk": "Skontroluj landstrom kábel/CEE konektor, prívodnú zásuvku a FI/ističe. Postupne odpájaj: nabíjačku, prípadne kombináciu menič-nabíjačka. Ak stále: izolačné meranie/servis."
+        }
+      },
+      "10_230_r2": {
+        "type": "result",
+        "cause": {
+          "de": "Ein angeschlossener 230V-Verbraucher verursacht den Fehler.",
+          "sk": "Chybu spôsobuje niektorý pripojený 230V spotrebič."
+        },
+        "action": {
+          "de": "Alle Verbraucher ausstecken. Dann einzeln wieder einstecken bis FI/LS auslöst. Defektes Gerät reparieren/ersetzen.",
+          "sk": "Vytiahni všetko zo zásuviek. Potom zapájaj po jednom, kým FI/istič nevyhodí. Chybné zariadenie opraviť/vymeniť."
+        }
+      },
+      "10_230_q3": {
+        "type": "question",
+        "text": {
+          "de": "Fliegt der FI/LS erst beim Einschalten eines bestimmten Geräts (z.B. Wasserkocher, Heizung, Klimaanlage)?",
+          "sk": "Vyhodí FI/istič až po zapnutí konkrétneho zariadenia (napr. kanvica, kúrenie, klíma)?"
+        },
+        "yes": "10_230_r3",
+        "no": "10_230_q4"
+      },
+      "10_230_r3": {
+        "type": "result",
+        "cause": {
+          "de": "Gerätefehler oder zu hoher Einschalt-/Anlaufstrom auf diesem Stromkreis.",
+          "sk": "Porucha zariadenia alebo príliš vysoký rozbehový prúd v tejto vetve."
+        },
+        "action": {
+          "de": "Gerät an anderer Steckdose testen. Sichtprüfung Stecker/Kabel. Bei Motorlast: Softstart/anderer Kreis. Wenn immer: Gerät defekt.",
+          "sk": "Otestuj zariadenie v inej zásuvke. Skontroluj kábel/vidlicu. Pri motorovej záťaži: softstart/iná vetva. Ak stále: zariadenie je chybné."
+        }
+      },
+      "10_230_q4": {
+        "type": "question",
+        "text": {
+          "de": "Ist es ein FI-Auslöser (RCD) oder nur der Leitungsschutzschalter (LS/Sicherung)?",
+          "sk": "Vyhodí to FI (prúdový chránič) alebo len istič (LS)?"
+        },
+        "yes": "10_230_q5",
+        "no": "10_230_q6"
+      },
+      "10_230_q5": {
+        "type": "question",
+        "text": {
+          "de": "Tritt es eher bei Feuchtigkeit/Regen oder nach langer Standzeit auf?",
+          "sk": "Deje sa to skôr pri vlhkosti/daždi alebo po dlhej odstávke?"
+        },
+        "yes": "10_230_r4",
+        "no": "10_230_r5"
+      },
+      "10_230_r4": {
+        "type": "result",
+        "cause": {
+          "de": "Isolationsfehler durch Feuchtigkeit (Außensteckdose, Kabel, Anschlussdosen, Geräte).",
+          "sk": "Izolačná chyba kvôli vlhkosti (vonkajšia zásuvka, kábel, krabice, zariadenia)."
+        },
+        "action": {
+          "de": "Außensteckdose öffnen/prüfen, trocknen. Sichtprüfung auf Grünspan/Korrosion. Isolationsmessung empfohlen.",
+          "sk": "Skontroluj a vysuš vonkajšiu zásuvku. Hľadaj koróziu/oxidáciu. Odporúčané izolačné meranie."
+        }
+      },
+      "10_230_r5": {
+        "type": "result",
+        "cause": {
+          "de": "RCD löst ohne klaren Feuchtebezug aus – Fehler gegen PE oder defekter RCD möglich.",
+          "sk": "FI vyhadzuje bez jasnej súvislosti s vlhkosťou – únik na PE alebo chybný FI."
+        },
+        "action": {
+          "de": "Verbraucher/ Ladegerät/ Inverter-Lader nacheinander trennen. Wenn bleibt: RCD prüfen/tauschen (Fachbetrieb).",
+          "sk": "Postupne odpájaj spotrebiče/nabíjačku/kombináciu menič-nabíjačka. Ak ostáva: skontrolovať/vymeniť FI (odborne)."
+        }
+      },
+      "10_230_q6": {
+        "type": "question",
+        "text": {
+          "de": "Fliegt der LS/Sicherung nur bei hoher Last (z.B. >1500W) oder nach kurzer Zeit?",
+          "sk": "Vyhodí istič len pri veľkej záťaži (napr. >1500W) alebo po krátkom čase?"
+        },
+        "yes": "10_230_r6",
+        "no": "10_230_r7"
+      },
+      "10_230_r6": {
+        "type": "result",
+        "cause": {
+          "de": "Überlast auf dem Stromkreis oder zu kleine Absicherung/zu viele Verbraucher gleichzeitig.",
+          "sk": "Preťaženie vetvy alebo príliš malý istič / veľa spotrebičov naraz."
+        },
+        "action": {
+          "de": "Last reduzieren, Verbraucher auf verschiedene Kreise verteilen. Anschlussleistung am Stellplatz prüfen (z.B. 6A/10A/16A).",
+          "sk": "Zníž záťaž, rozdeľ spotrebiče do rôznych vetiev. Skontroluj istič na stĺpiku (napr. 6A/10A/16A)."
+        }
+      },
+      "10_230_r7": {
+        "type": "result",
+        "cause": {
+          "de": "Kurzschluss/Defekt im 230V-Kreis oder Verteilung/Steckdose.",
+          "sk": "Skrat/porucha v 230V vetve alebo v rozvode/zásuvke."
+        },
+        "action": {
+          "de": "Einzeln Stromkreise trennen (wenn möglich). Steckdosen/Verteilung auf Schmorspuren prüfen. Fachbetrieb empfohlen.",
+          "sk": "Ak sa dá, odpájaj vetvy po jednej. Skontroluj zásuvky/rozvod na známky prepálenia. Odporúčaný odborný servis."
+        }
+      }
+    }
+  },
+  {
+    "id": "11_battery_drains_standby",
+    "category": "Elektrik",
+    "title": {
+      "de": "Aufbaubatterie wird im Stand schnell leer",
+      "sk": "Palubná batéria sa v stojacom stave rýchlo vybíja"
+    },
+    "subtitle": {
+      "de": "Über Nacht leer oder deutlich weniger Kapazität ohne Nutzung.",
+      "sk": "Cez noc vybitá alebo citeľne menej kapacity bez používania."
+    },
+    "tags": [
+      "batterie",
+      "verbrauch",
+      "standby",
+      "parasit",
+      "bms",
+      "ebl"
+    ],
+    "start": "11_drain_q1",
+    "nodes": {
+      "11_drain_q1": {
+        "type": "question",
+        "text": {
+          "de": "Passiert es auch, wenn der Hauptschalter Aufbau AUS ist?",
+          "sk": "Deje sa to aj keď je hlavný vypínač nadstavby VYPNUTÝ?"
+        },
+        "yes": "11_drain_q2",
+        "no": "11_drain_q3"
+      },
+      "11_drain_q2": {
+        "type": "result",
+        "cause": {
+          "de": "Batterie wird trotz ausgeschaltetem Aufbau entladen (direkter Verbraucher an Batterie oder Batterieproblem).",
+          "sk": "Batéria sa vybíja aj pri vypnutej nadstavbe (priame odbery na batérii alebo problém batérie)."
+        },
+        "action": {
+          "de": "Direkt angeschlossene Verbraucher prüfen (Wechselrichter, Alarm, Tracker, Heizungssteuerung). Ruhestrom an Batterie messen. Batteriegesundheit testen.",
+          "sk": "Skontroluj priamo pripojené odbery (invertor, alarm, tracker, riadenie kúrenia). Zmeraj kľudový prúd na batérii. Otestuj stav batérie."
+        }
+      },
+      "11_drain_q3": {
+        "type": "question",
+        "text": {
+          "de": "Ist ein Wechselrichter verbaut und bleibt er im Standby an?",
+          "sk": "Je namontovaný menič a ostáva zapnutý v standby?"
+        },
+        "yes": "11_drain_r1",
+        "no": "11_drain_q4"
+      },
+      "11_drain_r1": {
+        "type": "result",
+        "cause": {
+          "de": "Standby-Verbrauch des Wechselrichters kann Batterie über Nacht entladen.",
+          "sk": "Standby odber meniča vie batériu vybiť aj cez noc."
+        },
+        "action": {
+          "de": "Wechselrichter komplett ausschalten (Hard-Switch/Remote). Ruhestrom vergleichen. Bei Bedarf Trennschalter nachrüsten.",
+          "sk": "Menič úplne vypni (hlavný vypínač/remote). Porovnaj kľudový prúd. Podľa potreby doplň odpojovač."
+        }
+      },
+      "11_drain_q4": {
+        "type": "question",
+        "text": {
+          "de": "Ist der Kühlschrank auf 12V oder Automatic und kann er auf 12V laufen?",
+          "sk": "Je chladnička na 12V alebo Automatic a môže bežať na 12V?"
+        },
+        "yes": "11_drain_r2",
+        "no": "11_drain_q5"
+      },
+      "11_drain_r2": {
+        "type": "result",
+        "cause": {
+          "de": "Kühlschrank auf 12V zieht sehr viel Strom und entlädt die Aufbaubatterie schnell.",
+          "sk": "Chladnička na 12V berie veľa prúdu a rýchlo vybije batériu."
+        },
+        "action": {
+          "de": "Kühlschrank-Quelle prüfen (normal: 12V nur während Fahrt). Auf Gas/230V umstellen. Trennrelais/D+ Logik prüfen.",
+          "sk": "Skontroluj zdroj chladničky (12V má ísť typicky len počas jazdy). Prepnúť na plyn/230V. Skontroluj relé/D+ logiku."
+        }
+      },
+      "11_drain_q5": {
+        "type": "question",
+        "text": {
+          "de": "Gibt es dauerhaft aktive Verbraucher (Heizung/iNet, Router, SAT, TV, USB-Lader)?",
+          "sk": "Sú trvalo aktívne odbery (kúrenie/iNet, router, SAT, TV, USB nabíjače)?"
+        },
+        "yes": "11_drain_q6",
+        "no": "11_drain_q7"
+      },
+      "11_drain_q6": {
+        "type": "question",
+        "text": {
+          "de": "Kannst du den Ruhestrom messen (A) oder zeigt ein Batteriemonitor den Verbrauch?",
+          "sk": "Vieš zmerať kľudový prúd (A) alebo ho ukazuje batériový monitor?"
+        },
+        "yes": "11_drain_r3",
+        "no": "11_drain_r4"
+      },
+      "11_drain_r3": {
+        "type": "result",
+        "cause": {
+          "de": "Erhöhter Ruhestrom ist die Ursache.",
+          "sk": "Príčinou je zvýšený kľudový odber."
+        },
+        "action": {
+          "de": "Verbraucher einzeln trennen (Sicherung für Sicherung) und Ruhestrom beobachten. Übliche Zielwerte: wenige 0,1A; alles darüber systematisch finden.",
+          "sk": "Odpájaj spotrebiče po jednom (poistku po poistke) a sleduj kľudový prúd. Typicky má byť len pár desatín A; všetko nad tým nájdi systematicky."
+        }
+      },
+      "11_drain_r4": {
+        "type": "result",
+        "cause": {
+          "de": "Ohne Messung ist die Fehlerquelle schwer – Messung ist der schnellste Weg.",
+          "sk": "Bez merania sa zdroj hľadá ťažko – meranie je najrýchlejšia cesta."
+        },
+        "action": {
+          "de": "Zangenamperemeter DC oder Shunt/Batteriemonitor nutzen. Alternativ provisorisch: Sicherungen nacheinander ziehen und Wirkung beobachten.",
+          "sk": "Použi DC kliešťový ampérmeter alebo shunt/batériový monitor. Alternatívne: vyťahuj poistky po jednej a sleduj zmenu správania."
+        }
+      },
+      "11_drain_q7": {
+        "type": "question",
+        "text": {
+          "de": "Ist die Batterie älter oder fällt die Spannung schnell ab trotz geringer Last?",
+          "sk": "Je batéria staršia alebo napätie rýchlo padá aj pri malej záťaži?"
+        },
+        "yes": "11_drain_r5",
+        "no": "11_drain_r6"
+      },
+      "11_drain_r5": {
+        "type": "result",
+        "cause": {
+          "de": "Batterie hat wenig nutzbare Kapazität (Alterung, Sulfatierung, defekte Zelle).",
+          "sk": "Batéria má malú využiteľnú kapacitu (starnutie, sulfátovanie, chybný článok)."
+        },
+        "action": {
+          "de": "Kapazitätstest durchführen. Bei LiFePO4: Zellbalance/BMS prüfen. Ggf. Batterie ersetzen.",
+          "sk": "Urob kapacitný test. Pri LiFePO4 skontroluj balans článkov/BMS. Prípadne batériu vymeň."
+        }
+      },
+      "11_drain_r6": {
+        "type": "result",
+        "cause": {
+          "de": "Kein auffälliger Ruhestrom und Batterie wirkt ok – Ursache kann intermittenter Verbraucher oder Ladesystem sein.",
+          "sk": "Bez výrazného kľudového odberu a batéria vyzerá OK – môže ísť o prerušovaný odber alebo problém dobíjania."
+        },
+        "action": {
+          "de": "Verhalten über 24h loggen (Batteriemonitor). Solar/Ladegerät prüfen. Sicherungen/Relais auf zeitgesteuerte Verbraucher prüfen (Heizung, Kühlschrank, Pumpen).",
+          "sk": "Loguj správanie 24h (batériový monitor). Skontroluj solár/nabíjačku. Skontroluj poistky/relé na časované odbery (kúrenie, chladnička, pumpy)."
+        }
+      }
+    }
+  },
+  {
+    "id": "12W_tauchpumpe_no_water",
+    "category": "Wasser",
+    "title": {
+      "de": "Tauchpumpe: kein Wasser / Pumpe läuft nicht",
+      "sk": "Ponorná pumpa: netečie voda / pumpa nejde"
+    },
+    "subtitle": {
+      "de": "Mikroschalter im Hahn, Pumpe im Tank.",
+      "sk": "Mikrospínače v kohútiku, pumpa v nádrži."
+    },
+    "tags": [
+      "wasser",
+      "tauchpumpe",
+      "mikroschalter",
+      "tank",
+      "sicherung",
+      "kontakt"
+    ],
+    "start": "12W_tp_q1",
+    "nodes": {
+      "12W_tp_q1": {
+        "type": "question",
+        "text": {
+          "de": "Ist der Wassertank gefüllt und das Tankventil offen (falls vorhanden)?",
+          "sk": "Je nádrž naplnená a ventil nádrže otvorený (ak existuje)?"
+        },
+        "yes": "12W_tp_q2",
+        "no": "12W_tp_r1"
+      },
+      "12W_tp_r1": {
+        "type": "result",
+        "cause": {
+          "de": "Kein Wasseransaugpunkt im Tank.",
+          "sk": "Nie je voda v nádrži / uzavretý prívod."
+        },
+        "action": {
+          "de": "Tank füllen/öffnen. Dann Hähne kalt/warm öffnen zum Entlüften.",
+          "sk": "Doplň/otvor. Potom odvzdušni (studená/teplá voda)."
+        }
+      },
+      "12W_tp_q2": {
+        "type": "question",
+        "text": {
+          "de": "Hörst du die Pumpe im Tank laufen, wenn du einen Hahn öffnest?",
+          "sk": "Počuješ v nádrži bežať pumpu, keď otvoríš kohútik?"
+        },
+        "yes": "12W_tp_q3",
+        "no": "12W_tp_q4"
+      },
+      "12W_tp_q3": {
+        "type": "question",
+        "text": {
+          "de": "Kommt trotzdem kein/zu wenig Wasser (nur Luft, spritzt)?",
+          "sk": "Aj tak netečie/tečie málo (len vzduch, prská)?"
+        },
+        "yes": "12W_tp_r2",
+        "no": "12W_tp_r3"
+      },
+      "12W_tp_r2": {
+        "type": "result",
+        "cause": {
+          "de": "Luft im System, verstopfter Filter oder geknickter Schlauch.",
+          "sk": "Vzduch v systéme, upchatý filter alebo zalomená hadica."
+        },
+        "action": {
+          "de": "Alle Hähne öffnen bis gleichmäßiger Strahl. Filter am Hahn/Leitung reinigen. Schlauchführung prüfen.",
+          "sk": "Otvoriť kohútiky kým tečie stabilne. Vyčisti filter na kohútiku/vedení. Skontroluj hadice."
+        }
+      },
+      "12W_tp_r3": {
+        "type": "result",
+        "cause": {
+          "de": "Tauchpumpe arbeitet, System ok.",
+          "sk": "Ponorná pumpa funguje, systém OK."
+        },
+        "action": {
+          "de": "Wenn Druck schwankt: Filter/Schlauch, Tankentlüftung prüfen.",
+          "sk": "Ak kolíše prietok: filter/hadice, odvetranie nádrže."
+        }
+      },
+      "12W_tp_q4": {
+        "type": "question",
+        "text": {
+          "de": "Ist der Pumpenschalter am Panel eingeschaltet und die Pumpensicherung intakt?",
+          "sk": "Je zapnutý vypínač pumpy na paneli a poistka pumpy je OK?"
+        },
+        "yes": "12W_tp_q5",
+        "no": "12W_tp_r4"
+      },
+      "12W_tp_r4": {
+        "type": "result",
+        "cause": {
+          "de": "Pumpe stromlos (Schalter AUS oder Sicherung defekt).",
+          "sk": "Pumpa bez napájania (vypínač/poistka)."
+        },
+        "action": {
+          "de": "Schalter EIN. Sicherung ersetzen. Wenn erneut: Kurzschluss/Leitung prüfen.",
+          "sk": "Zapnúť. Vymeň poistku. Ak znova: skrat/vedenie."
+        }
+      },
+      "12W_tp_q5": {
+        "type": "question",
+        "text": {
+          "de": "Schaltet mindestens ein Hahn (Mikroschalter) die Pumpe ein?",
+          "sk": "Zapne aspoň jeden kohútik (mikrospínač) pumpu?"
+        },
+        "yes": "12W_tp_r5",
+        "no": "12W_tp_q6"
+      },
+      "12W_tp_r5": {
+        "type": "result",
+        "cause": {
+          "de": "Nur ein bestimmter Hahn/Mikroschalter oder dessen Steckkontakt defekt.",
+          "sk": "Chybný konkrétny kohútik/mikrospínač alebo konektor."
+        },
+        "action": {
+          "de": "Betroffenen Hahn prüfen, Steckkontakte reinigen, Mikroschalter ersetzen. Test: Stecker am Hahn kurz überbrücken (nur Diagnose).",
+          "sk": "Skontroluj kohútik, očisti konektory, vymeň mikrospínač. Test: premostiť konektor (len diagnostika)."
+        }
+      },
+      "12W_tp_q6": {
+        "type": "question",
+        "text": {
+          "de": "Liegt 12V direkt an der Pumpe an, wenn ein Hahn geöffnet ist?",
+          "sk": "Je 12V priamo na pumpe, keď je kohútik otvorený?"
+        },
+        "yes": "12W_tp_r6",
+        "no": "12W_tp_r7"
+      },
+      "12W_tp_r6": {
+        "type": "result",
+        "cause": {
+          "de": "Pumpe bekommt Spannung, läuft aber nicht – Pumpe defekt/blockiert.",
+          "sk": "Pumpa má napätie, ale nejde – pumpa chybná/zablokovaná."
+        },
+        "action": {
+          "de": "Pumpe aus Tank nehmen, Laufrad/Ansaugkorb prüfen, ggf. ersetzen.",
+          "sk": "Vybrať pumpu z nádrže, skontrolovať obežné koleso/sitko, prípadne vymeniť."
+        }
+      },
+      "12W_tp_r7": {
+        "type": "result",
+        "cause": {
+          "de": "Kein 12V-Schaltsignal bis zur Pumpe.",
+          "sk": "Nedochádza 12V spínanie k pumpe."
+        },
+        "action": {
+          "de": "Panel-Schalter, Sicherung, gemeinsame Plusleitung, Steckverbinder am Tank prüfen.",
+          "sk": "Skontroluj panelový vypínač, poistku, spoločný plus, konektor pri nádrži."
+        }
+      }
+    }
+  },
+  {
+    "id": "13W_druckpumpe_no_water",
+    "category": "Wasser",
+    "title": {
+      "de": "Druckpumpe: kein Wasser / kein Druck / taktet",
+      "sk": "Tlaková pumpa: netečie voda / nie je tlak / cykluje"
+    },
+    "subtitle": {
+      "de": "Druckschalter, Rückschlagventil, Lecksuche.",
+      "sk": "Tlakový spínač, spätný ventil, hľadanie únikov."
+    },
+    "tags": [
+      "wasser",
+      "druckpumpe",
+      "druckschalter",
+      "leck",
+      "rueckschlagventil",
+      "filter"
+    ],
+    "start": "13W_dp_q1",
+    "nodes": {
+      "13W_dp_q1": {
+        "type": "question",
+        "text": {
+          "de": "Ist der Wassertank gefüllt und die Pumpe bekommt 12V (Schalter/ Sicherung OK)?",
+          "sk": "Je nádrž plná a pumpa má 12V (vypínač/poistka OK)?"
+        },
+        "yes": "13W_dp_q2",
+        "no": "13W_dp_r1"
+      },
+      "13W_dp_r1": {
+        "type": "result",
+        "cause": {
+          "de": "Keine Versorgung oder kein Wasser im Tank.",
+          "sk": "Nie je napájanie alebo nie je voda."
+        },
+        "action": {
+          "de": "Tank füllen. Pumpenschalter EIN, Sicherung prüfen/ersetzen.",
+          "sk": "Doplň vodu. Zapnúť pumpu, skontroluj/vymeň poistku."
+        }
+      },
+      "13W_dp_q2": {
+        "type": "question",
+        "text": {
+          "de": "Läuft die Druckpumpe hörbar an, wenn du einen Hahn öffnest?",
+          "sk": "Rozbehne sa tlaková pumpa počuteľne, keď otvoríš kohútik?"
+        },
+        "yes": "13W_dp_q3",
+        "no": "13W_dp_q4"
+      },
+      "13W_dp_q3": {
+        "type": "question",
+        "text": {
+          "de": "Taktet/klackert die Pumpe schnell oder läuft sie dauerhaft ohne Druckaufbau?",
+          "sk": "Pumpa rýchlo cvaká/cykluje alebo beží stále bez natlakovania?"
+        },
+        "yes": "13W_dp_q5",
+        "no": "13W_dp_r2"
+      },
+      "13W_dp_r2": {
+        "type": "result",
+        "cause": {
+          "de": "Pumpe baut Druck auf, System grundsätzlich ok.",
+          "sk": "Pumpa natlakuje, systém OK."
+        },
+        "action": {
+          "de": "Wenn Durchfluss schwach: Filter am Pumpeneingang, Knicke, Armaturenfilter prüfen.",
+          "sk": "Ak slabý prietok: filter na vstupe pumpy, zalomenia, filtre v armatúrach."
+        }
+      },
+      "13W_dp_q4": {
+        "type": "question",
+        "text": {
+          "de": "Liegt 12V direkt an den Pumpenklemmen an (bei offenem Hahn)?",
+          "sk": "Je 12V priamo na svorkách pumpy (pri otvorenom kohútiku)?"
+        },
+        "yes": "13W_dp_r3",
+        "no": "13W_dp_r4"
+      },
+      "13W_dp_r3": {
+        "type": "result",
+        "cause": {
+          "de": "Pumpe bekommt Spannung, läuft nicht – defekt oder blockiert.",
+          "sk": "Pumpa má napätie, nejde – chybná alebo zablokovaná."
+        },
+        "action": {
+          "de": "Pumpe mechanisch prüfen, ggf. ersetzen. Frostschaden möglich.",
+          "sk": "Skontroluj mechaniku, prípadne vymeniť. Možný mrazový damage."
+        }
+      },
+      "13W_dp_r4": {
+        "type": "result",
+        "cause": {
+          "de": "Schaltkreis/Verteilung unterbrochen (Schalter, Sicherung, Steckkontakt).",
+          "sk": "Prerušená vetva (vypínač, poistka, konektor)."
+        },
+        "action": {
+          "de": "Schalter/ Sicherung/ Verteiler prüfen. Leitungen bis Pumpe durchmessen.",
+          "sk": "Skontroluj vypínač/poistku/rozvod. Premery vedenie k pumpe."
+        }
+      },
+      "13W_dp_q5": {
+        "type": "question",
+        "text": {
+          "de": "Siehst du irgendwo Tropfen/Feuchtigkeit oder fällt der Druck auch bei geschlossenen Hähnen ab?",
+          "sk": "Vidíš niekde kvapky/vlhko alebo padá tlak aj pri zavretých kohútikoch?"
+        },
+        "yes": "13W_dp_r5",
+        "no": "13W_dp_q6"
+      },
+      "13W_dp_r5": {
+        "type": "result",
+        "cause": {
+          "de": "Leck im System – Pumpe taktet oder läuft dauernd.",
+          "sk": "Únik v systéme – pumpa cykluje alebo beží stále."
+        },
+        "action": {
+          "de": "Lecksuche: alle Anschlüsse, Boiler, Außenanschluss, WC-Spülung. Papier/Handtuchtest. Undichtes Teil abdichten/ersetzen.",
+          "sk": "Hľadaj únik: spoje, boiler, vonkajšia prípojka, WC splachovanie. Papierový test. Oprav/vymeň netesnosť."
+        }
+      },
+      "13W_dp_q6": {
+        "type": "question",
+        "text": {
+          "de": "Ist der Filter/Sieb am Pumpeneingang sauber und der Saugschlauch dicht (zieht keine Luft)?",
+          "sk": "Je filter na vstupe pumpy čistý a sacia hadica tesní (nenasáva vzduch)?"
+        },
+        "yes": "13W_dp_q7",
+        "no": "13W_dp_r6"
+      },
+      "13W_dp_r6": {
+        "type": "result",
+        "cause": {
+          "de": "Verstopfung oder Luft auf Saugseite verhindert Druckaufbau.",
+          "sk": "Upchatie alebo vzduch na saciej strane bráni tlaku."
+        },
+        "action": {
+          "de": "Filter reinigen, Schlauchschellen nachziehen, Saugseite abdichten. Test: Pumpe kurz aus Kanister ansaugen.",
+          "sk": "Vyčisti filter, dotiahni spony, utesni sanie. Test: sanie z kanistra."
+        }
+      },
+      "13W_dp_q7": {
+        "type": "question",
+        "text": {
+          "de": "Hat die Pumpe ein integriertes Rückschlagventil und kann es hängen (Druck fällt zurück)?",
+          "sk": "Má pumpa spätný ventil a môže sa zasekávať (tlak sa vracia)?"
+        },
+        "yes": "13W_dp_r7",
+        "no": "13W_dp_r8"
+      },
+      "13W_dp_r7": {
+        "type": "result",
+        "cause": {
+          "de": "Rückschlagventil undicht/defekt – Druck fällt ab, Pumpe taktet.",
+          "sk": "Spätný ventil netesní – tlak padá, pumpa cykluje."
+        },
+        "action": {
+          "de": "Rückschlagventil reinigen/ersetzen (je nach Modell). Alternativ externes Ventil prüfen.",
+          "sk": "Vyčisti/vymeň spätný ventil (podľa modelu). Prípadne skontroluj externý ventil."
+        }
+      },
+      "13W_dp_r8": {
+        "type": "result",
+        "cause": {
+          "de": "Druckschalter/Accumulator falsch eingestellt oder defekt.",
+          "sk": "Tlakový spínač/akumulátor zle nastavený alebo chybný."
+        },
+        "action": {
+          "de": "Druckschalter-Einstellung prüfen (Hersteller). Accumulator (Druckspeicher) prüfen/ nachrüsten. Bei Zweifel: Pumpe ersetzen.",
+          "sk": "Skontroluj nastavenie tlakového spínača. Skontroluj/pridaj tlakový akumulátor. Ak neisté: výmena pumpy."
+        }
+      }
+    }
+  }
+]
