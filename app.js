@@ -1,16 +1,12 @@
 /* CaravanTechniker am Main - app.js
-   Stabilná verzia:
-   - 1 tlačidlo na jazyk (dropdown)
-   - stromy sa ukážu až po výbere kategórie
-   - tagy default skryté (UI element existuje, ale nezobrazuje sa)
-   - tyrkysové zvýraznenie aktívnych prvkov (kategória, jazyk, strom)
-   - disclaimer sa pridá do každého protokolu + PDF
-   - pripravené jazyky: DE, SK, EN, IT, FR
-   - podporuje tags ako array aj ako object per lang
-   - podporuje media odkazy (image/pdf) v nodes/result (pripravené na budúcnosť)
+   Zmeny (podľa tvojich bodov):
+   1) Po výbere stromu zbalí zoznam a scrollne na Diagnózu
+   2) Upravený DE text "oben" namiesto "links"
+   3) Pri Ergebnis skryje JA/NIE (zostane len späť)
+   4) Pri Ergebnis vie zobraziť odporúčanie na inú diagnózu cez node.recommend (a dá to aj do protokolu/PDF)
 */
 
-const VERSION = "0.2.0";
+const VERSION = "0.2.1";
 
 /** STORAGE */
 const STORAGE_LANG = "ct_lang_v2";
@@ -66,6 +62,9 @@ let path = [];
 let activeCategory = null; // null => nič neukazovať
 let selectedTreeId = null;
 
+/** UX state */
+let listCollapsed = false; // po výbere stromu zbalíme zoznam
+
 /** I18N UI */
 const I18N = {
   de: {
@@ -75,7 +74,8 @@ const I18N = {
     howto: "Wähle eine Störung und dann JA / NEIN klicken.",
     searchPH: "Suche (trittstufe, wasserpumpe, 12V...)",
     diag: "Diagnose",
-    diagHint: "Wähle links eine Störung. Dann JA / NEIN klicken.",
+    // 4) text "oben"
+    diagHint: "Wähle oben eine Störung. Dann JA / NEIN klicken.",
     proto: "Protokoll",
     copy: "Kopieren",
     clear: "Pfad löschen",
@@ -90,7 +90,7 @@ const I18N = {
     resultLabel: "Ergebnis",
     actionLabel: "Aktion",
     chooseCategory: "Bitte zuerst eine Kategorie wählen.",
-    chooseFault: "Wähle links eine Störung.",
+    chooseFault: "Wähle oben eine Störung.",
     catElectric: "Elektrik",
     catWater: "Wasser",
     catGas: "Gas",
@@ -103,6 +103,8 @@ const I18N = {
     disclaimer:
       "Diese Diagnose ist nur eine Hilfestellung. Keine Haftung für Schäden durch Unachtsamkeit oder falsche Eingriffe. " +
       "Arbeiten an 230V- und Gasanlagen dürfen nur von fachkundigen Personen mit entsprechender Qualifikation durchgeführt werden.",
+    changeFault: "Störung ändern",
+    recommendTitle: "Empfehlung",
   },
   sk: {
     subtitle: "Wohnmobil Diagnose",
@@ -111,7 +113,7 @@ const I18N = {
     howto: "Vyber poruchu a potom klikaj ÁNO / NIE.",
     searchPH: "Hľadať (trittstufe, wasserpumpe, 12V...)",
     diag: "Diagnostika",
-    diagHint: "Vyber poruchu vľavo. Potom klikaj ÁNO / NIE.",
+    diagHint: "Vyber poruchu hore. Potom klikaj ÁNO / NIE.",
     proto: "Protokol",
     copy: "Kopírovať",
     clear: "Vymazať cestu",
@@ -126,7 +128,7 @@ const I18N = {
     resultLabel: "Výsledok",
     actionLabel: "Akcia",
     chooseCategory: "Najprv vyber kategóriu.",
-    chooseFault: "Vyber poruchu vľavo.",
+    chooseFault: "Vyber poruchu hore.",
     catElectric: "Elektrika",
     catWater: "Voda",
     catGas: "Plyn",
@@ -139,6 +141,8 @@ const I18N = {
     disclaimer:
       "Táto diagnostika slúži len ako pomôcka. Nenesieme zodpovednosť za škody vzniknuté nepozornosťou alebo nesprávnym zásahom. " +
       "Zásahy do 230V a plynových zariadení smú vykonávať len osoby s odbornou kvalifikáciou.",
+    changeFault: "Zmeniť poruchu",
+    recommendTitle: "Odporúčanie",
   },
   en: {
     subtitle: "Motorhome Diagnosis",
@@ -147,7 +151,7 @@ const I18N = {
     howto: "Select a fault, then press YES / NO.",
     searchPH: "Search (step, water pump, 12V...)",
     diag: "Diagnosis",
-    diagHint: "Choose a fault on the left. Then press YES / NO.",
+    diagHint: "Choose a fault above. Then press YES / NO.",
     proto: "Protocol",
     copy: "Copy",
     clear: "Clear path",
@@ -162,7 +166,7 @@ const I18N = {
     resultLabel: "Result",
     actionLabel: "Action",
     chooseCategory: "Please choose a category first.",
-    chooseFault: "Choose a fault on the left.",
+    chooseFault: "Choose a fault above.",
     catElectric: "Electric",
     catWater: "Water",
     catGas: "Gas",
@@ -175,6 +179,8 @@ const I18N = {
     disclaimer:
       "This diagnosis is informational only. No liability for damage caused by inattention or incorrect intervention. " +
       "Work on 230V and gas systems must be performed only by qualified professionals.",
+    changeFault: "Change fault",
+    recommendTitle: "Recommendation",
   },
   it: {
     subtitle: "Diagnosi Camper",
@@ -183,7 +189,7 @@ const I18N = {
     howto: "Seleziona un guasto, poi premi SÌ / NO.",
     searchPH: "Cerca (gradino, pompa acqua, 12V...)",
     diag: "Diagnosi",
-    diagHint: "Scegli un guasto a sinistra. Poi premi SÌ / NO.",
+    diagHint: "Scegli un guasto sopra. Poi premi SÌ / NO.",
     proto: "Protocollo",
     copy: "Copia",
     clear: "Cancella percorso",
@@ -198,7 +204,7 @@ const I18N = {
     resultLabel: "Risultato",
     actionLabel: "Azione",
     chooseCategory: "Scegli prima una categoria.",
-    chooseFault: "Scegli un guasto a sinistra.",
+    chooseFault: "Scegli un guasto sopra.",
     catElectric: "Elettrico",
     catWater: "Acqua",
     catGas: "Gas",
@@ -211,6 +217,8 @@ const I18N = {
     disclaimer:
       "Questa diagnosi è solo informativa. Nessuna responsabilità per danni causati da disattenzione o interventi errati. " +
       "Lavori su 230V e gas solo da personale qualificato.",
+    changeFault: "Cambia guasto",
+    recommendTitle: "Consiglio",
   },
   fr: {
     subtitle: "Diagnostic Camping-car",
@@ -219,7 +227,7 @@ const I18N = {
     howto: "Sélectionnez une panne, puis appuyez OUI / NON.",
     searchPH: "Rechercher (marche, pompe, 12V...)",
     diag: "Diagnostic",
-    diagHint: "Choisissez une panne à gauche. Puis appuyez OUI / NON.",
+    diagHint: "Choisissez une panne ci-dessus. Puis appuyez OUI / NON.",
     proto: "Protocole",
     copy: "Copier",
     clear: "Effacer le chemin",
@@ -234,7 +242,7 @@ const I18N = {
     resultLabel: "Résultat",
     actionLabel: "Action",
     chooseCategory: "Veuillez d'abord choisir une catégorie.",
-    chooseFault: "Choisissez une panne à gauche.",
+    chooseFault: "Choisissez une panne ci-dessus.",
     catElectric: "Électrique",
     catWater: "Eau",
     catGas: "Gaz",
@@ -247,6 +255,8 @@ const I18N = {
     disclaimer:
       "Ce diagnostic est uniquement informatif. Aucune responsabilité pour les dommages dus à l'inattention ou à une intervention incorrecte. " +
       "Travaux sur 230V et gaz uniquement par des professionnels qualifiés.",
+    changeFault: "Changer panne",
+    recommendTitle: "Recommandation",
   }
 };
 
@@ -270,14 +280,10 @@ function escapeHtml(s){
 function getText(obj){
   if(!obj) return "";
   if(typeof obj === "string") return obj;
-  // prefer current lang, else fallback order
   return (obj[LANG] ?? obj.de ?? obj.sk ?? obj.en ?? obj.it ?? obj.fr ?? "");
 }
 
-/** Tags getter supports:
- * - tags: ["a","b"]  (legacy)
- * - tags: {de:[...], sk:[...], en:[...]} (new)
- */
+/** Tags getter supports array or object by lang */
 function getTags(tree){
   const t = tree.tags;
   if(!t) return [];
@@ -285,7 +291,6 @@ function getTags(tree){
   if(typeof t === "object"){
     const cur = Array.isArray(t[LANG]) ? t[LANG] : [];
     const de = Array.isArray(t.de) ? t.de : [];
-    // merge unique: current + de
     const out = [];
     for(const x of [...cur, ...de]){
       const s = String(x);
@@ -296,9 +301,7 @@ function getTags(tree){
   return [];
 }
 
-/** Normalize content:
- * Accepts: [...] or {trees:[...]}
- */
+/** Normalize content: [...] or {trees:[...]} */
 function normalizeContent(raw){
   const arr = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.trees) ? raw.trees : []);
   return arr.map(t => ({
@@ -307,16 +310,13 @@ function normalizeContent(raw){
     title: t.title || {de:"", sk:"", en:"", it:"", fr:""},
     subtitle: t.subtitle || {de:"", sk:"", en:"", it:"", fr:""},
     tags: t.tags ?? [],
-
-    // optional media at tree level (future)
     media: t.media || null,
-
     start: t.start || t.root || null,
     nodes: t.nodes || {}
   })).filter(t => t.id && t.start && t.nodes && t.nodes[t.start]);
 }
 
-/** Load content: override (ADMIN import) > content.json */
+/** Load content: override > content.json */
 async function loadContent(){
   const ov = localStorage.getItem(STORAGE_OVERRIDE);
   if(ov){
@@ -335,22 +335,11 @@ async function loadContent(){
 }
 
 /** Category mapping */
-const CATEGORY_ORDER = [
-  "electric",
-  "water",
-  "gas",
-  "heat",
-  "devices",
-  "codes",
-  "other",
-];
+const CATEGORY_ORDER = ["electric","water","gas","heat","devices","codes","other"];
 
 function getCategoryKey(tree){
-  // explicit category
   if(tree.category){
     const c = String(tree.category).toLowerCase();
-
-    // Wasser fix (Wasser/was/water/voda)
     if(c.includes("wasser") || c.includes("was") || c.includes("water") || c.includes("voda") || c.includes("vod")) return "water";
     if(c.includes("ele")) return "electric";
     if(c.includes("gas") || c.includes("ply")) return "gas";
@@ -359,8 +348,6 @@ function getCategoryKey(tree){
     if(c.includes("fehler") || c.includes("error") || c.includes("code") || c.includes("kód") || c.includes("kod")) return "codes";
     return "other";
   }
-
-  // infer from tags (fallback)
   const tags = getTags(tree).map(x => String(x).toLowerCase());
   if(tags.some(t => t.includes("12v") || t.includes("elektr") || t.includes("ebl"))) return "electric";
   if(tags.some(t => t.includes("wasser") || t.includes("voda") || t.includes("pumpe"))) return "water";
@@ -392,24 +379,21 @@ function buildCategories(){
     b.textContent = categoryLabel(c);
     b.onclick = ()=>{
       activeCategory = c;
-      // po výbere kategórie zmaž vybraný strom a diagnostiku
+
+      // zruš kolaps zoznamu pri zmene kategórie
+      listCollapsed = false;
+
+      // reset stromu
       selectedTreeId = null;
       currentTree = null;
       currentNodeId = null;
       path = [];
-      renderCategoriesActive();
+
       renderList();
       renderNode();
       renderProtocol();
     };
     el.catbar.appendChild(b);
-  });
-}
-
-function renderCategoriesActive(){
-  [...el.catbar.querySelectorAll(".cat")].forEach((node)=>{
-    node.classList.remove("active");
-    if(node.textContent === categoryLabel(activeCategory)) node.classList.add("active");
   });
 }
 
@@ -422,6 +406,24 @@ function renderList(){
   el.search.disabled = !activeCategory;
   if(!activeCategory){
     el.search.value = "";
+    return;
+  }
+
+  // 1) ak je zoznam zbalený, ukáž len "Zmeniť poruchu"
+  if(listCollapsed){
+    el.search.disabled = true;
+    el.search.value = "";
+
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `<strong>${escapeHtml(T("changeFault"))}</strong><span>${escapeHtml(T("chooseFault"))}</span>`;
+    div.onclick = ()=>{
+      listCollapsed = false;
+      renderList();
+      // scroll späť hore k výberu (bez skákania do diag)
+      el.hFaults.scrollIntoView({behavior:"smooth", block:"start"});
+    };
+    el.list.appendChild(div);
     return;
   }
 
@@ -451,35 +453,75 @@ function selectTree(treeId){
   path = [];
   currentNodeId = currentTree ? currentTree.start : null;
 
-  // update active state in list
-  [...el.list.querySelectorAll(".item")].forEach((it)=>{
-    it.classList.remove("active");
-  });
-  const idx = TREES.findIndex(t=>t.id===treeId);
-  // safer: just rerender list (keeps filter + search)
+  // 1) zbal zoznam a skoč na diagnózu
+  listCollapsed = true;
   renderList();
-
   renderNode();
   renderProtocol();
+
+  // scroll na diagnózu (qtitle je najistejší anchor)
+  setTimeout(()=>{
+    el.qtitle.scrollIntoView({behavior:"smooth", block:"start"});
+  }, 30);
+}
+
+function setButtonsForMode(mode){
+  // mode: "question" | "result" | "none"
+  if(mode === "result"){
+    el.yesBtn.style.display = "none";
+    el.noBtn.style.display = "none";
+    el.yesBtn.disabled = true;
+    el.noBtn.disabled = true;
+  }else if(mode === "question"){
+    el.yesBtn.style.display = "";
+    el.noBtn.style.display = "";
+    el.yesBtn.disabled = false;
+    el.noBtn.disabled = false;
+  }else{
+    el.yesBtn.style.display = "";
+    el.noBtn.style.display = "";
+    el.yesBtn.disabled = true;
+    el.noBtn.disabled = true;
+  }
+}
+
+/** Recommendation UI block (reuse tagline div) */
+function showRecommendation(text){
+  if(!text){
+    el.tagline.style.display = "none";
+    el.tagline.innerHTML = "";
+    return;
+  }
+  el.tagline.style.display = "block";
+  el.tagline.innerHTML = `
+    <div style="
+      margin-top:10px;
+      padding:12px 12px;
+      border-radius:16px;
+      border:1px solid rgba(20,184,200,.55);
+      background: rgba(20,184,200,.16);
+      font-weight:950;
+      color:#052127;
+      line-height:1.25;">
+      ${escapeHtml(T("recommendTitle"))}: ${escapeHtml(text)}
+    </div>
+  `;
 }
 
 function renderNode(){
-  // tagy sú default skryté
-  el.tagline.style.display = "none";
-  el.tagline.innerHTML = "";
+  // tagy ostávajú skryté, tagline používame na odporúčanie
+  showRecommendation(null);
 
   if(!activeCategory){
     el.qtitle.textContent = T("chooseCategory");
-    el.yesBtn.disabled = true;
-    el.noBtn.disabled = true;
+    setButtonsForMode("none");
     el.backBtn.disabled = true;
     return;
   }
 
   if(!currentTree){
     el.qtitle.textContent = T("chooseFault");
-    el.yesBtn.disabled = true;
-    el.noBtn.disabled = true;
+    setButtonsForMode("none");
     el.backBtn.disabled = true;
     return;
   }
@@ -487,29 +529,32 @@ function renderNode(){
   const node = currentTree.nodes[currentNodeId];
   if(!node){
     el.qtitle.textContent = T("chooseFault");
-    el.yesBtn.disabled = true;
-    el.noBtn.disabled = true;
+    setButtonsForMode("none");
     el.backBtn.disabled = true;
     return;
   }
 
-  el.yesBtn.disabled = false;
-  el.noBtn.disabled = false;
   el.backBtn.disabled = (path.length === 0);
+  el.backBtn.textContent = T("back");
 
   if(node.type === "question"){
+    setButtonsForMode("question");
     el.qtitle.textContent = getText(node.text) || "–";
     el.yesBtn.textContent = T("yes");
     el.noBtn.textContent = T("no");
-    el.backBtn.textContent = T("back");
   } else if(node.type === "result"){
+    // 5) pri Ergebnisse skryť JA/NIE
+    setButtonsForMode("result");
+
     const cause = getText(node.cause);
     const action = getText(node.action);
     el.qtitle.textContent = `${T("resultLabel")}: ${cause}${action ? " " + T("actionLabel") + ": " + action : ""}`;
-    el.yesBtn.textContent = T("yes");
-    el.noBtn.textContent = T("no");
-    el.backBtn.textContent = T("back");
+
+    // nový bod: odporúčanie na inú diagnózu
+    const rec = getText(node.recommend);
+    if(rec) showRecommendation(rec);
   } else {
+    setButtonsForMode("none");
     el.qtitle.textContent = "–";
   }
 }
@@ -520,13 +565,9 @@ function answer(isYes){
   if(!node || node.type !== "question") return;
 
   const nextId = isYes ? node.yes : node.no;
-
-  path.push({
-    q: getText(node.text),
-    a: isYes ? T("yes") : T("no"),
-  });
-
+  path.push({ q: getText(node.text), a: isYes ? T("yes") : T("no") });
   currentNodeId = nextId;
+
   renderNode();
   renderProtocol();
 }
@@ -563,9 +604,7 @@ function renderProtocol(){
     lines.push(`${LANG==="de" ? "Sprache" : LANG==="sk" ? "Jazyk" : "Language"}: ${LANG.toUpperCase()}`);
     lines.push(`${LANG==="de" ? "Störung" : LANG==="sk" ? "Porucha" : "Fault"}: ${getText(currentTree.title)}`);
     const tags = getTags(currentTree);
-    if(tags.length){
-      lines.push(`${LANG==="de" ? "Tags" : LANG==="sk" ? "Tagy" : "Tags"}: ${tags.join(", ")}`);
-    }
+    if(tags.length) lines.push(`${LANG==="de" ? "Tags" : LANG==="sk" ? "Tagy" : "Tags"}: ${tags.join(", ")}`);
     lines.push("");
     lines.push(`${LANG==="de" ? "Schritte" : LANG==="sk" ? "Kroky" : "Steps"}:`);
     path.forEach((p,i)=> lines.push(`${i+1}. ${p.q} [${p.a}]`));
@@ -578,13 +617,18 @@ function renderProtocol(){
       lines.push(`${T("resultLabel")}:`);
       if(cause) lines.push(cause);
       if(action) lines.push(`${T("actionLabel")}: ${action}`);
+
+      const rec = getText(node.recommend);
+      if(rec){
+        lines.push("");
+        lines.push(`${T("recommendTitle")}:`);
+        lines.push(rec);
+      }
     }
   } else {
-    if(!activeCategory) lines.push(T("chooseCategory"));
-    else lines.push(T("chooseFault"));
+    lines.push(!activeCategory ? T("chooseCategory") : T("chooseFault"));
   }
 
-  // 5) Disclaimer – vždy na konci
   lines.push("");
   lines.push(`— ${T("disclaimerTitle")} —`);
   lines.push(T("disclaimer"));
@@ -611,8 +655,6 @@ function admin(){
         if(!normalized.length) throw new Error("empty");
         localStorage.setItem(STORAGE_OVERRIDE, JSON.stringify(normalized));
         TREES = normalized;
-
-        // po importe resetujeme UI
         hardReset(false);
         alert(T("importOK"));
       }catch(e){
@@ -644,6 +686,7 @@ function hardReset(clearOverride=true){
   path = [];
   selectedTreeId = null;
   activeCategory = null;
+  listCollapsed = false;
 
   el.search.value = "";
   el.search.disabled = true;
@@ -718,7 +761,7 @@ function setLang(code){
   applyLangUI();
 }
 
-/** Apply UI language + active states */
+/** Apply UI language */
 function applyLangUI(){
   document.documentElement.lang = LANG;
 
@@ -734,14 +777,11 @@ function applyLangUI(){
   el.search.placeholder = T("searchPH");
   el.howto.textContent = T("howto");
 
-  // jazyk tlačidlo (aktívne tyrkys)
   el.btnLANG.textContent = `${LANG.toUpperCase()} ▾`;
   el.btnLANG.classList.add("active");
 
-  // version
   el.version.textContent = `v${VERSION}`;
 
-  // rebuild cats (labels depend on lang)
   buildCategories();
   renderList();
   renderNode();
@@ -752,10 +792,8 @@ function applyLangUI(){
 (async function boot(){
   await loadContent();
 
-  // bind
   el.btnLANG.onclick = openLangPicker;
   el.langOverlay.onclick = (e)=>{
-    // klik mimo sheet zavrie bez zmeny
     if(e.target === el.langOverlay) closeLangPicker();
   };
 
@@ -781,8 +819,8 @@ function applyLangUI(){
 
   el.pdfBtn.onclick = ()=>downloadPdf();
 
-  // initial state: no category selected => list empty
   activeCategory = null;
+  listCollapsed = false;
   el.search.disabled = true;
 
   applyLangUI();
