@@ -1,5 +1,5 @@
 // Caravan TaM - stable UI + TXT/PDF export
-const VERSION = "0.1.5";
+const VERSION = "0.1.6-kat";
 
 // --- CATEGORY (servisná schéma)
 const CATEGORY_ORDER = ["Elektrik","Wasser","Gas","Heizung","Andere"];
