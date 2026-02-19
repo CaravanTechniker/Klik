@@ -1627,4 +1627,78 @@
       }
     }
   }
+{
+  "category": {
+    "sk": "Fehlercodes & Meldungen",
+    "de": "Fehlercodes & Meldungen"
+  },
+  "trees": [
+    {
+      "id": "FC_ALDE_3010_3020",
+      "title": {
+        "sk": "Alde 3010 / 3020 – Chyby a hlásenia",
+        "de": "Alde 3010 / 3020 – Fehlercodes und Meldungen"
+      },
+      "start": "FC_ALDE_START",
+      "nodes": {
+        "FC_ALDE_START": {
+          "type": "question",
+          "text": {
+            "sk": "Aký typ chyby sa zobrazuje na paneli Alde",
+            "de": "Welche Art von Fehler wird am Alde-Bedienpanel angezeigt"
+          },
+          "answers": [
+            {
+              "label": {
+                "sk": "Číselný chybový kód E",
+                "de": "Numerischer Fehlercode E"
+              },
+              "next": "FC_ALDE_E_CODES"
+            },
+            {
+              "label": {
+                "sk": "Textová hláška",
+                "de": "Textmeldung"
+              },
+              "next": "FC_ALDE_TEXT_CODES"
+            }
+          ]
+        },
+
+        "FC_ALDE_E_CODES": {
+          "type": "question",
+          "text": {
+            "sk": "Vyber zobrazený chybový kód",
+            "de": "Wählen Sie den angezeigten Fehlercode"
+          },
+          "answers": [
+            {
+              "label": {
+                "sk": "Chyba E12 – Prehriatie kotla",
+                "de": "Fehler E12 – Überhitzung Heizkessel"
+              },
+              "next": "FC_ALDE_E12"
+            }
+          ]
+        },
+
+        "FC_ALDE_E12": {
+          "type": "info",
+          "text": {
+            "sk": "Chyba E12 – Prehriatie kotla\n\nPríčina: Nedostatočná cirkulácia kvapaliny, zavzdušnený systém alebo porucha obehového čerpadla.\n\nSkontroluj:\n- hladinu kvapaliny v expanznej nádobe\n- funkciu obehového čerpadla\n- odvzdušnenie systému\n\nSTOP: Ak sa chyba opakuje po odvzdušnení a kontrole čerpadla, je nutný servis.",
+            "de": "Fehler E12 – Überhitzung Heizkessel\n\nUrsache: Unzureichende Zirkulation, Luft im System oder Defekt der Umwälzpumpe.\n\nPrüfen:\n- Füllstand im Ausgleichsbehälter\n- Funktion der Umwälzpumpe\n- Entlüftung des Systems\n\nSTOP: Tritt der Fehler erneut auf, ist ein Werkstattbesuch erforderlich."
+          }
+        },
+
+        "FC_ALDE_TEXT_CODES": {
+          "type": "info",
+          "text": {
+            "sk": "Textové hlášky Alde budú doplnené v ďalšom kroku.\nTento strom je pripravený na rozšírenie.",
+            "de": "Textmeldungen von Alde werden im nächsten Schritt ergänzt.\nDieser Baum ist für Erweiterungen vorbereitet."
+          }
+        }
+      }
+    }
+  ]
+}
 ]
