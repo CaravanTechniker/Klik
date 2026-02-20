@@ -1,0 +1,10 @@
+{
+  "name": "CaravanTechniker am Main",
+  "short_name": "CaravanTechniker",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#dbefff",
+  "theme_color": "#dbefff",
+  "icons": [],
+  "scope": "./"
+}
