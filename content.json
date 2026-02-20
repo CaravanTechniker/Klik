@@ -1,20 +1,111 @@
-[
-  {
-    "id": "01_total_12v",
-    "category": "Elektrik",
-    "title": "12V komplett ausgefallen (Aufbau tot)",
-    "subtitle": "Kein Licht, keine Pumpe, Panel dunkel."
+{
+  "meta": {
+    "version": "0.3.1",
+    "note": "Minimal verified content schema"
   },
-  {
-    "id": "02_partial_12v",
-    "category": "Elektrik",
-    "title": "12V funktioniert teilweise",
-    "subtitle": "Einige Verbraucher gehen, andere nicht."
-  },
-  {
-    "id": "03_water_pump",
-    "category": "Wasser",
-    "title": "Wasserpumpe läuft nicht",
-    "subtitle": "Kein Geräusch, kein Druck."
+  "items": [
+    {
+      "id": "e_12v_tot",
+      "category": "Elektrik",
+      "title": "12V komplett ausgefallen (Aufbau tot)",
+      "subtitle": "Kein Licht, keine Pumpe, Panel dunkel.",
+      "treeId": "tree_12v_tot"
+    },
+    {
+      "id": "e_12v_part",
+      "category": "Elektrik",
+      "title": "12V funktioniert teilweise",
+      "subtitle": "Einige Verbraucher gehen, andere nicht.",
+      "treeId": "tree_12v_part"
+    },
+    {
+      "id": "w_pumpe",
+      "category": "Wasser",
+      "title": "Wasserpumpe läuft nicht",
+      "subtitle": "Kein Geräusch, kein Druck.",
+      "treeId": "tree_pumpe"
+    }
+  ],
+  "trees": {
+    "tree_12v_tot": {
+      "start": "q1",
+      "nodes": {
+        "q1": {
+          "q": "Ist Landstrom (230V) verfügbar und eingeschaltet?",
+          "yes": "q2",
+          "no": "r1"
+        },
+        "q2": {
+          "q": "Leuchtet das Bedienpanel oder zeigt es Fehlermeldungen?",
+          "yes": "q3",
+          "no": "r2"
+        },
+        "q3": {
+          "q": "Sind die Hauptsicherungen am EBL / Sicherungskasten in Ordnung?",
+          "yes": "r3",
+          "no": "r4"
+        },
+        "r1": {
+          "result": "Hinweis: Ohne Landstrom zuerst Batterie-Spannung messen (12.0–13.4V). Hauptschalter prüfen. Wenn unter 11.5V: Batterie leer oder defekt."
+        },
+        "r2": {
+          "result": "Panel tot: Prüfe Hauptschalter/12V Hauptsicherung am EBL, Masseverbindung, Batterietrennschalter und Batteriepolklemmen."
+        },
+        "r3": {
+          "result": "Wenn Sicherungen OK: Prüfe EBL-Ausgang 12V, D+ Signal (falls relevant), Stecker/Adapter (z.B. Truma iNet X Adapter) und Lasttest (Prüflampe)."
+        },
+        "r4": {
+          "result": "Defekte Sicherung gefunden: Ursache Kurzschluss/Überlast suchen. Verbraucher abklemmen, einzeln wieder zuschalten."
+        }
+      }
+    },
+    "tree_12v_part": {
+      "start": "q1",
+      "nodes": {
+        "q1": {
+          "q": "Fallen mehrere Verbraucher in einer Gruppe aus (z.B. Licht + Pumpe)?",
+          "yes": "q2",
+          "no": "r1"
+        },
+        "q2": {
+          "q": "Ist eine zugehörige Sicherung am EBL/Panel ausgelöst oder defekt?",
+          "yes": "r2",
+          "no": "r3"
+        },
+        "r1": {
+          "result": "Einzelverbraucher: Prüfe direkt am Verbraucher (Stecker, Masse, Schalter) und mache einen Lasttest am Kabel."
+        },
+        "r2": {
+          "result": "Sicherung defekt: Ursache finden (Kurzschluss/Überlast). Verbraucher abklemmen und schrittweise testen."
+        },
+        "r3": {
+          "result": "Keine Sicherung: Prüfe Relais/Schaltmodul, Kabelbruch, Übergangswiderstand, Massepunkt. Lasttest mit Prüflampe ist Pflicht."
+        }
+      }
+    },
+    "tree_pumpe": {
+      "start": "q1",
+      "nodes": {
+        "q1": {
+          "q": "Hörst du die Pumpe laufen, aber kein Druck?",
+          "yes": "r1",
+          "no": "q2"
+        },
+        "q2": {
+          "q": "Liegt 12V an der Pumpe an (unter Last getestet)?",
+          "yes": "r2",
+          "no": "r3"
+        },
+        "r1": {
+          "result": "Pumpe läuft ohne Druck: Tank leer, Luft im System, Filter verstopft, Rückschlagventil/Leitung undicht."
+        },
+        "r2": {
+          "result": "12V liegt an, Pumpe still: Pumpe mechanisch blockiert oder defekt. Test: direkt an Batterie (kurz) und Filter prüfen."
+        },
+        "r3": {
+          "result": "Kein 12V an Pumpe: Sicherung, Pumpenschalter, Druckschalter/Mikroschalter, Kabelbruch oder Massepunkt prüfen."
+        }
+      }
+    }
   }
-]
+}
