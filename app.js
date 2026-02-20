@@ -1,11 +1,13 @@
 // app.js
-// BEZPEČNÁ VERZIA – reset NIKDY nemaže stromy ani admin import
+// FINÁLNA STABILNÁ VERZIA – stromy sa NIKDY nemažú
 
 const STORAGE_CONTENT_KEY = "admin_content_json";
 
-// ===== CONTENT LOAD =====
-function loadContent() {
-  // 1️⃣ pokus: admin import (má PRIORITU)
+/* =========================
+   CONTENT LOADING
+========================= */
+async function loadContent() {
+  // 1️⃣ ADMIN CONTENT MÁ ABSOLÚTNU PRIORITU
   try {
     const stored = localStorage.getItem(STORAGE_CONTENT_KEY);
     if (stored) {
@@ -15,28 +17,34 @@ function loadContent() {
       }
     }
   } catch (e) {
-    console.warn("Stored content invalid, fallback to default", e);
+    console.warn("Invalid admin content, fallback to default", e);
   }
 
-  // 2️⃣ fallback: default content.json
-  return fetch("./content.json", { cache: "no-store" })
-    .then((r) => r.json())
-    .catch((e) => {
-      console.error("Failed to load content.json", e);
-      return null;
-    });
+  // 2️⃣ DEFAULT CONTENT LEN AK NIČ INÉ NIE JE
+  try {
+    const res = await fetch("./content.json", { cache: "no-store" });
+    if (!res.ok) throw new Error("fetch failed");
+    return await res.json();
+  } catch (e) {
+    console.error("Failed to load content.json", e);
+    return null;
+  }
 }
 
-// ===== ADMIN SAVE (volaj pri importe) =====
+/* =========================
+   ADMIN SAVE
+========================= */
 function saveAdminContent(content) {
   localStorage.setItem(STORAGE_CONTENT_KEY, JSON.stringify(content));
 }
 
-// ===== SAFE RESET =====
+/* =========================
+   SAFE RESET (UI ONLY)
+========================= */
 function resetApp() {
-  // ⛔️ NESMIE SA POUŽIŤ localStorage.clear()
+  // ❌ nikdy nemažeme celý localStorage
 
-  const SAFE_DELETE = [
+  const RUNTIME_KEYS = [
     "protocol",
     "currentTreeId",
     "currentNodeId",
@@ -46,14 +54,22 @@ function resetApp() {
     "history"
   ];
 
-  SAFE_DELETE.forEach((k) => localStorage.removeItem(k));
+  RUNTIME_KEYS.forEach((k) => localStorage.removeItem(k));
 
-  // reset UI bez straty dát
+  // reset UI stavu BEZ reloadu dát
   window.location.hash = "";
-  location.reload();
+
+  // znovu inicializuj app s EXISTUJÚCIM CONTENTOM
+  loadContent().then((content) => {
+    if (content && typeof initApp === "function") {
+      initApp(content);
+    }
+  });
 }
 
-// ===== INIT =====
+/* =========================
+   INIT
+========================= */
 document.addEventListener("DOMContentLoaded", async () => {
   const content = await loadContent();
   if (!content) {
@@ -61,8 +77,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // TU máš pôvodný init kód appky
-  // napr. initApp(content);
   if (typeof initApp === "function") {
     initApp(content);
   } else {
@@ -70,6 +84,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-// ===== EXPORT DO GLOBÁLU (aby to vedel volať Admin / UI) =====
+/* =========================
+   GLOBAL EXPORTS
+========================= */
 window.resetApp = resetApp;
 window.saveAdminContent = saveAdminContent;
