@@ -1,10 +1,9 @@
 {
   "name": "CaravanTechniker am Main",
-  "short_name": "CaravanTechniker",
+  "short_name": "CTAM",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#dbefff",
-  "theme_color": "#dbefff",
-  "icons": [],
-  "scope": "./"
+  "background_color": "#bcdcf0",
+  "theme_color": "#bcdcf0",
+  "icons": []
 }
