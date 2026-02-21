@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "app": {
+    "default_lang": "de"
+  },
+  "trees": [
+    {
+      "id": "t_12v_tot",
+      "category": "elektrik",
+      "title": {
+        "de": "12V komplett ausgefallen (Aufbau tot)",
+        "sk": "12V kompletne nefunkčné"
+      },
+      "desc": {
+        "de": "Kein Licht, keine Pumpe, Panel dunkel.",
+        "sk": "Žiadne svetlá, pumpa ani panel."
+      },
+      "start": "q1",
+      "nodes": {
+        "q1": {
+          "type": "question",
+          "text": {
+            "de": "Ist Landstrom (230V) verfügbar und eingeschaltet?",
+            "sk": "Je pripojený a zapnutý 230V landstrom?"
+          },
+          "answers": [
+            {
+              "label": {
+                "de": "JA",
+                "sk": "ÁNO"
+              },
+              "next": "q2"
+            },
+            {
+              "label": {
+                "de": "NEIN",
+                "sk": "NIE"
+              },
+              "next": "q3"
+            }
+          ]
+        },
+        "q2": {
+          "type": "question",
+          "text": {
+            "de": "Leuchtet am Ladegerät / EBL eine Status-LED oder Anzeige?",
+            "sk": "Svieti na nabíjačke / EBL nejaká LED alebo displej?"
+          },
+          "answers": [
+            {
+              "label": {
+                "de": "JA",
+                "sk": "ÁNO"
+              },
+              "next": "e1"
+            },
+            {
+              "label": {
+                "de": "NEIN",
+                "sk": "NIE"
+              },
+              "next": "e2"
+            }
+          ]
+        },
+        "q3": {
+          "type": "question",
+          "text": {
+            "de": "Bordnetz-Hauptschalter / Panel ist EIN?",
+            "sk": "Je hlavný vypínač 12V / panel zapnutý?"
+          },
+          "answers": [
+            {
+              "label": {
+                "de": "JA",
+                "sk": "ÁNO"
+              },
+              "next": "q4"
+            },
+            {
+              "label": {
+                "de": "NEIN",
+                "sk": "NIE"
+              },
+              "next": "e3"
+            }
+          ]
+        },
+        "q4": {
+          "type": "question",
+          "text": {
+            "de": "Hast du Batteriespannung direkt an der Aufbaubatterie (>= 12.0V)?",
+            "sk": "Je na baterke priamo napätie (>= 12.0V)?"
+          },
+          "answers": [
+            {
+              "label": {
+                "de": "JA",
+                "sk": "ÁNO"
+              },
+              "next": "e4"
+            },
+            {
+              "label": {
+                "de": "NEIN",
+                "sk": "NIE"
+              },
+              "next": "e5"
+            }
+          ]
+        },
+        "e1": {
+          "type": "end",
+          "text": {
+            "de": "Dann ist 230V-Lader/EBL aktiv. Prüfe: 12V Sicherungen am EBL, Hauptsicherung an der Batterie (z.B. 40–100A), Masseverbindung, sowie ob der EBL-Ausgang 12V liefert.",
+            "sk": "230V nabíjačka/EBL je aktívny. Skontroluj: 12V poistky na EBL, hlavnú poistku pri batérii (napr. 40–100A), kostru (mínus), či EBL dáva 12V na výstup."
+          }
+        },
+        "e2": {
+          "type": "end",
+          "text": {
+            "de": "Wenn Landstrom an ist aber am Lader/EBL ničs svieti: Prüfe FI/LS, 230V Einspeisung, Steckdose im Fahrzeug, und die Sicherung/Stecker vom Ladegerät.",
+            "sk": "Ak je 230V pripojené ale na nabíjačke/EBL nič nesvieti: skontroluj FI/istič, 230V prívod, zásuvku v aute a poistku/napájací kábel nabíjačky."
+          }
+        },
+        "e3": {
+          "type": "end",
+          "text": {
+            "de": "Schalte das Bordnetz am Panel ein. Wenn es sofort wieder ausfällt: Batterie/Unterspannung, Hauptsicherung, oder Kurzschluss im 12V-Kreis prüfen.",
+            "sk": "Zapni 12V na paneli. Ak sa hneď vypne: batéria/podnapätie, hlavná poistka alebo skrat v 12V okruhu."
+          }
+        },
+        "e4": {
+          "type": "end",
+          "text": {
+            "de": "Batterie OK. Dann ist meist der Weg Batterie → EBL/Verteiler unterbrochen: Hauptsicherung nahe Batterie, Trennrelais, Batterie-Hauptschalter, Masseband.",
+            "sk": "Batéria je OK. Zvyčajne je prerušená cesta batéria → EBL/rozvod: hlavná poistka pri batérii, separačné relé, hlavný vypínač batérie, mínus pás."
+          }
+        },
+        "e5": {
+          "type": "end",
+          "text": {
+            "de": "Batterie tiefentladen oder defekt. Erst laden (Solar/230V) und erneut messen. Wenn Spannung sofort wieder fällt: Batterie defekt oder starker Verbraucher/Kurzschluss.",
+            "sk": "Batéria je vybitá alebo chybná. Najprv nabiť (solar/230V) a znovu zmerať. Ak napätie hneď padá: batéria je zlá alebo je silný odber/skrat."
+          }
+        }
+      }
+    },
+    {
+      "id": "t_pump_not",
+      "category": "wasser",
+      "title": {
+        "de": "Wasserpumpe läuft nicht",
+        "sk": "Vodná pumpa nejde"
+      },
+      "desc": {
+        "de": "Kein Geräusch, kein Druck.",
+        "sk": "Žiadny zvuk ani tlak."
+      },
+      "start": "q1",
+      "nodes": {
+        "q1": {
+          "type": "question",
+          "text": {
+            "de": "Ist 12V allgemein verfügbar (Licht geht)?",
+            "sk": "Fungujú iné 12V spotrebiče (svetlá)?"
+          },
+          "answers": [
+            {
+              "label": {
+                "de": "JA",
+                "sk": "ÁNO"
+              },
+              "next": "q2"
+            },
+            {
+              "label": {
+                "de": "NEIN",
+                "sk": "NIE"
+              },
+              "next": "ref_12v"
+            }
+          ]
+        },
+        "ref_12v": {
+          "type": "end",
+          "text": {
+            "de": "Ohne 12V funktioniert die Pumpe nicht. Öffne zuerst den Strom-Check „12V komplett ausgefallen“ und behebe dort die Ursache.",
+            "sk": "Bez 12V pumpa nepôjde. Najprv otvor strom „12V kompletne nefunkčné“ a vyrieš príčinu."
+          }
+        },
+        "q2": {
+          "type": "question",
+          "text": {
+            "de": "Hörst du die Pumpe beim Wasserhahn-Öffnen?",
+            "sk": "Počuješ pumpu keď otvoríš kohútik?"
+          },
+          "answers": [
+            {
+              "label": {
+                "de": "JA",
+                "sk": "ÁNO"
+              },
+              "next": "e1"
+            },
+            {
+              "label": {
+                "de": "NEIN",
+                "sk": "NIE"
+              },
+              "next": "q3"
+            }
+          ]
+        },
+        "q3": {
+          "type": "question",
+          "text": {
+            "de": "Ist die Pumpensicherung OK (im EBL/Verteiler)?",
+            "sk": "Je poistka pumpy OK (v EBL/rozvode)?"
+          },
+          "answers": [
+            {
+              "label": {
+                "de": "JA",
+                "sk": "ÁNO"
+              },
+              "next": "q4"
+            },
+            {
+              "label": {
+                "de": "NEIN",
+                "sk": "NIE"
+              },
+              "next": "e2"
+            }
+          ]
+        },
+        "q4": {
+          "type": "question",
+          "text": {
+            "de": "Liegt direkt an der Pumpe 12V an, wenn der Hahn geöffnet ist?",
+            "sk": "Je priamo na pumpe 12V keď otvoríš kohútik?"
+          },
+          "answers": [
+            {
+              "label": {
+                "de": "JA",
+                "sk": "ÁNO"
+              },
+              "next": "e3"
+            },
+            {
+              "label": {
+                "de": "NEIN",
+                "sk": "NIE"
+              },
+              "next": "e4"
+            }
+          ]
+        },
+        "e1": {
+          "type": "end",
+          "text": {
+            "de": "Pumpe läuft, aber kein Druck: Tank leer, Luft im System, Filter verstopft, Rückschlagventil defekt oder Leck. Entlüften und Filter prüfen.",
+            "sk": "Pumpa ide, ale nie je tlak: prázdny tank, vzduch v systéme, upchatý filter, chybný spätný ventil alebo únik. Odvzdušni a skontroluj filter."
+          }
+        },
+        "e2": {
+          "type": "end",
+          "text": {
+            "de": "Sicherung ersetzen (gleiche Ampere). Wenn sie sofort wieder auslöst: Kurzschluss in Leitung oder Pumpe defekt.",
+            "sk": "Vymeň poistku (rovnaké A). Ak hneď vyhodí: skrat v kábli alebo chybná pumpa."
+          }
+        },
+        "e3": {
+          "type": "end",
+          "text": {
+            "de": "12V liegt an, aber Pumpe bleibt still: Pumpe blockiert/defekt oder Massekontakt schlecht. Test: Pumpe kurz direkt an Batterie (mit Sicherung) – wenn tot -> tauschen.",
+            "sk": "12V je prítomné, ale pumpa nejde: pumpa je zablokovaná/chybná alebo zlý mínus. Test: krátko priamo na batériu (cez poistku). Ak nič -> výmena."
+          }
+        },
+        "e4": {
+          "type": "end",
+          "text": {
+            "de": "Kein 12V an der Pumpe: Mikroschalter im Wasserhahn / Druckschalter, Kabelbruch, Steckverbindung, oder EBL-Ausgang prüfen.",
+            "sk": "Na pumpe nie je 12V: mikročip vo vodovodnej batérii / tlakový spínač, prerušený kábel, konektor alebo výstup z EBL."
+          }
+        }
+      }
+    }
+  ]
+}
