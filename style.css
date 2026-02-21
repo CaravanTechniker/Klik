@@ -1,0 +1,131 @@
+/* ===== BASE ===== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: linear-gradient(180deg, #cfe0ff 0%, #eef4ff 100%);
+  color: #1f2937;
+}
+
+/* ===== TOP BAR ===== */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: #eaf1ff;
+  border-radius: 0 0 22px 22px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  width: 44px;
+  height: 44px;
+  background: #c2d8ff;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.titles h1 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.subtitle {
+  padding: 0;
+  border: none;
+  background: none;
+  color: #1a4fd8;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ===== ACTIONS ===== */
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.actions button,
+.actions select {
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: #ffffff;
+  font-weight: 500;
+}
+
+/* ===== TABS ===== */
+.tabs {
+  display: flex;
+  margin: 16px;
+  background: #e6eeff;
+  border-radius: 30px;
+  overflow: hidden;
+}
+
+.tab {
+  flex: 1;
+  padding: 12px;
+  background: transparent;
+  border: none;
+  font-weight: 600;
+}
+
+.tab.active {
+  background: #ffffff;
+}
+
+/* ===== CATEGORIES ===== */
+.category {
+  margin: 16px;
+  background: #ffffff;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.cat-header {
+  padding: 14px 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cat-body {
+  display: none;
+  padding: 12px;
+}
+
+.category.open .cat-body {
+  display: block;
+}
+
+/* ===== TREES ===== */
+.tree {
+  background: #eef4ff;
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 16px;
+  font-size: 13px;
+}
+
+.online {
+  color: #16a34a;
+}
