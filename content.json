@@ -1,78 +1,148 @@
-{
-  "items": [
-    {
-      "id": "elektrik_12v_tot",
-      "title": "12V komplett ausgefallen (Aufbau tot)",
-      "desc": "Kein Licht, keine Pumpe, Panel dunkel.",
-      "category": "elektrik",
-      "root": "elektrik_12v_tot:root"
-    },
-    {
-      "id": "elektrik_12v_teilweise",
-      "title": "12V funktioniert teilweise",
-      "desc": "Einige Verbraucher gehen, andere nicht.",
-      "category": "elektrik",
-      "root": "elektrik_12v_teilweise:root"
-    },
-    {
-      "id": "wasser_pumpe",
-      "title": "Wasserpumpe läuft nicht",
-      "desc": "Kein Geräusch, kein Druck.",
-      "category": "wasser",
-      "root": "wasser_pumpe:root"
+[
+  {
+    "id": "elektrik_12v_tot",
+    "category": "Elektrik",
+    "title": "12V komplett ausgefallen (Aufbau tot)",
+    "subtitle": "Kein Licht, keine Pumpe, Panel dunkel.",
+    "tags": ["12v", "ebl", "hauptsicherung", "batterie", "masse"],
+    "start": "q1",
+    "nodes": {
+      "q1": {
+        "type": "question",
+        "text": "Ist Landstrom (230V) verfügbar und eingeschaltet?",
+        "yes": "q2",
+        "no": "q3"
+      },
+      "q2": {
+        "type": "question",
+        "text": "Funktioniert der 230V-Lader (z.B. Batterie lädt / Anzeige am Ladegerät / EBL zeigt Laden)?",
+        "yes": "q3",
+        "no": "r1"
+      },
+      "r1": {
+        "type": "result",
+        "cause": "230V vorhanden, aber Ladegerät/Ladeweg arbeitet nicht.",
+        "action": "230V-Sicherungen/FI prüfen. Ladegerät/EBL-Eingang prüfen. Wenn möglich Ladegerät aus- und einstecken, Steckverbindungen kontrollieren."
+      },
+      "q3": {
+        "type": "question",
+        "text": "Hast du an der Aufbaubatterie direkt (an den Polen) Spannung messbar?",
+        "yes": "q4",
+        "no": "r2"
+      },
+      "r2": {
+        "type": "result",
+        "cause": "Aufbaubatterie leer/abgeklemmt oder Hauptsicherung/Trennschalter unterbrochen.",
+        "action": "Batterieschalter/Trennschalter prüfen. Hauptsicherung nahe Batterie prüfen. Pole/Kabelschuhe fest und sauber. Wenn Batterie 0V: Batterie/BMS prüfen."
+      },
+      "q4": {
+        "type": "question",
+        "text": "Kommt diese Batteriespannung auch am EBL/Verteiler (Batterie-Eingang) an?",
+        "yes": "q5",
+        "no": "r3"
+      },
+      "r3": {
+        "type": "result",
+        "cause": "Unterbrechung zwischen Batterie und EBL (Sicherung, Schalter, Kabel, Übergangswiderstand).",
+        "action": "Unter Last messen: Batterie+ → Sicherung → EBL+. Sicherungshalter auf Wärme prüfen. Korrosion/lose Schrauben beseitigen. Masseleitung ebenso prüfen."
+      },
+      "q5": {
+        "type": "question",
+        "text": "Sind nur einzelne Verbraucher tot oder wirklich ALLES (Licht, Pumpe, Panel, Heizung-Panel)?",
+        "yes": "r4",
+        "no": "r5"
+      },
+      "r4": {
+        "type": "result",
+        "cause": "Zentrale 12V-Verteilung/EBL-Ausgang oder Hauptfreigabe fehlt.",
+        "action": "EBL-12V Hauptausgang / Sicherungsblock prüfen. EBL-Reset (falls vorhanden). Hauptsicherungen und Steckverbindungen am EBL kontrollieren."
+      },
+      "r5": {
+        "type": "result",
+        "cause": "Teil-Ausfall: betroffener Stromkreis / Sicherung / Schalter / Relais.",
+        "action": "Betroffene Verbraucher identifizieren → passende Sicherung am EBL prüfen → Leitung/Stecker/Wackeltest → Spannung am Verbraucher messen."
+      }
     }
-  ],
-  "nodes": {
-    "elektrik_12v_tot:root": {
-      "q": "Ist Landstrom (230V) verfügbar und eingeschaltet?",
-      "answers": [
-        { "t": "Ja", "next": "elektrik_12v_tot:a1" },
-        { "t": "Nein", "next": "elektrik_12v_tot:r0" }
-      ]
-    },
-    "elektrik_12v_tot:a1": {
-      "q": "Sind Sicherungen am EBL / Hauptsicherung geprüft?",
-      "answers": [
-        { "t": "Ja", "next": "elektrik_12v_tot:r1" },
-        { "t": "Nein", "next": "elektrik_12v_tot:r2" }
-      ]
-    },
-    "elektrik_12v_tot:r0": {
-      "result": "Ohne 230V: Batterie-Spannung prüfen, Hauptschalter, Sicherungen, Massepunkt, Spannungsabfall unter Last messen."
-    },
-    "elektrik_12v_tot:r1": {
-      "result": "Weiter: Batterie-Spannung messen, EBL Eingang + Masse prüfen, Batterie-Trennschalter / Hauptschalter prüfen."
-    },
-    "elektrik_12v_tot:r2": {
-      "result": "Sicherungen/Hauptsicherung prüfen und ggf. ersetzen. Danach erneut testen."
-    },
-
-    "elektrik_12v_teilweise:root": {
-      "q": "Sind die betroffenen Verbraucher immer die gleichen?",
-      "answers": [
-        { "t": "Ja", "next": "elektrik_12v_teilweise:r1" },
-        { "t": "Nein / wechselnd", "next": "elektrik_12v_teilweise:r2" }
-      ]
-    },
-    "elektrik_12v_teilweise:r1": {
-      "result": "Sicherung/Leitung dieses Kreises prüfen. Bei Pumpe: Pumpschalter, Druckschalter, Steckverbindung, Masse."
-    },
-    "elektrik_12v_teilweise:r2": {
-      "result": "Hinweis auf Unterspannung/Kontaktproblem: Batterie, Massepunkte, Hauptschalter, EBL-Stecker, Spannungsabfall messen."
-    },
-
-    "wasser_pumpe:root": {
-      "q": "Hörst du die Pumpe laufen, aber kein Druck?",
-      "answers": [
-        { "t": "Ja", "next": "wasser_pumpe:r1" },
-        { "t": "Nein, keine Geräusche", "next": "wasser_pumpe:r2" }
-      ]
-    },
-    "wasser_pumpe:r1": {
-      "result": "Luft im System / Ansaugseite undicht: Tank, Filter, Schlauchschellen, Rückschlagventil, entlüften."
-    },
-    "wasser_pumpe:r2": {
-      "result": "12V an Pumpe messen (unter Last), Sicherung, Pumpenschalter, Druckschalter, Steckkontakt, Massepunkt prüfen."
+  },
+  {
+    "id": "wasser_pumpe_laeuft_nicht",
+    "category": "Wasser",
+    "title": "Wasserpumpe läuft nicht",
+    "subtitle": "Kein Geräusch, kein Druck.",
+    "tags": ["wasserpumpe", "druck", "microschalter", "frost", "sicherung"],
+    "start": "q1",
+    "nodes": {
+      "q1": {
+        "type": "question",
+        "text": "Ist die Wasseranlage am Panel/Schalter eingeschaltet?",
+        "yes": "q2",
+        "no": "r1"
+      },
+      "r1": {
+        "type": "result",
+        "cause": "Wasseranlage ist ausgeschaltet.",
+        "action": "Wasser am Bedienpanel einschalten. Danach Wasserhahn öffnen und prüfen, ob die Pumpe anläuft."
+      },
+      "q2": {
+        "type": "question",
+        "text": "Hörst du die Pumpe (Summen/Brummen), wenn du den Wasserhahn öffnest?",
+        "yes": "q3",
+        "no": "q4"
+      },
+      "q3": {
+        "type": "question",
+        "text": "Kommt trotzdem kein Druck / nur Luft?",
+        "yes": "r2",
+        "no": "r3"
+      },
+      "r2": {
+        "type": "result",
+        "cause": "Ansaugproblem oder Luft im System (Tank leer, Ansaugschlauch, Filter, Frostschaden).",
+        "action": "Wassertankfüllstand prüfen. Filter/Ansaugschlauch auf Dichtheit prüfen. System entlüften (Hähne warm/kalt öffnen). Bei Frost: Leitungen/Filtergehäuse auf Risse prüfen."
+      },
+      "r3": {
+        "type": "result",
+        "cause": "Pumpe arbeitet – Problem war vermutlich kurzfristig (Luft/Schalterkontakt).",
+        "action": "Mehrere Hähne testen. Wenn wiederholt: Mikroschalter am Hahn / Druckschalter prüfen."
+      },
+      "q4": {
+        "type": "question",
+        "text": "Sind andere 12V-Verbraucher (Licht) normal funktionsfähig?",
+        "yes": "q5",
+        "no": "r4"
+      },
+      "r4": {
+        "type": "result",
+        "cause": "Allgemeines 12V-Problem – die Pumpe ist nur ein Symptom.",
+        "action": "Wechsle zum Strom: „12V komplett ausgefallen“ und prüfe Batterie/EBL/Sicherungen."
+      },
+      "q5": {
+        "type": "question",
+        "text": "Ist die Pumpen-Sicherung intakt (am EBL / Sicherungsblock)?",
+        "yes": "q6",
+        "no": "r5"
+      },
+      "r5": {
+        "type": "result",
+        "cause": "Sicherung defekt oder schlechter Kontakt am Sicherungshalter.",
+        "action": "Sicherung ersetzen (gleicher Wert). Sicherungshalter reinigen, festen Sitz prüfen. Wenn Sicherung sofort wieder fliegt: Kurzschluss/Pumpe defekt."
+      },
+      "q6": {
+        "type": "question",
+        "text": "Liegt 12V direkt an der Pumpe an, wenn ein Wasserhahn geöffnet ist?",
+        "yes": "r6",
+        "no": "r7"
+      },
+      "r6": {
+        "type": "result",
+        "cause": "Pumpe bekommt Spannung, läuft aber nicht → Pumpe defekt/blockiert.",
+        "action": "Pumpe abklopfen/prüfen ob blockiert. Direkttest an externer 12V-Quelle. Wenn tot: Pumpe ersetzen."
+      },
+      "r7": {
+        "type": "result",
+        "cause": "Schaltsignal kommt nicht an (Mikroschalter/Druckschalter/Relais/Leitung).",
+        "action": "Andere Hähne testen. Mikroschalter im Hahn prüfen. Bei Druckpumpe: Druckschalter prüfen. Leitung zur Pumpe auf Unterbrechung prüfen."
+      }
     }
   }
-}
+]
