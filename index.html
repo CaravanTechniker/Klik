@@ -28,8 +28,12 @@
 <div id="versionLabel" style="padding:6px 14px;font-size:12px;opacity:.6">v0.0.0</div>
 
 <main id="app" class="container">
-  <input id="searchInput" class="search" type="text"
-         placeholder="Suche (Trittstufe, Wasserpumpe, 12V …)">
+  <input
+    id="searchInput"
+    class="search"
+    type="text"
+    placeholder="Suche (Trittstufe, Wasserpumpe, 12V …)"
+  >
 
   <div id="chips" class="pills" style="margin-bottom:14px"></div>
 
@@ -43,8 +47,9 @@
     <div></div>
   </div>
 
-  <!-- app.js často čaká aj tieto kontajnery -->
+  <!-- kompatibilita -->
   <div id="questionBox"></div>
+
   <div id="diagContent" class="fsContent"></div>
 </div>
 
@@ -61,7 +66,7 @@
   </div>
 </section>
 
-<!-- ===== SHIM: automaticky doplní chýbajúce elementy, aby app.js nepadal ===== -->
+<!-- SHIM: doplní chýbajúce elementy (aby app.js nepadal) -->
 <script>
 (function () {
   const orig = document.getElementById.bind(document);
@@ -79,22 +84,54 @@
     let el = orig(id);
     if (el) return el;
 
-    // vytvor chýbajúci element a schovaj ho (kým ho nepoužijeme v dizajne)
     el = document.createElement(tagFor(id));
     el.id = id;
-
-    // rozumné defaulty
     if (el.tagName === "INPUT") el.type = "text";
     el.style.display = "none";
-
     document.body.appendChild(el);
     return el;
   };
 })();
 </script>
 
-<!-- app.js MUSÍ BYŤ NA KONCI -->
+<!-- app -->
 <script src="app.js"></script>
+
+<!-- PATCH: klik na kartu -> otvor fullscreen Diagnózu -->
+<script>
+(function () {
+  const diag = document.getElementById("diagScreen");
+  const diagContent = document.getElementById("diagContent");
+  const backBtn = document.getElementById("diagBackBtn");
+
+  if (!diag || !diagContent || !backBtn) return;
+
+  function openDiag() {
+    diag.style.display = "block";
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeDiag() {
+    diag.style.display = "none";
+    document.body.style.overflow = "";
+  }
+
+  backBtn.addEventListener("click", closeDiag);
+
+  document.addEventListener("click", (e) => {
+    const card = e.target.closest("#items > *");
+    if (!card) return;
+
+    openDiag();
+
+    // fallback text, ak app.js nič nerenderuje do diagContent
+    if (diagContent.textContent.trim().length === 0) {
+      const txt = (card.innerText || "").trim();
+      if (txt) diagContent.textContent = txt;
+    }
+  });
+})();
+</script>
 
 </body>
 </html>
