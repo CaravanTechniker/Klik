@@ -3,43 +3,34 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#eaf2ff">
+  <meta name="theme-color" content="#b7cffc">
   <title>Wohnmobil Diagnose</title>
 
   <style>
     :root{
-      /* LIGHT (default) */
-      --bg:#eaf2ff;
-      --bg2:#f7fbff;
-      --card:#ffffff;
-      --card2:#f3f7ff;
+      /* v0.7 – darker pale-blue background + 3 lighter card tones */
+      --bg:#9fbff7;     /* background darker pale blue */
+      --bg2:#b7cffc;    /* gradient mid */
+      --bg3:#d3e4ff;    /* gradient light */
+
+      --card:#cfe1ff;   /* card tone 1 */
+      --card2:#dcedff;  /* card tone 2 */
+      --card3:#eaf3ff;  /* card tone 3 */
+
       --text:#0b1220;
-      --muted:#4b5b7a;
-      --line:#d7e3ff;
+      --muted:#2f3e5d;
+      --line:rgba(15,23,42,.12);
 
       --primary:#2563eb;
       --primaryText:#ffffff;
 
       --yes:#10b981;
       --no:#ef4444;
-
       --warn:#f59e0b;
 
-      --shadow: 0 12px 28px rgba(17, 24, 39, .10);
+      --shadow: 0 12px 26px rgba(2, 6, 23, .12);
       --radius: 18px;
       --radius2: 14px;
-    }
-
-    /* Dark override (ak by si chcel neskôr prepínač) */
-    [data-theme="dark"]{
-      --bg:#0b1220;
-      --bg2:#0b1220;
-      --card:#101a2d;
-      --card2:#0f1a33;
-      --text:#eef2ff;
-      --muted:#a6b2d6;
-      --line:#1f2b49;
-      --shadow: 0 14px 40px rgba(0,0,0,.35);
     }
 
     *{box-sizing:border-box}
@@ -48,9 +39,9 @@
       font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
       color:var(--text);
       background:
-        radial-gradient(1200px 600px at 20% -10%, rgba(37,99,235,.20), transparent 60%),
-        radial-gradient(900px 500px at 90% 0%, rgba(16,185,129,.10), transparent 55%),
-        linear-gradient(180deg, var(--bg), var(--bg2));
+        radial-gradient(1100px 520px at 20% -10%, rgba(37,99,235,.22), transparent 60%),
+        radial-gradient(900px 520px at 90% 0%, rgba(16,185,129,.12), transparent 55%),
+        linear-gradient(180deg, var(--bg), var(--bg2) 55%, var(--bg3));
     }
 
     header{
@@ -58,25 +49,26 @@
       top:0;
       z-index:10;
       backdrop-filter: blur(10px);
-      background: rgba(255,255,255,.75);
+      background: rgba(233, 244, 255, .70);
       border-bottom:1px solid var(--line);
     }
-    [data-theme="dark"] header{ background: rgba(11,18,32,.75); }
 
     .bar{
       max-width: 1120px;
       margin:0 auto;
-      padding: 12px 14px;
+      padding: 10px 12px;
       display:flex;
       align-items:center;
-      gap:12px;
+      gap:10px;
+      flex-wrap: wrap; /* responsive */
     }
 
     .brand{
       display:flex;
       align-items:center;
       gap:10px;
-      min-width: 260px;
+      flex: 1 1 240px;     /* allow shrink/grow */
+      min-width: 220px;    /* smaller for mobile */
     }
 
     .logoBox{
@@ -93,7 +85,7 @@
       width:100%;
       height:100%;
       object-fit:cover;
-      display:none; /* zapne sa keď dodáš URL */
+      display:none;
     }
     .logoBox .ph{
       font-weight: 950;
@@ -102,57 +94,101 @@
       letter-spacing:.3px;
     }
 
-    .titles{display:flex; flex-direction:column; gap:2px; line-height:1.05}
-    .appTitle{margin:0; font-size:16px; letter-spacing:.2px}
-    .subtitleBtn{
+    .titles{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      line-height:1.05;
+      min-width: 0;
+    }
+    .appTitle{
       margin:0;
-      padding:0;
-      border:none;
-      background:transparent;
-      color:var(--muted);
-      font-size:12px;
-      text-align:left;
-      cursor:pointer;
-      font-weight: 800;
-      text-decoration: underline;
-      text-underline-offset: 3px;
+      font-size:16px;
+      font-weight: 950;
+      letter-spacing:.2px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: 62vw; /* prevent overflow on small */
     }
 
-    .spacer{flex:1}
+    /* CaravanTechniker button (point 3) */
+    .subBtn{
+      border:none;
+      background: transparent;
+      padding: 0;
+      margin:0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 950;
+      cursor:pointer;
+      text-align:left;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      width: fit-content;
+    }
+    .subBtn .pill{
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(37,99,235,.14);
+      border: 1px solid rgba(37,99,235,.22);
+      box-shadow: 0 6px 16px rgba(2,6,23,.06);
+      color: #14306f;
+    }
 
+    .actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex: 0 0 auto;
+      margin-left:auto;
+    }
+
+    /* buttons */
     .btn{
       border:1px solid var(--line);
-      background: rgba(255,255,255,.9);
+      background: rgba(234, 243, 255, .92);
       color: var(--text);
-      padding: 10px 12px;
+      padding: 9px 12px;
       border-radius: 999px;
-      font-weight: 900;
+      font-weight: 950;
       font-size: 13px;
       cursor:pointer;
-      box-shadow: 0 6px 18px rgba(17,24,39,.05);
+      box-shadow: 0 6px 18px rgba(2,6,23,.06);
+      white-space:nowrap;
     }
-    [data-theme="dark"] .btn{ background: rgba(16,26,45,.9); }
     .btn.primary{background:var(--primary); color:var(--primaryText); border-color:transparent;}
     .btn.warn{background:var(--warn); color:#1f1300; border-color:transparent;}
-    .btn.ghost{background:transparent; box-shadow:none;}
+    .btn.ghost{background: transparent; box-shadow:none;}
     .btn:active{transform: translateY(1px);}
 
-    /* Mobile tabs: Stromy / Diagnostika (bez scroll) */
+    /* Header responsive – on small, actions go to next line and wrap nicely */
+    @media (max-width: 520px){
+      .actions{
+        width: 100%;
+        justify-content:flex-end;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .btn{padding: 9px 11px;}
+    }
+
+    /* Mobile tabs */
     .mobileTabs{
-      display:none;
       max-width:1120px;
-      margin: 10px auto 0;
-      padding: 0 14px;
+      margin: 8px auto 0;
+      padding: 0 12px 10px;
     }
     .seg{
       display:flex;
       gap:8px;
       border:1px solid var(--line);
-      background: rgba(255,255,255,.75);
+      background: rgba(234, 243, 255, .85);
       border-radius: 999px;
       padding: 6px;
+      box-shadow: 0 10px 22px rgba(2,6,23,.06);
     }
-    [data-theme="dark"] .seg{ background: rgba(16,26,45,.75); }
     .seg button{
       flex:1;
       border:none;
@@ -161,10 +197,10 @@
       border-radius:999px;
       cursor:pointer;
       font-weight: 950;
-      color: var(--muted);
+      color: rgba(11,18,32,.70);
     }
     .seg button.active{
-      background: rgba(37,99,235,.14);
+      background: rgba(37,99,235,.16);
       color: var(--text);
       outline: 2px solid rgba(37,99,235,.18);
     }
@@ -172,28 +208,24 @@
     .wrap{
       max-width: 1120px;
       margin: 0 auto;
-      padding: 12px 14px 74px;
+      padding: 12px 12px 74px;
       display:grid;
       grid-template-columns: 380px 1fr;
-      gap: 14px;
+      gap: 12px;
     }
     @media (max-width: 980px){
-      .mobileTabs{display:block;}
       .wrap{grid-template-columns: 1fr;}
-      .panelTrees, .panelDiag{display:none;}
-      .wrap[data-view="trees"] .panelTrees{display:block;}
+      .panelCats, .panelDiag{display:none;}
+      .wrap[data-view="cats"] .panelCats{display:block;}
       .wrap[data-view="diag"] .panelDiag{display:block;}
     }
 
     .card{
-      background: var(--card);
+      background: rgba(207,225,255,.88);
       border: 1px solid var(--line);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       overflow:hidden;
-    }
-    [data-theme="dark"] .card{
-      background: linear-gradient(180deg, rgba(16,26,45,.92), rgba(16,26,45,.86));
     }
 
     .cardHeader{
@@ -203,11 +235,12 @@
       align-items:center;
       justify-content:space-between;
       gap:10px;
+      background: rgba(220,237,255,.75); /* card2 */
     }
     .cardHeader h2{margin:0; font-size:14px; letter-spacing:.2px}
     .meta{font-size:12px; color:var(--muted); white-space:nowrap}
 
-    /* KATEGÓRIE (accordion) */
+    /* Categories list */
     .cats{
       padding: 10px;
       display:flex;
@@ -216,13 +249,13 @@
       max-height: 74vh;
       overflow:auto;
     }
+
     .cat{
       border:1px solid var(--line);
       border-radius: var(--radius2);
-      background: rgba(255,255,255,.75);
+      background: rgba(234,243,255,.78); /* card3 */
       overflow:hidden;
     }
-    [data-theme="dark"] .cat{ background: rgba(15,26,51,.92); }
 
     .catHead{
       width:100%;
@@ -238,11 +271,10 @@
       color: var(--text);
       text-align:left;
     }
-    .catHead .sub{font-size:12px; color:var(--muted); font-weight:800}
+    .catHead .sub{font-size:12px; color:var(--muted); font-weight:900}
     .catBody{display:none; padding: 0 10px 10px;}
     .cat.open .catBody{display:block;}
 
-    /* Stromy v kategórii */
     .treeItem{
       display:flex;
       align-items:center;
@@ -251,36 +283,34 @@
       padding: 12px 12px;
       border-radius: 14px;
       border: 1px solid var(--line);
-      background: rgba(243,247,255,.85);
+      background: rgba(220,237,255,.85); /* card2 */
       cursor:pointer;
       transition: 120ms ease;
       margin-top:10px;
     }
-    [data-theme="dark"] .treeItem{ background: rgba(15,26,51,.92); }
-
     .treeItem:hover{border-color: rgba(37,99,235,.45)}
     .treeItem.active{
       outline: 2px solid rgba(37,99,235,.55);
       border-color: rgba(37,99,235,.65);
-      background: rgba(37,99,235,.12);
-      box-shadow: 0 10px 28px rgba(37,99,235,.12);
+      background: rgba(37,99,235,.14);
+      box-shadow: 0 10px 22px rgba(37,99,235,.12);
     }
     .treeItem .name{font-weight:950; font-size:14px}
-    .treeItem .tag{font-size:12px; color:var(--muted)}
+    .treeItem .tag{font-size:12px; color:var(--muted); font-weight:900}
     .chev{opacity:.8; font-weight:950}
 
-    /* Diagnostika – karty */
+    /* Diagnostika */
     .stack{padding: 14px; display:flex; flex-direction:column; gap:12px;}
     .panel{
       border:1px solid var(--line);
       border-radius: var(--radius);
-      background: rgba(255,255,255,.72);
+      background: rgba(234,243,255,.78); /* card3 */
       padding: 14px;
+      box-shadow: 0 10px 22px rgba(2,6,23,.06);
     }
-    [data-theme="dark"] .panel{ background: rgba(15,26,51,.75); }
 
     .questionTitle{margin: 0 0 6px 0; font-size: 18px; font-weight: 950; line-height: 1.2;}
-    .subtxt{margin:0; color:var(--muted); font-size: 13px;}
+    .subtxt{margin:0; color:var(--muted); font-size: 13px; font-weight:800}
 
     .answers{
       display:grid;
@@ -294,17 +324,15 @@
       padding: 14px 14px;
       border-radius: 14px;
       border: 1px solid var(--line);
-      background: rgba(255,255,255,.92);
+      background: rgba(234,243,255,.92);
       cursor:pointer;
       font-weight: 950;
       font-size: 14px;
       text-align:left;
-      box-shadow: 0 8px 22px rgba(17,24,39,.06);
+      box-shadow: 0 8px 18px rgba(2,6,23,.06);
     }
-    [data-theme="dark"] .answerBtn{ background: rgba(16,26,45,.9); }
-
-    .answerBtn.yes{ border-color: rgba(16,185,129,.55); background: rgba(16,185,129,.10); }
-    .answerBtn.no{ border-color: rgba(239,68,68,.55); background: rgba(239,68,68,.08); }
+    .answerBtn.yes{ border-color: rgba(16,185,129,.55); background: rgba(16,185,129,.12); }
+    .answerBtn.no{ border-color: rgba(239,68,68,.55); background: rgba(239,68,68,.10); }
 
     .footerActions{display:flex; gap:8px; flex-wrap:wrap; margin-top: 10px;}
 
@@ -312,38 +340,32 @@
     .statusbar{
       position: fixed;
       left:0; right:0; bottom:0;
-      background: rgba(255,255,255,.75);
+      background: rgba(233, 244, 255, .75);
       border-top:1px solid var(--line);
       backdrop-filter: blur(10px);
     }
-    [data-theme="dark"] .statusbar{ background: rgba(11,18,32,.85); }
-
     .statusbar .inner{
       max-width: 1120px;
       margin:0 auto;
-      padding: 10px 14px;
+      padding: 10px 12px;
       display:flex;
       align-items:center;
       gap:10px;
       justify-content:space-between;
-      color: var(--muted);
+      color: rgba(11,18,32,.70);
       font-size: 12px;
+      font-weight:900;
     }
     .dot{width:10px;height:10px;border-radius:99px;background:#94a3b8;display:inline-block;margin-right:8px;}
     .dot.on{background:#22c55e}
     .kbd{
       font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
       font-size: 12px;
-      background: rgba(0,0,0,.04);
-      border:1px solid rgba(0,0,0,.06);
+      background: rgba(255,255,255,.35);
+      border:1px solid rgba(2,6,23,.08);
       color: var(--text);
       padding: 3px 8px;
       border-radius: 999px;
-    }
-    [data-theme="dark"] .kbd{
-      background: rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.08);
-      color: var(--text);
     }
 
     /* Dropdown */
@@ -351,16 +373,16 @@
     .menu{
       position:absolute;
       right:0;
-      top: 46px;
+      top: 44px;
       min-width: 210px;
-      background: rgba(255,255,255,.98);
+      background: rgba(234,243,255,.98);
       border:1px solid var(--line);
       border-radius: 14px;
       box-shadow: var(--shadow);
       padding: 8px;
       display:none;
+      z-index: 20;
     }
-    [data-theme="dark"] .menu{ background: rgba(16,26,45,.98); }
     .menu.open{display:block}
     .menu button{
       width:100%;
@@ -371,10 +393,10 @@
       background: transparent;
       color: var(--text);
       cursor:pointer;
-      font-weight: 900;
+      font-weight: 950;
       font-size: 13px;
     }
-    .menu button:hover{background: rgba(37,99,235,.12); border-color: rgba(37,99,235,.18)}
+    .menu button:hover{background: rgba(37,99,235,.14); border-color: rgba(37,99,235,.18)}
     .menu button.active{background: rgba(37,99,235,.18); border-color: rgba(37,99,235,.35)}
 
     /* Modal */
@@ -392,15 +414,15 @@
       width:min(680px, 100%);
       border-radius: 18px;
       border:1px solid var(--line);
-      background: var(--card);
+      background: rgba(234,243,255,.98);
       box-shadow: var(--shadow);
       overflow:hidden;
     }
-    [data-theme="dark"] .modal{ background: rgba(16,26,45,.98); }
     .modalHead{
       padding: 12px 14px;
       border-bottom:1px solid var(--line);
       display:flex; align-items:center; justify-content:space-between; gap:10px;
+      background: rgba(220,237,255,.85);
     }
     .modalHead b{font-size:14px;}
     .modalBody{padding: 14px;}
@@ -411,15 +433,15 @@
       border:1px solid var(--line);
       padding: 12px;
       font-size: 14px;
-      background: rgba(0,0,0,.02);
+      background: rgba(255,255,255,.35);
       color: var(--text);
+      font-weight: 900;
     }
-    [data-theme="dark"] .modalBody textarea{background: rgba(255,255,255,.06);}
-    .modalActions{display:flex; gap:8px; justify-content:flex-end; padding: 0 14px 14px;}
+    .modalActions{display:flex; gap:8px; justify-content:flex-end; padding: 0 14px 14px; flex-wrap:wrap;}
   </style>
 </head>
 
-<body data-theme="light">
+<body>
 <header>
   <div class="bar">
     <div class="brand">
@@ -430,47 +452,51 @@
 
       <div class="titles">
         <h1 class="appTitle" id="uiTitle">Wohnmobil Diagnose</h1>
-        <button class="subtitleBtn" id="infoBtn">CaravanTechniker am Main</button>
+
+        <!-- point 3: CaravanTechniker -> button -->
+        <button class="subBtn" id="infoBtn" type="button">
+          <span class="pill">CaravanTechniker am Main</span>
+        </button>
       </div>
     </div>
 
-    <div class="spacer"></div>
-
-    <!-- Jazyk pod 1 tlačidlom -->
-    <div class="dropdown">
-      <button class="btn ghost" id="langBtn">Jazyk ▾</button>
-      <div class="menu" id="langMenu" role="menu" aria-label="Jazyk">
-        <button data-lang="sk" class="active">Slovenčina</button>
-        <button data-lang="de">Deutsch</button>
+    <div class="actions">
+      <!-- Jazyk -->
+      <div class="dropdown">
+        <button class="btn ghost" id="langBtn" type="button">Jazyk ▾</button>
+        <div class="menu" id="langMenu" role="menu" aria-label="Jazyk">
+          <button data-lang="sk" class="active" type="button">Slovenčina</button>
+          <button data-lang="de" type="button">Deutsch</button>
+        </div>
       </div>
-    </div>
 
-    <button class="btn" id="feedbackBtn">Pripomienky</button>
+      <button class="btn" id="feedbackBtn" type="button">Pripomienky</button>
 
-    <!-- Share dropdown -->
-    <div class="dropdown">
-      <button class="btn" id="shareBtn">Zdieľať ▾</button>
-      <div class="menu" id="shareMenu" role="menu" aria-label="Zdieľať">
-        <button data-share="txt">TXT (kopírovať)</button>
-        <button data-share="pdf">PDF (tlač / uložiť)</button>
+      <!-- Share -->
+      <div class="dropdown">
+        <button class="btn" id="shareBtn" type="button">Zdieľať ▾</button>
+        <div class="menu" id="shareMenu" role="menu" aria-label="Zdieľať">
+          <button data-share="txt" type="button">TXT (kopírovať)</button>
+          <button data-share="pdf" type="button">PDF (tlač / uložiť)</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Mobile: strom/diag bez posúvania -->
+  <!-- Mobile: Kategórie / Diagnostika (point 4 + 5) -->
   <div class="mobileTabs">
     <div class="seg">
-      <button id="tabTrees" class="active">Stromy</button>
-      <button id="tabDiag">Diagnostika</button>
+      <button id="tabCats" class="active" type="button">Poruchy</button>
+      <button id="tabDiag" type="button">Diagnostika</button>
     </div>
   </div>
 </header>
 
-<main class="wrap" id="wrap" data-view="trees">
-  <!-- LEFT: Trees -->
-  <section class="card panelTrees" aria-label="Stromy">
+<main class="wrap" id="wrap" data-view="cats">
+  <!-- LEFT: Categories -->
+  <section class="card panelCats" aria-label="Kategórie">
     <div class="cardHeader">
-      <h2 id="treesTitle">Stromy</h2>
+      <h2 id="catsTitle">Kategórie</h2>
       <div class="meta"><span id="treeCount">0</span> ks</div>
     </div>
     <div class="cats" id="cats"></div>
@@ -481,23 +507,23 @@
     <div class="stack">
       <div class="panel">
         <p class="subtxt" id="selectedTreeLine">Vybraný strom: <b id="activeTreeName">–</b></p>
-        <h2 class="questionTitle" id="questionText">Vyber strom.</h2>
+        <h2 class="questionTitle" id="questionText">Vyber kategóriu a poruchu.</h2>
         <p class="subtxt" id="hintText">Potom sa tu zobrazí prvá otázka a tlačidlá.</p>
 
         <div class="answers">
-          <button class="answerBtn yes" id="yesBtn">Áno</button>
-          <button class="answerBtn no" id="noBtn">Nie</button>
+          <button class="answerBtn yes" id="yesBtn" type="button">Áno</button>
+          <button class="answerBtn no" id="noBtn" type="button">Nie</button>
         </div>
 
         <div class="footerActions">
-          <button class="btn warn" id="backBtn">Späť</button>
-          <button class="btn" id="resetBtn">Reset</button>
+          <button class="btn warn" id="backBtn" type="button">Späť</button>
+          <button class="btn" id="resetBtn" type="button">Reset</button>
         </div>
       </div>
 
       <div class="panel">
         <p class="subtxt" id="infoBox">
-          UI v0.6 pripravené: kategórie, zbalenie, mobile prepínač, info + pripomienky + zdieľanie.
+          UI v0.7: responzívny header, kategórie default zavreté, farby upravené, WhatsApp feedback.
         </p>
       </div>
     </div>
@@ -509,7 +535,7 @@
   <div class="modal">
     <div class="modalHead">
       <b id="infoTitle">Informácie a kontakt</b>
-      <button class="btn" id="infoClose">Zavrieť</button>
+      <button class="btn" id="infoClose" type="button">Zavrieť</button>
     </div>
     <div class="modalBody">
       <div id="infoContent"></div>
@@ -522,14 +548,15 @@
   <div class="modal">
     <div class="modalHead">
       <b id="fbTitle">Pripomienky k aplikácii</b>
-      <button class="btn" id="fbClose">Zavrieť</button>
+      <button class="btn" id="fbClose" type="button">Zavrieť</button>
     </div>
     <div class="modalBody">
       <textarea id="fbText" placeholder="Napíš pripomienku..."></textarea>
     </div>
     <div class="modalActions">
-      <button class="btn" id="fbCopy">Kopírovať</button>
-      <button class="btn primary" id="fbMail">Poslať e-mailom</button>
+      <button class="btn" id="fbCopy" type="button">Kopírovať</button>
+      <button class="btn" id="fbWhatsApp" type="button">WhatsApp</button>
+      <button class="btn primary" id="fbMail" type="button">Poslať e-mailom</button>
     </div>
   </div>
 </div>
@@ -539,7 +566,7 @@
     <div>
       <span class="dot" id="netDot"></span>
       <span id="netText">Offline</span>
-      <span class="kbd" id="verText">UI v0.6</span>
+      <span class="kbd" id="verText">UI v0.7</span>
     </div>
     <div id="statusRight">Ready</div>
   </div>
