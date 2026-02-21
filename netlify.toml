@@ -1,9 +1,9 @@
 [build]
-  base = "Klik"
-  publish = "Klik"
+  publish = "."
   command = ""
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# Bez PWA cache – netlify headers (voliteľné, ale pomáha proti "starému dizajnu")
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "no-store, max-age=0"
