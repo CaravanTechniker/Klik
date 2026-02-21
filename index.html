@@ -4,47 +4,95 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wohnmobil Diagnose</title>
-  <link rel="stylesheet" href="style.css" />
+
+  <link rel="stylesheet" href="style.css?v=1" />
+
+  <!-- PWA OFF: zámerne bez manifestu a bez service worker registrácie -->
 </head>
 <body>
   <div id="app">
     <header class="topbar">
       <div class="brand">
-        <div id="adminBtn" class="logo">WOMO</div>
+        <button id="adminBtn" class="logo" type="button" title="Admin">WOMO</button>
         <div class="titles">
           <h1 id="appTitle">Wohnmobil Diagnose</h1>
-          <button id="contactBtn" class="subtitle">
-            CaravanTechniker am Main
-          </button>
+          <button id="contactBtn" class="subtitle" type="button">CaravanTechniker am Main</button>
         </div>
       </div>
 
       <div class="actions">
-        <select id="langSelect">
-          <option value="de">DE</option>
-          <option value="sk">SK</option>
-        </select>
-        <button id="collapseAllBtn">Zbaliť</button>
-        <button id="feedbackBtn">Pripomienky</button>
-        <button id="shareBtn">Zdieľať</button>
+        <div class="langWrap">
+          <button id="langBtn" class="btn pill" type="button">
+            <span id="langLabel">DE</span> <span class="caret">▼</span>
+          </button>
+          <div id="langMenu" class="menu hidden">
+            <button class="menuItem" data-lang="de" type="button">DE</button>
+            <button class="menuItem" data-lang="sk" type="button">SK</button>
+          </div>
+        </div>
+
+        <button id="collapseAllBtn" class="btn pill" type="button">Zbaliť</button>
+        <button id="feedbackBtn" class="btn pill" type="button">Pripomienky</button>
+
+        <div class="shareWrap">
+          <button id="shareBtn" class="btn primary pill" type="button">Zdieľať</button>
+          <div id="shareMenu" class="menu hidden">
+            <button id="shareTxtBtn" class="menuItem" type="button">TXT</button>
+            <button id="sharePdfBtn" class="menuItem" type="button">PDF</button>
+          </div>
+        </div>
       </div>
     </header>
 
-    <main>
-      <div class="tabs">
-        <button class="tab active">Poruchy</button>
-        <button class="tab">Diagnostika</button>
+    <div class="tabs">
+      <button id="tabFaults" class="tab active" type="button">Poruchy</button>
+      <button id="tabDiag" class="tab" type="button">Diagnostika</button>
+    </div>
+
+    <main class="content">
+      <div class="sectionHeader">
+        <h2 id="categoriesTitle">Kategórie</h2>
+        <div class="muted" id="categoryCount"></div>
       </div>
 
-      <section id="categories"></section>
+      <div id="categories" class="accordion"></div>
+
+      <div id="treePanel" class="treePanel hidden">
+        <div class="treeHeader">
+          <button id="backBtn" class="btn pill" type="button">← Späť</button>
+          <div class="treeTitles">
+            <div id="treeTitle" class="treeTitle"></div>
+            <div id="treeSubtitle" class="treeSubtitle"></div>
+          </div>
+        </div>
+
+        <div id="treeBody" class="treeBody"></div>
+      </div>
     </main>
 
-    <footer>
-      <span class="status online">● Online</span>
-      <span class="version">UI v1.0</span>
+    <footer class="footer">
+      <div class="status">
+        <span class="dot online"></span>
+        <span id="onlineText">Online</span>
+      </div>
+      <div class="version" id="versionText">UI v1.0</div>
     </footer>
   </div>
 
-  <script src="app.js"></script>
+  <!-- Modaly -->
+  <div id="modalOverlay" class="modalOverlay hidden"></div>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modalHead">
+      <div id="modalTitle" class="modalTitle">Info</div>
+      <button id="modalClose" class="iconBtn" type="button" aria-label="Close">✕</button>
+    </div>
+    <div id="modalBody" class="modalBody"></div>
+    <div class="modalFoot">
+      <button id="modalOk" class="btn primary pill" type="button">OK</button>
+    </div>
+  </div>
+
+  <script src="app.js?v=1"></script>
 </body>
 </html>
