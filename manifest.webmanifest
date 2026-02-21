@@ -1,0 +1,20 @@
+{
+  "name": "Wohnmobil Diagnose",
+  "short_name": "Womo Diagnose",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#cfe2ff",
+  "theme_color": "#cfe2ff",
+  "icons": [
+    {
+      "src": "./womo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./womo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
