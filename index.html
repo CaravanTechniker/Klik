@@ -1,196 +1,50 @@
-<!doctype html>
-<html lang="sk">
+<!DOCTYPE html>
+<html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wohnmobil Diagnose</title>
-
-  <!-- pevné “theme tokens” – aby sa dizajn nikdy neprepol na svetlý default -->
-  <style>
-    :root{
-      --bgA:#0b1220;
-      --bgB:#0e1b2e;
-
-      /* 3 tóny svetlej bledomodrej (podľa tvojej požiadavky) */
-      --p0:#dbeafe;  /* najtmavšia bledomodrá */
-      --p1:#e7f0ff;  /* stred */
-      --p2:#f3f8ff;  /* najsvetlejšia */
-
-      --card:#ffffffcc;
-      --card2:#ffffffaa;
-
-      --text:#0b1220;
-      --muted:#36547a;
-
-      --primary:#2563eb;
-      --primary2:#3b82f6;
-
-      --border:rgba(15, 23, 42, .12);
-      --shadow:0 10px 30px rgba(2, 6, 23, .18);
-
-      --radius:18px;
-    }
-
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(1200px 600px at 20% 0%, rgba(37,99,235,.18), transparent 60%),
-        radial-gradient(900px 500px at 80% 15%, rgba(59,130,246,.14), transparent 55%),
-        linear-gradient(180deg, var(--p0), var(--p1) 45%, var(--p2));
-      min-height:100vh;
-    }
-
-    a{ color:var(--primary); text-decoration:none; }
-    a:hover{ text-decoration:underline; }
-
-    /* layout */
-    .wrap{
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 14px;
-    }
-
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding: 10px 12px;
-      border-radius: var(--radius);
-      background: linear-gradient(180deg, #ffffffdd, #ffffffbb);
-      border:1px solid var(--border);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width: 0;
-    }
-
-    /* “štvorček s fotkou” – bude to admin skryté tlačidlo (click), bez long-press menu */
-    .logoBtn{
-      width:44px;
-      height:44px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      background:#fff;
-      box-shadow: 0 6px 18px rgba(2,6,23,.10);
-      display:grid;
-      place-items:center;
-      overflow:hidden;
-      user-select:none;
-      -webkit-user-select:none;
-      -webkit-touch-callout:none;
-      touch-action: manipulation;
-      flex: 0 0 auto;
-    }
-    .logoBtn img{ width:100%; height:100%; object-fit:cover; display:block; }
-
-    .titleBox{ min-width:0; }
-    .appTitle{
-      font-weight: 900;
-      font-size: 18px;
-      line-height: 1.1;
-      margin:0;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    /* CaravanTechniker… ako tlačidlo (otvorí kontakty) */
-    .subBtn{
-      margin-top: 2px;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.85);
-      color: var(--muted);
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-weight: 700;
-      font-size: 12px;
-    }
-
-    .actions{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-
-    .btn{
-      border:1px solid var(--border);
-      background: rgba(255,255,255,.9);
-      color: var(--text);
-      border-radius: 999px;
-      padding: 10px 14px;
-      font-weight: 800;
-      font-size: 14px;
-      box-shadow: 0 6px 16px rgba(2,6,23,.08);
-      user-select:none;
-      -webkit-user-select:none;
-      -webkit-touch-callout:none;
-      touch-action: manipulation;
-    }
-    .btnPrimary{
-      border:none;
-      color:#fff;
-      background: linear-gradient(180deg, var(--primary2), var(--primary));
-    }
-    .btnGhost{
-      background: rgba(255,255,255,.55);
-    }
-
-    /* responzivita – na menšom displeji sa topbar poskladá */
-    @media (max-width: 640px){
-      .topbar{ flex-direction: column; align-items: stretch; }
-      .actions{ justify-content: space-between; }
-      .brand{ justify-content:flex-start; }
-    }
-
-    /* kontajner pre aplikáciu */
-    #app{
-      margin-top: 14px;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-  <div class="wrap">
-    <div class="topbar">
+  <div id="app">
+    <header class="topbar">
       <div class="brand">
-        <button id="logoAdminBtn" class="logoBtn" aria-label="Admin">
-          <!-- dočasná ikonka, neskôr vymeníš za fotku womo -->
-          <img alt="WOMO" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Crect width='128' height='128' rx='24' fill='%23dbeafe'/%3E%3Ctext x='64' y='78' font-size='38' font-family='Arial' text-anchor='middle' fill='%230b1220'%3EWOMO%3C/text%3E%3C/svg%3E">
-        </button>
-
-        <div class="titleBox">
-          <p class="appTitle">Wohnmobil Diagnose</p>
-          <button id="contactBtn" class="subBtn" type="button">CaravanTechniker am Main</button>
+        <div id="adminBtn" class="logo">WOMO</div>
+        <div class="titles">
+          <h1 id="appTitle">Wohnmobil Diagnose</h1>
+          <button id="contactBtn" class="subtitle">
+            CaravanTechniker am Main
+          </button>
         </div>
       </div>
 
       <div class="actions">
-        <button class="btn btnGhost" id="langBtn">DE ▾</button>
-        <button class="btn btnGhost" id="collapseBtn">Zbaliť</button>
-        <button class="btn btnGhost" id="feedbackBtn">Pripomienky</button>
-        <button class="btn btnPrimary" id="shareBtn">Zdieľať ▾</button>
+        <select id="langSelect">
+          <option value="de">DE</option>
+          <option value="sk">SK</option>
+        </select>
+        <button id="collapseAllBtn">Zbaliť</button>
+        <button id="feedbackBtn">Pripomienky</button>
+        <button id="shareBtn">Zdieľať</button>
       </div>
-    </div>
+    </header>
 
-    <div id="app" class="card"></div>
+    <main>
+      <div class="tabs">
+        <button class="tab active">Poruchy</button>
+        <button class="tab">Diagnostika</button>
+      </div>
+
+      <section id="categories"></section>
+    </main>
+
+    <footer>
+      <span class="status online">● Online</span>
+      <span class="version">UI v1.0</span>
+    </footer>
   </div>
 
-  <!-- cache-bust aby sa JS vždy načítal nový -->
-  <script src="./app.js?v=ui1"></script>
+  <script src="app.js"></script>
 </body>
 </html>
