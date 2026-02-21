@@ -1,11 +1,10 @@
 {
   "name": "CaravanTechniker am Main",
-  "short_name": "CT am Main",
-  "start_url": "./",
-  "scope": "./",
+  "short_name": "CaravanTechniker",
+  "start_url": "./#list",
   "display": "standalone",
-  "background_color": "#eef4ff",
-  "theme_color": "#eef4ff",
+  "background_color": "#eef6ff",
+  "theme_color": "#d9ecff",
   "icons": [
     {
       "src": "icon-192.png",
