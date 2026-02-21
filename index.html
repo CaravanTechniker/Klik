@@ -4,18 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f4f7fb">
-
   <title>CaravanTechniker am Main – Wohnmobil Diagnose</title>
-
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="app.css">
-
   <script src="app.js" defer></script>
 </head>
 
 <body>
 
-<!-- ===== TOP BAR ===== -->
 <header class="topbar">
   <div>
     <div class="brandTitle">CaravanTechniker am Main</div>
@@ -29,46 +25,30 @@
   </div>
 </header>
 
-<!-- ===== MAIN CONTENT ===== -->
 <main id="app" class="container">
 
-  <!-- SEARCH -->
-  <input
-    id="searchInput"
-    class="search"
-    type="text"
-    placeholder="Suche (Trittstufe, Wasserpumpe, 12V …)"
-  >
+  <input id="searchInput" class="search" type="text"
+    placeholder="Suche (Trittstufe, Wasserpumpe, 12V …)">
 
-  <!-- CATEGORY BUTTONS -->
-  <div id="categoryButtons" class="pills" style="margin-bottom:12px">
-    <!-- app.js sem vloží tlačidlá -->
-  </div>
+  <div id="chips" class="pills" style="margin-bottom:14px"></div>
 
-  <!-- ISSUE LIST -->
-  <div id="issueList">
-    <!-- app.js sem renderuje poruchy -->
-  </div>
+  <div id="issueList"></div>
 
 </main>
 
-<!-- ===== FULLSCREEN DIAG ===== -->
 <div id="diagScreen" class="fullscreen">
   <div class="fsHeader">
     <button id="diagBackBtn" class="pill">← Zurück</button>
     <div id="diagTitle" class="fsTitle">Diagnose</div>
     <div></div>
   </div>
-
   <div id="diagContent" class="fsContent"></div>
 </div>
 
-<!-- ===== PROTOCOL ===== -->
 <section id="protocolSection" class="container" style="display:none">
   <div class="card">
     <div class="h1">Protokoll</div>
     <pre id="protocolOutput"></pre>
-
     <div style="display:flex;gap:10px;margin-top:10px">
       <button id="copyProtocolBtn" class="pill">Kopieren</button>
       <button id="clearProtocolBtn" class="pill">Löschen</button>
@@ -76,10 +56,6 @@
     </div>
   </div>
 </section>
-
-<noscript>
-  Táto aplikácia vyžaduje zapnutý JavaScript.
-</noscript>
 
 </body>
 </html>
