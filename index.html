@@ -8,7 +8,6 @@
 
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="app.css">
-  <script src="app.js" defer></script>
 </head>
 
 <body>
@@ -26,9 +25,13 @@
   </div>
 </header>
 
+<!-- VERSION -->
+<div id="versionLabel" style="padding:6px 14px;font-size:12px;opacity:.6">
+  v0.0.0
+</div>
+
 <main id="app" class="container">
 
-  <!-- SEARCH -->
   <input
     id="searchInput"
     class="search"
@@ -36,15 +39,12 @@
     placeholder="Suche (Trittstufe, Wasserpumpe, 12V …)"
   >
 
-  <!-- CATEGORY CHIPS -->
   <div id="chips" class="pills" style="margin-bottom:14px"></div>
 
-  <!-- ITEMS LIST (DÔLEŽITÉ) -->
   <div id="items"></div>
 
 </main>
 
-<!-- DIAG SCREEN -->
 <div id="diagScreen" class="fullscreen">
   <div class="fsHeader">
     <button id="diagBackBtn" class="pill">← Zurück</button>
@@ -54,7 +54,6 @@
   <div id="diagContent" class="fsContent"></div>
 </div>
 
-<!-- PROTOCOL -->
 <section id="protocolSection" class="container" style="display:none">
   <div class="card">
     <div class="h1">Protokoll</div>
@@ -67,6 +66,9 @@
     </div>
   </div>
 </section>
+
+<!-- APP JS MUSÍ BYŤ ÚPLNE NA KONCI -->
+<script src="app.js"></script>
 
 </body>
 </html>
