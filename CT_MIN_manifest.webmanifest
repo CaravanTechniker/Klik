@@ -1,9 +1,0 @@
-{
-  "name": "CaravanTechniker am Main",
-  "short_name": "CT Diagnose",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#dbeafe",
-  "theme_color": "#dbeafe",
-  "icons": []
-}
