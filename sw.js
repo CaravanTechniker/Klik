@@ -1,49 +1,34 @@
-const CACHE = "ct-cache-v0.4.0";
+const CACHE = "ctam-cache-v1";
 const ASSETS = [
   "./",
   "./index.html",
-  "./app.js",
   "./app.css",
-  "./manifest.webmanifest",
+  "./app.js",
   "./content.json",
-  "./content_full_with_fehlcodes_SK_DE.json"
+  "./manifest.webmanifest"
 ];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(ASSETS)).catch(() => {})
+    caches.open(CACHE).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.map(k => (k === CACHE ? null : caches.delete(k))))
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", (event) => {
   const req = event.request;
-  const url = new URL(req.url);
-
-  // only handle same-origin
-  if (url.origin !== location.origin) return;
-
   event.respondWith(
-    caches.match(req).then((cached) => {
-      if (cached) return cached;
-
-      return fetch(req).then((res) => {
-        // cache GET only
-        if (req.method === "GET" && res.ok) {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
-        }
-        return res;
-      }).catch(() => cached);
-    })
+    caches.match(req).then((cached) => cached || fetch(req).then((res) => {
+      const copy = res.clone();
+      caches.open(CACHE).then((cache) => cache.put(req, copy)).catch(()=>{});
+      return res;
+    }).catch(() => caches.match("./index.html")))
   );
 });
