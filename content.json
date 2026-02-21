@@ -1,0 +1,26 @@
+{
+  "trees":[
+    {
+      "title":"12V kompletne nefunkčné",
+      "description":"Žiadne svetlá, pumpa ani panel",
+      "root":{
+        "text":"Je palubný panel zapnutý?",
+        "answers":[
+          {"text":"Áno","next":{"text":"Skontroluj hlavnú poistku pri batérii","answers":[{"text":"OK"}]}},
+          {"text":"Nie","next":{"text":"Zapni hlavný vypínač 12V","answers":[{"text":"OK"}]}}
+        ]
+      }
+    },
+    {
+      "title":"Vodná pumpa nejde",
+      "description":"Žiadny zvuk ani tlak",
+      "root":{
+        "text":"Počuješ zvuk pumpy?",
+        "answers":[
+          {"text":"Áno","next":{"text":"Skontroluj tlakový spínač","answers":[{"text":"OK"}]}},
+          {"text":"Nie","next":{"text":"Skontroluj poistku pumpy","answers":[{"text":"OK"}]}}
+        ]
+      }
+    }
+  ]
+}
