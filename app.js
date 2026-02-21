@@ -1,385 +1,648 @@
-/* CaravanTechniker am Main – stable base
-   - Works with content.json in SIMPLE mode (list only) or FULL mode (with nodes)
-   - No missing element crashes: all required IDs exist in index.html
+/* CaravanTechniker am Main - stable base (list + tree + offline-ready)
+   Loads:
+   1) localStorage override (admin import)
+   2) repo file: content_full_with_fehlcodes_SK_DE.json (preferred)
+   3) fallback: content.json
 */
 
-const APP_VERSION = "0.3.4";
+const VERSION = "v0.4.0";
+const LS_CONTENT = "ct_content_override_v1";
+const LS_LANG = "ct_lang_v1";
+const LS_PROTOCOL = "ct_protocol_v1";
+const LS_ADMIN_UNLOCK = "ct_admin_unlock_v1";
 
-/** ---------- helpers ---------- */
-const $ = (sel) => document.querySelector(sel);
+const el = (id) => document.getElementById(id);
 
-function nowLocal() {
-  const d = new Date();
-  const pad = (n) => String(n).padStart(2, "0");
-  return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()}, ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+const ui = {
+  brandTitle: el("brandTitle"),
+  brandSub: el("brandSub"),
+  versionLabel: el("versionLabel"),
+  toast: el("toast"),
+
+  // top buttons
+  langBtn: el("langBtn"),
+  adminBtn: el("adminBtn"),
+  resetBtn: el("resetBtn"),
+
+  // list
+  listView: el("listView"),
+  listTitle: el("listTitle"),
+  listHint: el("listHint"),
+  searchInput: el("searchInput"),
+  chips: el("chips"),
+  items: el("items"),
+
+  // tree
+  treeView: el("treeView"),
+  backToListBtn: el("backToListBtn"),
+  treeTitle: el("treeTitle"),
+  treeSubtitle: el("treeSubtitle"),
+  questionBox: el("questionBox"),
+  yesBtn: el("yesBtn"),
+  noBtn: el("noBtn"),
+  stepBackBtn: el("stepBackBtn"),
+
+  protocolTitle: el("protocolTitle"),
+  protocolBox: el("protocolBox"),
+  copyBtn: el("copyBtn"),
+  clearPathBtn: el("clearPathBtn"),
+  pdfBtn: el("pdfBtn"),
+
+  // admin
+  adminDialog: el("adminDialog"),
+  adminPwd: el("adminPwd"),
+  unlockBtn: el("unlockBtn"),
+  lockBtn: el("lockBtn"),
+  importFile: el("importFile"),
+  useRepoBtn: el("useRepoBtn"),
+  exportBtn: el("exportBtn"),
+};
+
+let lang = (localStorage.getItem(LS_LANG) || "de").toLowerCase(); // "de" | "sk"
+let content = [];         // array of trees/items
+let selectedCategory = "all";
+let searchQuery = "";
+let activeTree = null;    // currently opened tree item
+let currentNodeId = null; // node id in activeTree.nodes
+let historyStack = [];    // for step back
+
+let protocol = {
+  startedAt: null,
+  lang: null,
+  treeId: null,
+  treeTitle: null,
+  tags: [],
+  steps: [] // {q, a}
+};
+
+function t(objOrString) {
+  // objOrString: {de, sk} or string
+  if (!objOrString) return "";
+  if (typeof objOrString === "string") return objOrString;
+  return objOrString[lang] || objOrString["de"] || objOrString["sk"] || "";
 }
 
-function isFullItem(item) {
-  return item && typeof item === "object" && item.nodes && item.start;
+function toast(msg) {
+  ui.toast.textContent = msg || "";
+  if (!msg) return;
+  setTimeout(() => { if (ui.toast.textContent === msg) ui.toast.textContent = ""; }, 2200);
 }
 
-function t(itemOrObj, lang, fallback="") {
-  if (itemOrObj == null) return fallback;
-  if (typeof itemOrObj === "string") return itemOrObj;
-  if (typeof itemOrObj === "object") {
-    return itemOrObj[lang] || itemOrObj.de || itemOrObj.sk || fallback;
-  }
-  return fallback;
+function setLang(next) {
+  lang = (next || "de").toLowerCase();
+  localStorage.setItem(LS_LANG, lang);
+  ui.langBtn.textContent = lang.toUpperCase();
+  document.documentElement.lang = lang;
+  renderAll();
 }
 
-function safeLower(s){ return (s || "").toString().toLowerCase(); }
+function isUnlocked() {
+  return localStorage.getItem(LS_ADMIN_UNLOCK) === "1";
+}
 
-/** ---------- state ---------- */
-let LANG = localStorage.getItem("ct_lang") || "de";
-let ALL = [];
-let ACTIVE_CATEGORY = "Alle";
-let QUERY = "";
+function resetAll() {
+  // No confirm (as you wanted)
+  localStorage.removeItem(LS_PROTOCOL);
+  historyStack = [];
+  activeTree = null;
+  currentNodeId = null;
 
-let currentItem = null;         // selected item
-let currentNodeId = null;       // active node in tree
-let stack = [];                 // history of node ids for step-back
-let path = [];                  // protocol steps {q, a}
+  protocol = {
+    startedAt: null, lang: null, treeId: null, treeTitle: null, tags: [], steps: []
+  };
 
-/** ---------- elements ---------- */
-const versionLabel = $("#versionLabel");
-const langBtn = $("#langBtn");
-const resetBtn = $("#resetBtn");
-const adminBtn = $("#adminBtn");
+  // Keep imported content unless you explicitly remove it:
+  // localStorage.removeItem(LS_CONTENT);
 
-const listView = $("#listView");
-const diagView = $("#diagView");
-const adminView = $("#adminView");
+  location.hash = "#list";
+  toast(lang === "de" ? "Reset OK" : "Reset OK");
+  renderAll();
+}
 
-const adminBackBtn = $("#adminBackBtn");
-
-const searchInput = $("#searchInput");
-const chips = $("#chips");
-const itemsEl = $("#items");
-
-const backToListBtn = $("#backToListBtn");
-const diagTitle = $("#diagTitle");
-const selectedItemLabel = $("#selectedItemLabel");
-
-const questionBox = $("#questionBox");
-const yesBtn = $("#yesBtn");
-const noBtn = $("#noBtn");
-const stepBackBtn = $("#stepBackBtn");
-
-const protocolEl = $("#protocol");
-const copyBtn = $("#copyBtn");
-const clearPathBtn = $("#clearPathBtn");
-const pdfBtn = $("#pdfBtn");
-
-/** ---------- init ---------- */
-versionLabel.textContent = `v${APP_VERSION}`;
-document.documentElement.lang = LANG;
-langBtn.textContent = LANG.toUpperCase();
+async function fetchJson(path) {
+  const res = await fetch(path, { cache: "no-store" });
+  if (!res.ok) throw new Error("Fetch failed: " + path);
+  return await res.json();
+}
 
 async function loadContent() {
-  const res = await fetch("content.json", { cache: "no-store" });
-  if (!res.ok) throw new Error("content.json load failed");
-  const data = await res.json();
-  // data can be array
-  if (!Array.isArray(data)) throw new Error("content.json must be array");
-  return data;
-}
-
-function buildCategories(data) {
-  const set = new Set(["Alle"]);
-  data.forEach(it => set.add(it.category || "Andere"));
-  return Array.from(set);
-}
-
-function renderChips(categories) {
-  chips.innerHTML = "";
-  categories.forEach(cat => {
-    const b = document.createElement("button");
-    b.className = "pill" + (cat === ACTIVE_CATEGORY ? " pill--active" : "");
-    b.type = "button";
-    b.textContent = cat;
-    b.addEventListener("click", () => {
-      ACTIVE_CATEGORY = cat;
-      renderChips(categories);
-      renderItems();
-    });
-    chips.appendChild(b);
-  });
-}
-
-function filterItems() {
-  return ALL.filter(it => {
-    const catOk = (ACTIVE_CATEGORY === "Alle") || ((it.category || "Andere") === ACTIVE_CATEGORY);
-    if (!catOk) return false;
-
-    const title = safeLower(t(it.title, LANG, it.title));
-    const sub = safeLower(t(it.subtitle, LANG, it.subtitle));
-    const tags = Array.isArray(it.tags) ? it.tags.join(" ") : "";
-    const q = safeLower(QUERY);
-    if (!q) return true;
-    return title.includes(q) || sub.includes(q) || safeLower(tags).includes(q);
-  });
-}
-
-function renderItems() {
-  const list = filterItems();
-  itemsEl.innerHTML = "";
-
-  list.forEach(it => {
-    const card = document.createElement("div");
-    card.className = "item";
-    card.tabIndex = 0;
-
-    const title = document.createElement("div");
-    title.className = "item__title";
-    title.textContent = t(it.title, LANG, it.title || "");
-
-    const sub = document.createElement("div");
-    sub.className = "item__sub";
-    sub.textContent = t(it.subtitle, LANG, it.subtitle || "");
-
-    card.appendChild(title);
-    card.appendChild(sub);
-
-    card.addEventListener("click", () => openItem(it));
-    card.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") openItem(it);
-    });
-
-    itemsEl.appendChild(card);
-  });
-}
-
-function show(view) {
-  listView.classList.add("hidden");
-  diagView.classList.add("hidden");
-  adminView.classList.add("hidden");
-  view.classList.remove("hidden");
-  window.scrollTo({ top: 0, behavior: "instant" });
-}
-
-/** ---------- diagnose ---------- */
-function openItem(it) {
-  currentItem = it;
-  stack = [];
-  path = [];
-  protocolEl.textContent = "";
-  selectedItemLabel.textContent = `${t(it.title, LANG, it.title || "")} — ${t(it.subtitle, LANG, it.subtitle || "")}`;
-
-  if (isFullItem(it)) {
-    currentNodeId = it.start;
-    renderNode();
-    show(diagView);
-  } else {
-    // SIMPLE item: show placeholder (still no crash)
-    currentNodeId = null;
-    questionBox.textContent = (LANG === "de")
-      ? "Dieser Eintrag hat noch keinen Diagnose-Baum (nodes/start fehlen in content.json)."
-      : "Tento záznam ešte nemá diagnostický strom (chýba nodes/start v content.json).";
-    yesBtn.disabled = true;
-    noBtn.disabled = true;
-    stepBackBtn.disabled = true;
-    renderProtocol();
-    show(diagView);
+  // 1) local override
+  const override = localStorage.getItem(LS_CONTENT);
+  if (override) {
+    try {
+      const parsed = JSON.parse(override);
+      if (Array.isArray(parsed)) return parsed;
+    } catch {}
   }
+
+  // 2) preferred full file
+  try {
+    const full = await fetchJson("./content_full_with_fehlcodes_SK_DE.json");
+    if (Array.isArray(full) && full.length) return full;
+  } catch {}
+
+  // 3) fallback basic
+  const basic = await fetchJson("./content.json");
+  if (Array.isArray(basic)) return basic;
+
+  return [];
 }
 
-function nodeById(id) {
-  if (!currentItem || !currentItem.nodes) return null;
-  return currentItem.nodes[id] || null;
+function normalizeContent(arr) {
+  // ensure each item has expected fields
+  return (arr || []).map((it) => ({
+    id: it.id || cryptoRandomId(),
+    category: it.category || "Andere",
+    title: it.title || { de: "Ohne Titel", sk: "Bez názvu" },
+    subtitle: it.subtitle || { de: "", sk: "" },
+    tags: Array.isArray(it.tags) ? it.tags : [],
+    start: it.start || null,
+    nodes: it.nodes && typeof it.nodes === "object" ? it.nodes : null,
+  }));
 }
 
-function renderNode() {
-  const node = nodeById(currentNodeId);
-  if (!node) {
-    questionBox.textContent = (LANG === "de")
-      ? "Fehler: Node nicht gefunden."
-      : "Chyba: Node sa nenašiel.";
-    yesBtn.disabled = true;
-    noBtn.disabled = true;
-    stepBackBtn.disabled = stack.length === 0;
+function cryptoRandomId() {
+  return "id_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
+}
+
+function getCategories() {
+  const cats = new Set();
+  content.forEach((it) => cats.add(it.category || "Andere"));
+  return Array.from(cats).sort((a,b) => a.localeCompare(b));
+}
+
+function categoryLabel(cat) {
+  // keep your DE category naming, but allow your future mapping
+  return cat;
+}
+
+function matchesSearch(item, q) {
+  if (!q) return true;
+  const hay = [
+    t(item.title),
+    t(item.subtitle),
+    (item.tags || []).join(" "),
+    item.category || ""
+  ].join(" ").toLowerCase();
+  return hay.includes(q.toLowerCase());
+}
+
+function renderChips() {
+  const cats = getCategories();
+  const allLabel = (lang === "de") ? "Alle" : "Všetko";
+
+  ui.chips.innerHTML = "";
+
+  const makeChip = (key, label) => {
+    const b = document.createElement("button");
+    b.className = "chip" + (selectedCategory === key ? " active" : "");
+    b.type = "button";
+    b.textContent = label;
+    b.addEventListener("click", () => {
+      selectedCategory = key;
+      renderList();
+    });
+    ui.chips.appendChild(b);
+  };
+
+  makeChip("all", allLabel);
+  cats.forEach((cat) => makeChip(cat, categoryLabel(cat)));
+}
+
+function renderList() {
+  ui.listView.classList.remove("hidden");
+  ui.treeView.classList.add("hidden");
+
+  ui.versionLabel.textContent = VERSION;
+
+  ui.listTitle.textContent = (lang === "de") ? "Störungen" : "Poruchy";
+  ui.listHint.textContent = (lang === "de")
+    ? "Wähle eine Störung oder suche. Funktioniert auch offline."
+    : "Vyber poruchu alebo hľadaj. Funguje aj offline.";
+
+  ui.searchInput.placeholder = (lang === "de")
+    ? "Suche (Trittstufe, Wasserpumpe, 12V ...)"
+    : "Hľadaj (schodík, pumpa, 12V ...)";
+
+  renderChips();
+
+  const q = (searchQuery || "").trim();
+  const filtered = content
+    .filter((it) => selectedCategory === "all" ? true : (it.category === selectedCategory))
+    .filter((it) => matchesSearch(it, q));
+
+  ui.items.innerHTML = "";
+
+  if (!filtered.length) {
+    const empty = document.createElement("div");
+    empty.className = "card itemCard";
+    empty.innerHTML = `
+      <div class="itemTitle">${lang === "de" ? "Keine Treffer" : "Žiadne výsledky"}</div>
+      <div class="itemSub">${lang === "de" ? "Prüfe Filter oder Suche." : "Skontroluj filter alebo vyhľadávanie."}</div>
+    `;
+    ui.items.appendChild(empty);
     return;
   }
 
-  yesBtn.disabled = false;
-  noBtn.disabled = false;
-  stepBackBtn.disabled = stack.length === 0;
+  filtered.forEach((it) => {
+    const card = document.createElement("div");
+    card.className = "card itemCard";
+    card.innerHTML = `
+      <div class="itemTitle">${escapeHtml(t(it.title))}</div>
+      <div class="itemSub">${escapeHtml(t(it.subtitle))}</div>
+    `;
+    card.addEventListener("click", () => openTree(it.id));
+    ui.items.appendChild(card);
+  });
+}
+
+function openTree(id) {
+  const it = content.find((x) => x.id === id);
+  if (!it) return;
+
+  // If no nodes -> show info (still stable)
+  activeTree = it;
+  historyStack = [];
+  protocol = {
+    startedAt: new Date().toISOString(),
+    lang,
+    treeId: it.id,
+    treeTitle: t(it.title),
+    tags: it.tags || [],
+    steps: []
+  };
+  saveProtocol();
+
+  // Route
+  location.hash = "#tree/" + encodeURIComponent(it.id);
+  renderTree(); // immediate render
+}
+
+function renderTree() {
+  ui.listView.classList.add("hidden");
+  ui.treeView.classList.remove("hidden");
+
+  ui.versionLabel.textContent = VERSION;
+
+  ui.treeTitle.textContent = (lang === "de") ? "Diagnose" : "Diagnostika";
+  ui.treeSubtitle.textContent = activeTree ? `${t(activeTree.title)} — ${t(activeTree.subtitle)}` : "";
+
+  ui.backToListBtn.textContent = (lang === "de") ? "← Zurück" : "← Späť";
+  ui.yesBtn.textContent = (lang === "de") ? "JA" : "ÁNO";
+  ui.noBtn.textContent  = (lang === "de") ? "NEIN" : "NIE";
+  ui.stepBackBtn.textContent = (lang === "de") ? "← SCHRITT ZURÜCK" : "← KROK SPÄŤ";
+  ui.protocolTitle.textContent = (lang === "de") ? "Protokoll" : "Protokol";
+  ui.copyBtn.textContent = (lang === "de") ? "Kopieren" : "Kopírovať";
+  ui.clearPathBtn.textContent = (lang === "de") ? "Pfad löschen" : "Vymazať postup";
+  ui.pdfBtn.textContent = (lang === "de") ? "PDF Download" : "PDF stiahnuť";
+
+  if (!activeTree) {
+    ui.questionBox.innerHTML = `<p class="qText">${lang === "de" ? "Kein Baum ausgewählt." : "Nie je vybraný strom."}</p>`;
+    ui.yesBtn.disabled = true;
+    ui.noBtn.disabled = true;
+    ui.stepBackBtn.disabled = true;
+    renderProtocol();
+    return;
+  }
+
+  // If tree has no nodes
+  if (!activeTree.nodes || !activeTree.start) {
+    ui.questionBox.innerHTML = `
+      <p class="qText">${escapeHtml(t(activeTree.title))}</p>
+      <div class="resBlock">
+        <p class="resLabel">${lang === "de" ? "Info" : "Info"}</p>
+        <p class="resText">${lang === "de"
+          ? "Dieser Eintrag hat noch keine Diagnose-Nodes."
+          : "Tento záznam ešte nemá diagnostické uzly."}</p>
+      </div>
+    `;
+    ui.yesBtn.disabled = true;
+    ui.noBtn.disabled = true;
+    ui.stepBackBtn.disabled = true;
+    renderProtocol();
+    return;
+  }
+
+  // set current node
+  if (!currentNodeId) currentNodeId = activeTree.start;
+  const node = activeTree.nodes[currentNodeId];
+
+  if (!node) {
+    ui.questionBox.innerHTML = `<p class="qText">${lang === "de" ? "Node fehlt." : "Chýba uzol."}</p>`;
+    ui.yesBtn.disabled = true;
+    ui.noBtn.disabled = true;
+    ui.stepBackBtn.disabled = historyStack.length === 0;
+    renderProtocol();
+    return;
+  }
+
+  // Render node
+  ui.yesBtn.disabled = false;
+  ui.noBtn.disabled = false;
+  ui.stepBackBtn.disabled = historyStack.length === 0;
 
   if (node.type === "question") {
-    questionBox.textContent = t(node.text, LANG, "");
+    ui.questionBox.innerHTML = `
+      <p class="qText">${escapeHtml(t(node.text))}</p>
+      ${renderMedia(node)}
+    `;
   } else if (node.type === "result") {
-    // result screen – show combined info
-    const cause = t(node.cause, LANG, "");
-    const action = t(node.action, LANG, "");
-    questionBox.textContent = `${(LANG==="de" ? "Ergebnis:" : "Výsledok:")} ${cause}\n\n${(LANG==="de" ? "Aktion:" : "Akcia:")} ${action}`;
-    // on result we can disable yes/no to prevent nonsense clicks
-    yesBtn.disabled = true;
-    noBtn.disabled = true;
+    ui.questionBox.innerHTML = `
+      <p class="qText">${lang === "de" ? "Ergebnis" : "Výsledok"}</p>
+      <div class="resBlock">
+        <p class="resLabel">${lang === "de" ? "Ursache" : "Príčina"}</p>
+        <p class="resText">${escapeHtml(t(node.cause))}</p>
+      </div>
+      <div class="resBlock">
+        <p class="resLabel">${lang === "de" ? "Aktion" : "Akcia"}</p>
+        <p class="resText">${escapeHtml(t(node.action))}</p>
+      </div>
+      ${renderMedia(node)}
+    `;
   } else {
-    questionBox.textContent = (LANG === "de")
-      ? "Unbekannter Node-Typ."
-      : "Neznámy typ node.";
-    yesBtn.disabled = true;
-    noBtn.disabled = true;
+    ui.questionBox.innerHTML = `
+      <p class="qText">${escapeHtml(t(node.text) || "…")}</p>
+      ${renderMedia(node)}
+    `;
   }
 
   renderProtocol();
 }
 
-function answer(isYes) {
-  const node = nodeById(currentNodeId);
-  if (!node || node.type !== "question") return;
+function renderMedia(node) {
+  // prepared for future: node.media = [{type:'image'|'pdf'|'video'|'link', url:'', label:{de,sk} }]
+  if (!node || !Array.isArray(node.media) || !node.media.length) return "";
+  const blocks = node.media.map((m) => {
+    const label = escapeHtml(t(m.label) || m.url || "");
+    const url = String(m.url || "").trim();
+    if (!url) return "";
+    if (m.type === "image") {
+      return `<img src="${escapeAttr(url)}" alt="${label}" loading="lazy" />`;
+    }
+    if (m.type === "video") {
+      return `<video src="${escapeAttr(url)}" controls playsinline></video>`;
+    }
+    if (m.type === "pdf") {
+      return `<a href="${escapeAttr(url)}" target="_blank" rel="noopener">${label || "PDF"}</a>`;
+    }
+    return `<a href="${escapeAttr(url)}" target="_blank" rel="noopener">${label || "Link"}</a>`;
+  }).filter(Boolean);
 
-  const qText = t(node.text, LANG, "");
-  const aText = isYes ? (LANG === "de" ? "JA" : "ÁNO") : (LANG === "de" ? "NEIN" : "NIE");
+  if (!blocks.length) return "";
+  return `<div class="media">${blocks.join("")}</div>`;
+}
 
-  path.push({ q: qText, a: aText });
+function step(answerYes) {
+  if (!activeTree || !activeTree.nodes) return;
+  const node = activeTree.nodes[currentNodeId];
+  if (!node) return;
 
-  const next = isYes ? node.yes : node.no;
-  if (!next) {
-    renderProtocol();
+  // protocol step
+  if (node.type === "question") {
+    protocol.steps.push({
+      q: t(node.text),
+      a: answerYes ? (lang === "de" ? "JA" : "ÁNO") : (lang === "de" ? "NEIN" : "NIE")
+    });
+    saveProtocol();
+  }
+
+  // move
+  historyStack.push(currentNodeId);
+
+  let nextId = null;
+  if (answerYes) nextId = node.yes;
+  else nextId = node.no;
+
+  // if no next -> keep current
+  if (!nextId) {
+    toast(lang === "de" ? "Kein nächster Schritt." : "Žiadny ďalší krok.");
+    historyStack.pop();
     return;
   }
 
-  stack.push(currentNodeId);
-  currentNodeId = next;
-  renderNode();
+  currentNodeId = nextId;
+  renderTree();
 }
 
 function stepBack() {
-  if (stack.length === 0) return;
-  // remove last answer too
-  if (path.length > 0) path.pop();
-  currentNodeId = stack.pop();
-  renderNode();
+  if (!historyStack.length) return;
+  currentNodeId = historyStack.pop();
+  // also remove last protocol answer (optional)
+  // keep it simple: do not delete past protocol (you can see full path)
+  renderTree();
 }
 
 function renderProtocol() {
-  if (!currentItem) { protocolEl.textContent = ""; return; }
+  const p = loadProtocol();
+  if (!p || !p.startedAt) {
+    ui.protocolBox.textContent = "";
+    return;
+  }
 
-  const title = t(currentItem.title, LANG, currentItem.title || "");
-  const tags = Array.isArray(currentItem.tags) ? currentItem.tags.join(", ") : "";
+  const dt = new Date(p.startedAt);
+  const dtStr = dt.toLocaleString();
+
   const lines = [];
-
-  lines.push(`Zeit: ${nowLocal()}`);
-  lines.push(`Sprache: ${LANG.toUpperCase()}`);
-  lines.push(`Störung: ${title}`);
-  if (tags) lines.push(`Tags: ${tags}`);
+  lines.push(`Zeit: ${dtStr}`);
+  lines.push(`Sprache: ${p.lang?.toUpperCase() || ""}`);
+  lines.push(`Störung: ${p.treeTitle || ""}`);
+  if (p.tags && p.tags.length) lines.push(`Tags: ${p.tags.join(", ")}`);
   lines.push("");
   lines.push("Schritte:");
-  if (path.length === 0) {
-    lines.push(LANG === "de" ? "- (noch keine Auswahl)" : "- (zatiaľ bez výberu)");
-  } else {
-    path.forEach((s, i) => {
-      lines.push(`${i+1}. ${s.q} [${s.a}]`);
-    });
-  }
-
-  protocolEl.textContent = lines.join("\n");
-}
-
-/** ---------- actions ---------- */
-langBtn.addEventListener("click", () => {
-  LANG = (LANG === "de") ? "sk" : "de";
-  localStorage.setItem("ct_lang", LANG);
-  document.documentElement.lang = LANG;
-  langBtn.textContent = LANG.toUpperCase();
-
-  // rerender list + current screen
-  renderItems();
-  renderChips(buildCategories(ALL));
-  if (!diagView.classList.contains("hidden") && currentItem) {
-    selectedItemLabel.textContent = `${t(currentItem.title, LANG, currentItem.title || "")} — ${t(currentItem.subtitle, LANG, currentItem.subtitle || "")}`;
-    if (isFullItem(currentItem) && currentNodeId) renderNode();
-    else renderProtocol();
-  }
-});
-
-resetBtn.addEventListener("click", () => {
-  // hard reset state, but keep language
-  ACTIVE_CATEGORY = "Alle";
-  QUERY = "";
-  searchInput.value = "";
-  currentItem = null;
-  currentNodeId = null;
-  stack = [];
-  path = [];
-  renderChips(buildCategories(ALL));
-  renderItems();
-  show(listView);
-});
-
-adminBtn.addEventListener("click", () => show(adminView));
-adminBackBtn.addEventListener("click", () => show(listView));
-
-searchInput.addEventListener("input", (e) => {
-  QUERY = e.target.value || "";
-  renderItems();
-});
-
-backToListBtn.addEventListener("click", () => show(listView));
-
-yesBtn.addEventListener("click", () => answer(true));
-noBtn.addEventListener("click", () => answer(false));
-stepBackBtn.addEventListener("click", () => stepBack());
-
-copyBtn.addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(protocolEl.textContent || "");
-  } catch (e) {
-    // fallback
-    const ta = document.createElement("textarea");
-    ta.value = protocolEl.textContent || "";
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand("copy");
-    ta.remove();
-  }
-});
-
-clearPathBtn.addEventListener("click", () => {
-  stack = [];
-  path = [];
-  if (isFullItem(currentItem)) {
-    currentNodeId = currentItem.start;
-    renderNode();
-  } else {
-    renderProtocol();
-  }
-});
-
-pdfBtn.addEventListener("click", () => {
-  // simplest robust "PDF": print dialog -> Save as PDF works on Android/desktop, on iOS uses share/print
-  const w = window.open("", "_blank");
-  const safe = (s) => (s || "").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  w.document.write(`
-    <html><head><meta charset="utf-8"><title>Protokoll</title>
-    <style>
-      body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:24px;}
-      pre{white-space:pre-wrap;border:1px solid #ccc;border-radius:12px;padding:16px;}
-      h1{margin:0 0 12px 0;}
-    </style></head>
-    <body>
-      <h1>CaravanTechniker am Main – Protokoll</h1>
-      <pre>${safe(protocolEl.textContent || "")}</pre>
-      <script>window.onload=()=>window.print();</script>
-    </body></html>
-  `);
-  w.document.close();
-});
-
-/** ---------- service worker ---------- */
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  (p.steps || []).forEach((s, i) => {
+    lines.push(`${i + 1}. ${s.q} [${s.a}]`);
   });
+
+  ui.protocolBox.textContent = lines.join("\n");
 }
 
-/** ---------- boot ---------- */
-(async function boot(){
-  ALL = await loadContent();
-  const categories = buildCategories(ALL);
-  ACTIVE_CATEGORY = "Alle";
-  renderChips(categories);
-  renderItems();
-  show(listView);
-})();
+function saveProtocol() {
+  localStorage.setItem(LS_PROTOCOL, JSON.stringify(protocol));
+}
+
+function loadProtocol() {
+  const raw = localStorage.getItem(LS_PROTOCOL);
+  if (!raw) return protocol;
+  try { return JSON.parse(raw); } catch { return protocol; }
+}
+
+function handleHashRoute() {
+  const h = (location.hash || "#list").replace(/^#/, "");
+  if (!h || h === "list") {
+    activeTree = null;
+    currentNodeId = null;
+    historyStack = [];
+    renderList();
+    return;
+  }
+  if (h.startsWith("tree/")) {
+    const id = decodeURIComponent(h.slice("tree/".length));
+    const it = content.find((x) => x.id === id);
+    if (!it) {
+      location.hash = "#list";
+      return;
+    }
+    activeTree = it;
+    if (!currentNodeId) currentNodeId = it.start || null;
+    renderTree();
+  }
+}
+
+function bindEvents() {
+  ui.langBtn.addEventListener("click", () => {
+    setLang(lang === "de" ? "sk" : "de");
+  });
+
+  ui.resetBtn.addEventListener("click", () => resetAll());
+
+  ui.searchInput.addEventListener("input", (e) => {
+    searchQuery = e.target.value || "";
+    renderList();
+  });
+
+  ui.backToListBtn.addEventListener("click", () => {
+    activeTree = null;
+    currentNodeId = null;
+    historyStack = [];
+    location.hash = "#list";
+    renderList();
+  });
+
+  ui.yesBtn.addEventListener("click", () => step(true));
+  ui.noBtn.addEventListener("click", () => step(false));
+  ui.stepBackBtn.addEventListener("click", () => stepBack());
+
+  ui.copyBtn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(ui.protocolBox.textContent || "");
+      toast(lang === "de" ? "Kopiert." : "Skopírované.");
+    } catch {
+      toast(lang === "de" ? "Kopieren nicht möglich." : "Kopírovanie nie je možné.");
+    }
+  });
+
+  ui.clearPathBtn.addEventListener("click", () => {
+    protocol.steps = [];
+    saveProtocol();
+    renderProtocol();
+    toast(lang === "de" ? "Pfad gelöscht." : "Postup zmazaný.");
+  });
+
+  ui.pdfBtn.addEventListener("click", () => window.print());
+
+  // Admin
+  ui.adminBtn.addEventListener("click", () => {
+    ui.adminPwd.value = "";
+    ui.adminDialog.showModal();
+  });
+
+  ui.unlockBtn.addEventListener("click", () => {
+    const pwd = (ui.adminPwd.value || "").trim();
+    // Simple lock: change later (you can harden it)
+    if (pwd.length >= 4) {
+      localStorage.setItem(LS_ADMIN_UNLOCK, "1");
+      toast(lang === "de" ? "Admin unlocked." : "Admin odomknutý.");
+    } else {
+      toast(lang === "de" ? "Passwort zu kurz." : "Heslo je krátke.");
+    }
+  });
+
+  ui.lockBtn.addEventListener("click", () => {
+    localStorage.setItem(LS_ADMIN_UNLOCK, "0");
+    toast(lang === "de" ? "Admin locked." : "Admin zamknutý.");
+  });
+
+  ui.useRepoBtn.addEventListener("click", () => {
+    localStorage.removeItem(LS_CONTENT);
+    toast(lang === "de" ? "Repo content aktiv." : "Repo content aktívny.");
+    init(); // reload
+  });
+
+  ui.exportBtn.addEventListener("click", () => {
+    const raw = localStorage.getItem(LS_CONTENT);
+    const payload = raw ? raw : JSON.stringify(content, null, 2);
+    downloadText(payload, "content_export.json", "application/json");
+  });
+
+  ui.importFile.addEventListener("change", async (e) => {
+    if (!isUnlocked()) {
+      toast(lang === "de" ? "Admin locked." : "Admin zamknutý.");
+      ui.importFile.value = "";
+      return;
+    }
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    try {
+      const txt = await file.text();
+      const parsed = JSON.parse(txt);
+      if (!Array.isArray(parsed)) throw new Error("JSON must be an array");
+      localStorage.setItem(LS_CONTENT, JSON.stringify(parsed));
+      toast(lang === "de" ? "Import OK." : "Import OK.");
+      ui.importFile.value = "";
+      init(); // reload
+    } catch (err) {
+      toast(lang === "de" ? "Import Fehler." : "Chyba importu.");
+    }
+  });
+
+  window.addEventListener("hashchange", handleHashRoute);
+}
+
+function downloadText(text, filename, mime) {
+  const blob = new Blob([text], { type: mime || "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+function renderAll() {
+  // update top texts if you later add SK branding etc.
+  ui.langBtn.textContent = lang.toUpperCase();
+  ui.versionLabel.textContent = VERSION;
+  handleHashRoute();
+}
+
+function registerSW() {
+  if (!("serviceWorker" in navigator)) return;
+  navigator.serviceWorker.register("./sw.js").catch(() => {});
+}
+
+function escapeHtml(s) {
+  return String(s ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function escapeAttr(s) {
+  return escapeHtml(s).replaceAll("`","&#096;");
+}
+
+async function init() {
+  ui.versionLabel.textContent = VERSION;
+  content = normalizeContent(await loadContent());
+
+  // default category "all"
+  selectedCategory = "all";
+  searchQuery = ui.searchInput.value || "";
+
+  // load protocol (keep if exists)
+  const p = loadProtocol();
+  if (p && p.startedAt) protocol = p;
+
+  // route
+  renderAll();
+  registerSW();
+}
+
+bindEvents();
+setLang(lang);
+init();
