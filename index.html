@@ -3,117 +3,110 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#d9ecff" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="CaravanTechniker" />
-
-  <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="stylesheet" href="./app.css" />
+  <meta name="theme-color" content="#d9e9ff" />
   <title>CaravanTechniker am Main</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="app.css" />
 </head>
 
 <body>
   <header class="topbar">
     <div class="brand">
-      <div class="brandTitle" id="brandTitle">CaravanTechniker am Main</div>
-      <div class="brandSub" id="brandSub">Wohnmobil Diagnose</div>
+      <div id="brandTitle" class="brandTitle">CaravanTechniker am Main</div>
+      <div id="brandSubtitle" class="brandSubtitle">Wohnmobil Diagnose</div>
     </div>
 
     <div class="topActions">
-      <button class="pill" id="langBtn" type="button">DE</button>
-      <button class="pill" id="adminBtn" type="button">ADMIN</button>
-      <button class="pill danger" id="resetBtn" type="button">RESET</button>
+      <button id="langBtn" class="pillBtn" type="button">DE</button>
+      <button id="adminBtn" class="pillBtn" type="button">ADMIN</button>
+      <button id="resetBtn" class="pillBtn danger" type="button">RESET</button>
     </div>
   </header>
 
-  <main class="container">
-    <div class="versionRow">
-      <span class="version" id="versionLabel">v0.4.0</span>
-      <span class="toast" id="toast" aria-live="polite"></span>
+  <main class="wrap">
+    <div class="metaRow">
+      <div id="versionLabel" class="versionLabel">v0.5.0</div>
+      <div id="statusLabel" class="statusLabel"></div>
     </div>
 
     <!-- LIST VIEW -->
-    <section id="listView" class="view">
-      <div class="card hero">
-        <h2 class="h2" id="listTitle">Störungen</h2>
-        <p class="muted" id="listHint">Wähle eine Störung oder suche. Funktioniert auch offline.</p>
+    <section id="listView" class="card">
+      <h1 id="listTitle" class="h1">Störungen</h1>
+      <p id="listHint" class="hint">Wähle eine Störung oder suche. Funktioniert auch offline.</p>
 
-        <input id="searchInput" class="search" type="search" autocomplete="off"
-               placeholder="Suche (Trittstufe, Wasserpumpe, 12V ...)" />
+      <div class="searchRow">
+        <input id="searchInput" class="searchInput" type="search" placeholder="Suche (Trittstufe, Wasserpumpe, 12V ...)" />
+      </div>
 
-        <div id="chips" class="chips"></div>
+      <div id="filterRow" class="filterRow">
+        <button id="filterAll" class="chip active" type="button">Alle</button>
+        <button id="filterElektrik" class="chip" type="button">Elektrik</button>
+        <button id="filterWasser" class="chip" type="button">Wasser</button>
       </div>
 
       <div id="items" class="items"></div>
+
+      <div id="noResults" class="noResults hidden">
+        <div class="h2" id="noResultsTitle">Keine Treffer</div>
+        <div class="hint" id="noResultsHint">Prüfe Filter oder Suche.</div>
+      </div>
     </section>
 
     <!-- TREE VIEW -->
-    <section id="treeView" class="view hidden">
+    <section id="treeView" class="card hidden">
       <div class="treeTop">
-        <button id="backToListBtn" class="pill" type="button">← Zurück</button>
-        <div class="treeTitleWrap">
-          <div id="treeTitle" class="treeTitle">Diagnose</div>
-          <div id="treeSubtitle" class="treeSub muted"></div>
-        </div>
+        <button id="backBtn" class="pillBtn" type="button">← Zurück</button>
+        <div class="treeTitle" id="treeTitle">Diagnose</div>
       </div>
 
-      <div id="questionBox" class="card questionCard"></div>
+      <div id="breadcrumb" class="breadcrumb"></div>
 
-      <div class="ynRow">
-        <button id="yesBtn" class="btn yes" type="button">JA</button>
-        <button id="noBtn" class="btn no" type="button">NEIN</button>
-      </div>
+      <div id="questionBox" class="questionBox"></div>
 
-      <button id="stepBackBtn" class="btn back" type="button">← SCHRITT ZURÜCK</button>
+      <div id="answersBox" class="answersBox"></div>
 
-      <div class="card protocolCard">
-        <h3 class="h3" id="protocolTitle">Protokoll</h3>
-        <pre id="protocolBox" class="protocol"></pre>
-
-        <div class="protoActions">
-          <button id="copyBtn" class="pill" type="button">Kopieren</button>
-          <button id="clearPathBtn" class="pill" type="button">Pfad löschen</button>
-          <button id="pdfBtn" class="pill" type="button">PDF Download</button>
-        </div>
-      </div>
+      <div id="resultBox" class="resultBox hidden"></div>
     </section>
-
-    <!-- ADMIN MODAL -->
-    <dialog id="adminDialog" class="dialog">
-      <form method="dialog" class="dialogInner">
-        <div class="dialogHeader">
-          <div class="dialogTitle" id="adminTitle">Admin</div>
-          <button class="pill" value="cancel" type="submit">X</button>
-        </div>
-
-        <div class="dialogBody">
-          <label class="label" id="adminPwdLabel">Passwort</label>
-          <input id="adminPwd" class="input" type="password" placeholder="••••••" />
-
-          <div class="adminRow">
-            <button id="unlockBtn" class="btn yes" type="button">Unlock</button>
-            <button id="lockBtn" class="btn no" type="button">Lock</button>
-          </div>
-
-          <hr class="sep" />
-
-          <div class="label" id="importLabel">Import JSON (content)</div>
-          <input id="importFile" class="input" type="file" accept=".json,application/json" />
-
-          <div class="adminRow">
-            <button id="useRepoBtn" class="pill" type="button">Použiť repo content</button>
-            <button id="exportBtn" class="pill" type="button">Exportovať aktuálny content</button>
-          </div>
-
-          <p class="muted small" id="adminNote">
-            Import sa uloží lokálne do zariadenia (localStorage). Nezničí repo súbory.
-          </p>
-        </div>
-      </form>
-    </dialog>
-
   </main>
 
-  <script src="./app.js"></script>
+  <!-- ADMIN DIALOG -->
+  <dialog id="adminDialog" class="dlg">
+    <div class="dlgHeader">
+      <div class="dlgTitle">Admin</div>
+      <button id="adminCloseBtn" class="dlgClose" type="button">✕</button>
+    </div>
+
+    <div class="dlgBody">
+      <div class="group">
+        <div class="label">Passwort</div>
+        <input id="adminPwd" class="textInput" type="password" placeholder="(Ignoriert – Admin je vždy odomknutý)" />
+        <div class="btnRow">
+          <button id="unlockBtn" class="pillBtn ok" type="button">Unlock</button>
+          <button id="lockBtn" class="pillBtn danger" type="button">Lock</button>
+        </div>
+      </div>
+
+      <hr class="sep" />
+
+      <div class="group">
+        <div class="label">Import JSON (content)</div>
+        <input id="importFile" class="fileInput" type="file" accept="application/json,.json" />
+
+        <div class="btnRow">
+          <button id="useRepoBtn" class="pillBtn" type="button">Použiť repo content</button>
+          <button id="exportBtn" class="pillBtn" type="button">Exportovať aktuálny content</button>
+        </div>
+
+        <div class="hintSmall">
+          Import sa uloží lokálne do zariadenia (localStorage). Nezničí repo súbory.
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
 </body>
 </html>
