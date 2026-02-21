@@ -1,336 +1,35 @@
 <!doctype html>
-<html lang="de">
+<html lang="sk">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f4f7fb" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
   <title>CaravanTechniker am Main – Wohnmobil Diagnose</title>
-  <meta name="theme-color" content="#bcdcf0" />
+
+  <!-- PWA -->
   <link rel="manifest" href="manifest.webmanifest" />
 
-  <style>
-    :root{
-      --bg:#bcdcf0;
-      --card:#eaf4fb;
-      --text:#0c2233;
-      --muted:#4b677a;
-      --chip:#f3f7fb;
-      --chipBorder:#d6e6f2;
-      --btnYes:#1f8a3b;
-      --btnNo:#b41111;
-      --btn:#ffffff;
-      --shadow:0 8px 30px rgba(0,0,0,.08);
-      --radius:22px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;
-      color:var(--text);
-      background:linear-gradient(180deg,var(--bg),#a9d1ea);
-    }
-    header{
-      padding:18px 16px 6px;
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-    }
-    h1{
-      margin:0;
-      font-size:42px;
-      line-height:1.05;
-      letter-spacing:-0.5px;
-    }
-    .sub{
-      margin-top:6px;
-      font-size:22px;
-      color:var(--muted);
-      font-weight:600;
-    }
-    .topBtns{display:flex; gap:10px; align-items:center;}
-    .pill{
-      border:none;
-      background:rgba(255,255,255,.65);
-      padding:10px 14px;
-      border-radius:999px;
-      font-weight:800;
-      color:#0b2333;
-      box-shadow:var(--shadow);
-      cursor:pointer;
-    }
-    .pill:active{transform:translateY(1px)}
-    main{padding:10px 16px 28px; max-width:920px; margin:0 auto;}
-    .card{
-      background:rgba(255,255,255,.55);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:18px;
-      margin:12px 0;
-      backdrop-filter: blur(6px);
-    }
-    .cardInner{
-      background:rgba(255,255,255,.45);
-      border-radius:18px;
-      padding:14px;
-      border:1px solid rgba(255,255,255,.35);
-    }
-    .title{
-      font-size:44px;
-      margin:0 0 10px;
-      letter-spacing:-0.7px;
-    }
-    .hint{
-      margin:0 0 10px;
-      color:var(--muted);
-      font-weight:700;
-    }
-    .hintBox{
-      background:rgba(186,230,253,.35);
-      border:1px solid rgba(34,211,238,.35);
-      color:#0b2333;
-      padding:10px 12px;
-      border-radius:14px;
-      font-weight:700;
-      margin:10px 0 12px;
-    }
-    .search{
-      width:100%;
-      border:none;
-      outline:none;
-      padding:14px 14px;
-      border-radius:999px;
-      background:rgba(255,255,255,.65);
-      box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);
-      font-size:16px;
-      margin:6px 0 10px;
-    }
-    .chips{display:flex; gap:10px; flex-wrap:wrap; margin:6px 0 12px;}
-    .chip{
-      border:1px solid var(--chipBorder);
-      background:var(--chip);
-      padding:10px 14px;
-      border-radius:999px;
-      font-weight:800;
-      color:#0b2333;
-      cursor:pointer;
-    }
-    .chip.active{
-      outline:3px solid rgba(3,105,161,.20);
-      background:#ffffff;
-    }
+  <!-- Styles -->
+  <link rel="stylesheet" href="app.css" />
 
-    .item{
-      background:rgba(255,255,255,.65);
-      border-radius:18px;
-      padding:14px 14px;
-      border:1px solid rgba(0,0,0,.06);
-      margin:10px 0;
-      cursor:pointer;
-    }
-    .item:active{transform:translateY(1px)}
-    .itemTitle{font-size:22px; font-weight:900; margin:0;}
-    .itemSub{margin:6px 0 0; color:var(--muted); font-weight:700;}
+  <!-- (Voliteľné) ikona pre iOS – nechaj, aj keď zatiaľ nemáš súbor -->
+  <!-- <link rel="apple-touch-icon" href="icons/icon-192.png" /> -->
 
-    .version{color:rgba(12,34,51,.45); font-weight:800; margin-top:8px;}
-    .diagTitle{font-size:54px; margin:0 0 6px; letter-spacing:-1px;}
-    .diagHint{margin:0 0 14px; color:var(--muted); font-weight:800;}
-
-    .qBox{
-      min-height:44px;
-      border-radius:16px;
-      background:rgba(255,255,255,.55);
-      border:1px solid rgba(0,0,0,.06);
-      padding:12px 12px;
-      font-weight:900;
-      font-size:18px;
-    }
-
-    .actions{
-      display:flex;
-      gap:14px;
-      margin-top:14px;
-      align-items:stretch;
-    }
-    .btnBack{
-      min-width:110px;
-      border:none;
-      border-radius:18px;
-      background:rgba(255,255,255,.75);
-      font-weight:900;
-      cursor:pointer;
-      padding:14px 14px;
-      box-shadow:var(--shadow);
-    }
-    .btnYes,.btnNo{
-      flex:1;
-      border:none;
-      border-radius:22px;
-      color:white;
-      font-size:26px;
-      font-weight:1000;
-      cursor:pointer;
-      padding:18px 14px;
-      box-shadow:var(--shadow);
-    }
-    .btnYes{background:var(--btnYes)}
-    .btnNo{background:var(--btnNo)}
-    .btnYes:active,.btnNo:active,.btnBack:active{transform:translateY(1px)}
-
-    /* Admin modal */
-    .modalBackdrop{
-      position:fixed; inset:0;
-      background:rgba(0,0,0,.45);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:14px;
-      z-index:9999;
-    }
-    .modal{
-      width:min(980px, 96vw);
-      max-height:92vh;
-      overflow:auto;
-      background:#0f172a;
-      color:#e5e7eb;
-      border-radius:18px;
-      padding:14px;
-      box-shadow:0 30px 70px rgba(0,0,0,.35);
-      border:1px solid rgba(255,255,255,.12);
-    }
-    .modal h3{margin:6px 0 10px; font-size:18px}
-    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
-    .modal input{
-      background:#111827;
-      border:1px solid rgba(255,255,255,.12);
-      color:#e5e7eb;
-      padding:10px 12px;
-      border-radius:12px;
-      outline:none;
-      width:220px;
-      font-weight:800;
-    }
-    .modal button{
-      border:none;
-      background:#2563eb;
-      color:white;
-      font-weight:900;
-      padding:10px 12px;
-      border-radius:12px;
-      cursor:pointer;
-    }
-    .modal button.gray{background:#334155}
-    .modal button.red{background:#b91c1c}
-    .modal textarea{
-      width:100%;
-      min-height:46vh;
-      background:#0b1220;
-      border:1px solid rgba(255,255,255,.12);
-      color:#e5e7eb;
-      padding:12px;
-      border-radius:12px;
-      outline:none;
-      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
-      font-size:12px;
-      line-height:1.35;
-      white-space:pre;
-    }
-    .log{
-      margin-top:10px;
-      background:#0b1220;
-      border:1px solid rgba(255,255,255,.10);
-      padding:10px;
-      border-radius:12px;
-      font-family:ui-monospace,monospace;
-      font-size:12px;
-      white-space:pre-wrap;
-      color:#a7f3d0;
-    }
-
-    @media (max-width:560px){
-      h1{font-size:34px}
-      .title{font-size:36px}
-      .diagTitle{font-size:44px}
-      .btnYes,.btnNo{font-size:22px}
-    }
-  </style>
+  <!-- App -->
+  <script src="app.js" defer></script>
 </head>
 
 <body>
-  <header>
-    <div>
-      <h1>CaravanTechniker am Main</h1>
-      <div class="sub">Wohnmobil Diagnose</div>
-    </div>
-    <div class="topBtns">
-      <button class="pill" id="langBtn" title="Language">DE ▾</button>
-      <button class="pill" id="adminBtn" title="Admin">ADMIN</button>
-      <button class="pill" id="resetBtn" title="Reset">RESET</button>
-    </div>
-  </header>
+  <!-- Sem bude app.js renderovať UI -->
+  <div id="app"></div>
 
-  <main>
-    <section class="card">
-      <div class="cardInner">
-        <h2 class="title">Störungen</h2>
-        <p class="hint">Wähle oben eine Kategorie. Dann eine Störung auswählen.</p>
-        <div class="hintBox">Wähle oben eine Störung. Dann <b>JA / NEIN</b> klicken.</div>
-
-        <input class="search" id="searchInput" placeholder="Suche (trittstufe, wasserpumpe, 12V...)" />
-
-        <div class="chips" id="chips"></div>
-        <div id="items"></div>
-        <div class="version" id="versionLabel">v0.3.1</div>
-      </div>
-    </section>
-
-    <section class="card">
-      <div class="cardInner">
-        <h2 class="diagTitle">Diagnose</h2>
-        <p class="diagHint">Wähle oben eine Störung. Dann <b>JA / NEIN</b> klicken.</p>
-
-        <div class="qBox" id="questionBox">—</div>
-
-        <div class="actions">
-          <button class="btnBack" id="backBtn">Zurück</button>
-          <button class="btnYes" id="yesBtn">JA</button>
-          <button class="btnNo" id="noBtn">NEIN</button>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Admin Modal -->
-  <div class="modalBackdrop" id="adminModal">
-    <div class="modal">
-      <div class="row" style="justify-content:space-between;">
-        <h3 style="margin:0;">Admin – content.json import/export</h3>
-        <button class="gray" id="adminCloseBtn">Close</button>
-      </div>
-
-      <div class="row" style="margin:10px 0;">
-        <input id="adminPass" type="password" placeholder="Admin password" />
-        <button id="adminUnlockBtn">Unlock</button>
-        <button class="gray" id="adminLoadBtn">Load current</button>
-        <button class="gray" id="adminDownloadBtn">Download JSON</button>
-        <button class="red" id="adminApplyBtn">Apply JSON (overwrite)</button>
-      </div>
-
-      <textarea id="adminTextarea" spellcheck="false" placeholder="Tu bude content.json ..."></textarea>
-      <div class="log" id="adminLog">log: ready</div>
-      <div style="margin-top:10px; color:#94a3b8; font-size:12px;">
-        Poznámka: “Apply JSON” uloží do localStorage (bez Git commit). Na GitHub musíš content.json upraviť a commitnúť.
-      </div>
-    </div>
-  </div>
-
-  <script src="app.js?v=0.3.1"></script>
-  <script>
-    // Service worker register (safe)
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js").catch(()=>{});
-      });
-    }
-  </script>
+  <!-- Fallback, ak by JS zlyhal -->
+  <noscript>
+    Táto aplikácia vyžaduje zapnutý JavaScript.
+  </noscript>
 </body>
 </html>
