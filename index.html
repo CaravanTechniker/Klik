@@ -1,137 +1,48 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f4f7fb">
-  <title>CaravanTechniker am Main – Wohnmobil Diagnose</title>
-
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="app.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CaravanTechniker am Main</title>
+  <link rel="stylesheet" href="app.css" />
 </head>
 
 <body>
 
 <header class="topbar">
   <div>
-    <div class="brandTitle">CaravanTechniker am Main</div>
-    <div class="brandSub">Wohnmobil Diagnose</div>
+    <h1>CaravanTechniker am Main</h1>
+    <div class="subtitle">Wohnmobil Diagnose</div>
   </div>
-
-  <div class="pills">
-    <button id="langBtn" class="pill">DE</button>
-    <button id="adminBtn" class="pill">ADMIN</button>
-    <button id="resetBtn" class="pill">RESET</button>
+  <div class="actions">
+    <button class="pill">DE</button>
+    <button class="pill">ADMIN</button>
+    <button class="pill" onclick="location.reload()">RESET</button>
   </div>
 </header>
 
-<div id="versionLabel" style="padding:6px 14px;font-size:12px;opacity:.6">v0.0.0</div>
+<div class="version" id="versionLabel"></div>
 
-<main id="app" class="container">
-  <input
-    id="searchInput"
-    class="search"
-    type="text"
-    placeholder="Suche (Trittstufe, Wasserpumpe, 12V …)"
-  >
-
-  <div id="chips" class="pills" style="margin-bottom:14px"></div>
-
-  <div id="items"></div>
-</main>
-
-<div id="diagScreen" class="fullscreen">
-  <div class="fsHeader">
-    <button id="diagBackBtn" class="pill">← Zurück</button>
-    <div id="diagTitle" class="fsTitle">Diagnose</div>
-    <div></div>
-  </div>
-
-  <!-- kompatibilita -->
-  <div id="questionBox"></div>
-
-  <div id="diagContent" class="fsContent"></div>
+<div class="searchbox">
+  <input id="searchInput" type="text" placeholder="Suche (Trittstufe, Wasserpumpe, 12V …)" />
 </div>
 
-<section id="protocolSection" class="container" style="display:none">
-  <div class="card">
-    <div class="h1">Protokoll</div>
-    <pre id="protocolOutput"></pre>
+<div id="chips" class="chips"></div>
 
-    <div style="display:flex;gap:10px;margin-top:10px">
-      <button id="copyProtocolBtn" class="pill">Kopieren</button>
-      <button id="clearProtocolBtn" class="pill">Löschen</button>
-      <button id="pdfProtocolBtn" class="pill">PDF</button>
-    </div>
+<div id="items" class="items"></div>
+
+<!-- DIAGNOSE SCREEN -->
+<div id="diagScreen" class="diag-screen" style="display:none;">
+  <div class="diag-header">
+    <button id="diagBackBtn" class="pill">← Zurück</button>
+    <h2 id="diagTitle">Diagnose</h2>
   </div>
-</section>
 
-<!-- SHIM: doplní chýbajúce elementy (aby app.js nepadal) -->
-<script>
-(function () {
-  const orig = document.getElementById.bind(document);
+  <div id="questionBox" class="question"></div>
 
-  function tagFor(id) {
-    const s = String(id || "");
-    if (/Input$/i.test(s) || /search/i.test(s)) return "input";
-    if (/Btn$/i.test(s) || /Button$/i.test(s)) return "button";
-    if (/Label$/i.test(s)) return "div";
-    if (/Output$/i.test(s) || /Log$/i.test(s)) return "pre";
-    return "div";
-  }
+  <div id="diagContent" class="diag-content"></div>
+</div>
 
-  document.getElementById = function (id) {
-    let el = orig(id);
-    if (el) return el;
-
-    el = document.createElement(tagFor(id));
-    el.id = id;
-    if (el.tagName === "INPUT") el.type = "text";
-    el.style.display = "none";
-    document.body.appendChild(el);
-    return el;
-  };
-})();
-</script>
-
-<!-- app -->
 <script src="app.js"></script>
-
-<!-- PATCH: klik na kartu -> otvor fullscreen Diagnózu -->
-<script>
-(function () {
-  const diag = document.getElementById("diagScreen");
-  const diagContent = document.getElementById("diagContent");
-  const backBtn = document.getElementById("diagBackBtn");
-
-  if (!diag || !diagContent || !backBtn) return;
-
-  function openDiag() {
-    diag.style.display = "block";
-    document.body.style.overflow = "hidden";
-  }
-
-  function closeDiag() {
-    diag.style.display = "none";
-    document.body.style.overflow = "";
-  }
-
-  backBtn.addEventListener("click", closeDiag);
-
-  document.addEventListener("click", (e) => {
-    const card = e.target.closest("#items > *");
-    if (!card) return;
-
-    openDiag();
-
-    // fallback text, ak app.js nič nerenderuje do diagContent
-    if (diagContent.textContent.trim().length === 0) {
-      const txt = (card.innerText || "").trim();
-      if (txt) diagContent.textContent = txt;
-    }
-  });
-})();
-</script>
-
 </body>
 </html>
