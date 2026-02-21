@@ -14,32 +14,44 @@
     <h1>CaravanTechniker am Main</h1>
     <div class="subtitle">Wohnmobil Diagnose</div>
   </div>
+
   <div class="actions">
-    <button class="pill">DE</button>
-    <button class="pill">ADMIN</button>
-    <button class="pill" onclick="location.reload()">RESET</button>
+    <!-- POVINNÉ ID PRE app.js -->
+    <button id="langBtn" class="pill">DE</button>
+    <button id="adminBtn" class="pill">ADMIN</button>
+    <button id="resetBtn" class="pill">RESET</button>
   </div>
 </header>
 
 <div class="version" id="versionLabel"></div>
 
 <div class="searchbox">
-  <input id="searchInput" type="text" placeholder="Suche (Trittstufe, Wasserpumpe, 12V …)" />
+  <!-- POVINNÉ ID -->
+  <input
+    id="searchInput"
+    type="text"
+    placeholder="Suche (Trittstufe, Wasserpumpe, 12V …)"
+  />
 </div>
 
+<!-- POVINNÉ ID -->
 <div id="chips" class="chips"></div>
 
+<!-- POVINNÉ ID -->
 <div id="items" class="items"></div>
 
 <!-- DIAGNOSE SCREEN -->
 <div id="diagScreen" class="diag-screen" style="display:none;">
   <div class="diag-header">
+    <!-- POVINNÉ ID -->
     <button id="diagBackBtn" class="pill">← Zurück</button>
-    <h2 id="diagTitle">Diagnose</h2>
+    <h2>Diagnose</h2>
   </div>
 
+  <!-- POVINNÉ ID -->
   <div id="questionBox" class="question"></div>
 
+  <!-- POVINNÉ ID -->
   <div id="diagContent" class="diag-content"></div>
 </div>
 
