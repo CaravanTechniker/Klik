@@ -1,0 +1,40 @@
+{
+  "version": "content v1",
+  "categories": [
+    {
+      "name": { "de": "Heizung", "sk": "Kúrenie" },
+      "trees": [
+        {
+          "id": "truma_gas",
+          "title": { "de": "Truma Gasheizung", "sk": "Truma Gasheizung" },
+          "desc": { "de": "Demo", "sk": "Demo" }
+        },
+        {
+          "id": "truma_diesel",
+          "title": { "de": "Truma Dieselheizung", "sk": "Truma Dieselheizung" },
+          "desc": { "de": "Demo", "sk": "Demo" }
+        }
+      ]
+    },
+    {
+      "name": { "de": "Elektrik", "sk": "Elektrika" },
+      "trees": [
+        {
+          "id": "elektrik_12v",
+          "title": { "de": "12V Elektrik", "sk": "12V Elektrika" },
+          "desc": { "de": "Demo", "sk": "Demo" }
+        }
+      ]
+    },
+    {
+      "name": { "de": "Wasser", "sk": "Voda" },
+      "trees": [
+        {
+          "id": "wasser_undicht",
+          "title": { "de": "Wasser / Undichtigkeit", "sk": "Wasser / Undichtigkeit" },
+          "desc": { "de": "Demo", "sk": "Demo" }
+        }
+      ]
+    }
+  ]
+}
