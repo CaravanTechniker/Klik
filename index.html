@@ -1,60 +1,91 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CaravanTechniker am Main</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#e9f0ff" />
+  <title>CaravanTechniker am Main – Wohnmobil Diagnose</title>
+
+  <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="app.css" />
 </head>
 
 <body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand__title">CaravanTechniker am Main</div>
+      <div class="brand__subtitle">Wohnmobil Diagnose</div>
+    </div>
 
-<header class="topbar">
-  <div>
-    <h1>CaravanTechniker am Main</h1>
-    <div class="subtitle">Wohnmobil Diagnose</div>
-  </div>
+    <div class="topbar__actions">
+      <button id="langBtn" class="pill" type="button" aria-label="Language">
+        DE
+      </button>
+      <button id="adminBtn" class="pill" type="button">ADMIN</button>
+      <button id="resetBtn" class="pill pill--danger" type="button">RESET</button>
+    </div>
+  </header>
 
-  <div class="actions">
-    <!-- POVINNÉ ID PRE app.js -->
-    <button id="langBtn" class="pill">DE</button>
-    <button id="adminBtn" class="pill">ADMIN</button>
-    <button id="resetBtn" class="pill">RESET</button>
-  </div>
-</header>
+  <main class="wrap">
+    <div class="meta">
+      <span id="versionLabel" class="version">v0.0.0</span>
+    </div>
 
-<div class="version" id="versionLabel"></div>
+    <!-- LIST VIEW -->
+    <section id="listView" class="card">
+      <div class="card__title" id="listTitle">Störungen</div>
+      <div class="card__subtitle" id="listSubtitle">Wähle eine Störung oder suche. Funktioniert auch offline.</div>
 
-<div class="searchbox">
-  <!-- POVINNÉ ID -->
-  <input
-    id="searchInput"
-    type="text"
-    placeholder="Suche (Trittstufe, Wasserpumpe, 12V …)"
-  />
-</div>
+      <div class="searchRow">
+        <input id="searchInput" class="search" type="search" placeholder="Suche (Trittstufe, Wasserpumpe, 12V ...)" />
+      </div>
 
-<!-- POVINNÉ ID -->
-<div id="chips" class="chips"></div>
+      <div id="chips" class="chips" aria-label="Categories"></div>
 
-<!-- POVINNÉ ID -->
-<div id="items" class="items"></div>
+      <div id="items" class="items" aria-label="Items"></div>
+    </section>
 
-<!-- DIAGNOSE SCREEN -->
-<div id="diagScreen" class="diag-screen" style="display:none;">
-  <div class="diag-header">
-    <!-- POVINNÉ ID -->
-    <button id="diagBackBtn" class="pill">← Zurück</button>
-    <h2>Diagnose</h2>
-  </div>
+    <!-- DIAGNOSE VIEW -->
+    <section id="diagView" class="card hidden">
+      <div class="diagHead">
+        <button id="backToListBtn" class="pill" type="button">← Zurück</button>
+        <div class="diagHead__title" id="diagTitle">Diagnose</div>
+      </div>
 
-  <!-- POVINNÉ ID -->
-  <div id="questionBox" class="question"></div>
+      <div id="selectedItemLabel" class="selectedLabel"></div>
 
-  <!-- POVINNÉ ID -->
-  <div id="diagContent" class="diag-content"></div>
-</div>
+      <div id="questionBox" class="questionBox"></div>
 
-<script src="app.js"></script>
+      <div class="btnRow">
+        <button id="yesBtn" class="btn btn--yes" type="button">JA</button>
+        <button id="noBtn" class="btn btn--no" type="button">NEIN</button>
+      </div>
+
+      <button id="stepBackBtn" class="btn btn--back" type="button">← SCHRITT ZURÜCK</button>
+
+      <div class="proto">
+        <div class="proto__title" id="protoTitle">Protokoll</div>
+        <pre id="protocol" class="proto__box"></pre>
+        <div class="proto__actions">
+          <button id="copyBtn" class="pill" type="button">Kopieren</button>
+          <button id="clearPathBtn" class="pill" type="button">Pfad löschen</button>
+          <button id="pdfBtn" class="pill" type="button">PDF Download</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN (placeholder) -->
+    <section id="adminView" class="card hidden">
+      <div class="diagHead">
+        <button id="adminBackBtn" class="pill" type="button">← Zurück</button>
+        <div class="diagHead__title">Admin</div>
+      </div>
+      <div class="card__subtitle">
+        Admin bude doplnený neskôr (import/export, upload content.json, atď.). Teraz je cieľ stabilný základ.
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
 </body>
 </html>
