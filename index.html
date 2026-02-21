@@ -2,71 +2,75 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#e9f0ff" />
-  <title>CaravanTechniker am Main – Wohnmobil Diagnose</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#d9ecff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="CaravanTechniker" />
 
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="app.css" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="stylesheet" href="./app.css" />
+  <title>CaravanTechniker am Main</title>
 </head>
 
 <body>
   <header class="topbar">
     <div class="brand">
-      <div class="brand__title">CaravanTechniker am Main</div>
-      <div class="brand__subtitle">Wohnmobil Diagnose</div>
+      <div class="brandTitle" id="brandTitle">CaravanTechniker am Main</div>
+      <div class="brandSub" id="brandSub">Wohnmobil Diagnose</div>
     </div>
 
-    <div class="topbar__actions">
-      <button id="langBtn" class="pill" type="button" aria-label="Language">
-        DE
-      </button>
-      <button id="adminBtn" class="pill" type="button">ADMIN</button>
-      <button id="resetBtn" class="pill pill--danger" type="button">RESET</button>
+    <div class="topActions">
+      <button class="pill" id="langBtn" type="button">DE</button>
+      <button class="pill" id="adminBtn" type="button">ADMIN</button>
+      <button class="pill danger" id="resetBtn" type="button">RESET</button>
     </div>
   </header>
 
-  <main class="wrap">
-    <div class="meta">
-      <span id="versionLabel" class="version">v0.0.0</span>
+  <main class="container">
+    <div class="versionRow">
+      <span class="version" id="versionLabel">v0.4.0</span>
+      <span class="toast" id="toast" aria-live="polite"></span>
     </div>
 
     <!-- LIST VIEW -->
-    <section id="listView" class="card">
-      <div class="card__title" id="listTitle">Störungen</div>
-      <div class="card__subtitle" id="listSubtitle">Wähle eine Störung oder suche. Funktioniert auch offline.</div>
+    <section id="listView" class="view">
+      <div class="card hero">
+        <h2 class="h2" id="listTitle">Störungen</h2>
+        <p class="muted" id="listHint">Wähle eine Störung oder suche. Funktioniert auch offline.</p>
 
-      <div class="searchRow">
-        <input id="searchInput" class="search" type="search" placeholder="Suche (Trittstufe, Wasserpumpe, 12V ...)" />
+        <input id="searchInput" class="search" type="search" autocomplete="off"
+               placeholder="Suche (Trittstufe, Wasserpumpe, 12V ...)" />
+
+        <div id="chips" class="chips"></div>
       </div>
 
-      <div id="chips" class="chips" aria-label="Categories"></div>
-
-      <div id="items" class="items" aria-label="Items"></div>
+      <div id="items" class="items"></div>
     </section>
 
-    <!-- DIAGNOSE VIEW -->
-    <section id="diagView" class="card hidden">
-      <div class="diagHead">
+    <!-- TREE VIEW -->
+    <section id="treeView" class="view hidden">
+      <div class="treeTop">
         <button id="backToListBtn" class="pill" type="button">← Zurück</button>
-        <div class="diagHead__title" id="diagTitle">Diagnose</div>
+        <div class="treeTitleWrap">
+          <div id="treeTitle" class="treeTitle">Diagnose</div>
+          <div id="treeSubtitle" class="treeSub muted"></div>
+        </div>
       </div>
 
-      <div id="selectedItemLabel" class="selectedLabel"></div>
+      <div id="questionBox" class="card questionCard"></div>
 
-      <div id="questionBox" class="questionBox"></div>
-
-      <div class="btnRow">
-        <button id="yesBtn" class="btn btn--yes" type="button">JA</button>
-        <button id="noBtn" class="btn btn--no" type="button">NEIN</button>
+      <div class="ynRow">
+        <button id="yesBtn" class="btn yes" type="button">JA</button>
+        <button id="noBtn" class="btn no" type="button">NEIN</button>
       </div>
 
-      <button id="stepBackBtn" class="btn btn--back" type="button">← SCHRITT ZURÜCK</button>
+      <button id="stepBackBtn" class="btn back" type="button">← SCHRITT ZURÜCK</button>
 
-      <div class="proto">
-        <div class="proto__title" id="protoTitle">Protokoll</div>
-        <pre id="protocol" class="proto__box"></pre>
-        <div class="proto__actions">
+      <div class="card protocolCard">
+        <h3 class="h3" id="protocolTitle">Protokoll</h3>
+        <pre id="protocolBox" class="protocol"></pre>
+
+        <div class="protoActions">
           <button id="copyBtn" class="pill" type="button">Kopieren</button>
           <button id="clearPathBtn" class="pill" type="button">Pfad löschen</button>
           <button id="pdfBtn" class="pill" type="button">PDF Download</button>
@@ -74,18 +78,42 @@
       </div>
     </section>
 
-    <!-- ADMIN (placeholder) -->
-    <section id="adminView" class="card hidden">
-      <div class="diagHead">
-        <button id="adminBackBtn" class="pill" type="button">← Zurück</button>
-        <div class="diagHead__title">Admin</div>
-      </div>
-      <div class="card__subtitle">
-        Admin bude doplnený neskôr (import/export, upload content.json, atď.). Teraz je cieľ stabilný základ.
-      </div>
-    </section>
+    <!-- ADMIN MODAL -->
+    <dialog id="adminDialog" class="dialog">
+      <form method="dialog" class="dialogInner">
+        <div class="dialogHeader">
+          <div class="dialogTitle" id="adminTitle">Admin</div>
+          <button class="pill" value="cancel" type="submit">X</button>
+        </div>
+
+        <div class="dialogBody">
+          <label class="label" id="adminPwdLabel">Passwort</label>
+          <input id="adminPwd" class="input" type="password" placeholder="••••••" />
+
+          <div class="adminRow">
+            <button id="unlockBtn" class="btn yes" type="button">Unlock</button>
+            <button id="lockBtn" class="btn no" type="button">Lock</button>
+          </div>
+
+          <hr class="sep" />
+
+          <div class="label" id="importLabel">Import JSON (content)</div>
+          <input id="importFile" class="input" type="file" accept=".json,application/json" />
+
+          <div class="adminRow">
+            <button id="useRepoBtn" class="pill" type="button">Použiť repo content</button>
+            <button id="exportBtn" class="pill" type="button">Exportovať aktuálny content</button>
+          </div>
+
+          <p class="muted small" id="adminNote">
+            Import sa uloží lokálne do zariadenia (localStorage). Nezničí repo súbory.
+          </p>
+        </div>
+      </form>
+    </dialog>
+
   </main>
 
-  <script src="app.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
