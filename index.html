@@ -1,16 +1,317 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="sk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eaf4ff">
   <title>Klik</title>
+
+  <style>
+    :root{
+      --bg:#eaf4ff;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#dbe7ff;
+      --btn:#2563eb;
+      --btnText:#ffffff;
+      --btn2:#10b981;
+      --btn2Text:#06281c;
+      --danger:#ef4444;
+      --dangerText:#fff;
+      --shadow: 0 10px 30px rgba(15,23,42,.08);
+      --radius: 16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:var(--text);
+      background: linear-gradient(180deg, var(--bg), #ffffff 55%);
+    }
+    header{
+      position: sticky;
+      top:0;
+      z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(234,244,255,.8);
+      border-bottom: 1px solid var(--line);
+    }
+    .bar{
+      max-width: 1100px;
+      margin:0 auto;
+      padding: 12px 14px;
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-width: 170px;
+    }
+    .logo{
+      width:34px;height:34px;border-radius:12px;
+      background: radial-gradient(circle at 30% 30%, #60a5fa, #2563eb);
+      box-shadow: var(--shadow);
+    }
+    .brand h1{
+      margin:0;
+      font-size: 18px;
+      letter-spacing:.2px;
+    }
+    .pill{
+      margin-left:8px;
+      font-size:12px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#dbeafe;
+      color:#1e40af;
+      border:1px solid #bfdbfe;
+      white-space:nowrap;
+    }
+    .search{
+      flex:1;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 14px;
+      box-shadow: 0 6px 18px rgba(15,23,42,.06);
+      min-width: 0;
+    }
+    .search input{
+      border:0;
+      outline:0;
+      width:100%;
+      font-size:14px;
+      background:transparent;
+      color:var(--text);
+    }
+    .topActions{
+      display:flex; gap:8px;
+    }
+    .btn{
+      border:1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor:pointer;
+    }
+    .btn.primary{
+      background: var(--btn);
+      color: var(--btnText);
+      border-color: transparent;
+    }
+    .btn.success{
+      background: var(--btn2);
+      color: var(--btn2Text);
+      border-color: transparent;
+    }
+    .btn.danger{
+      background: var(--danger);
+      color: var(--dangerText);
+      border-color: transparent;
+    }
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 16px 14px 40px;
+      display:grid;
+      grid-template-columns: 340px 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 900px){
+      .wrap{grid-template-columns: 1fr}
+      .brand{min-width:auto}
+    }
+    .card{
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .cardHeader{
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .cardHeader h2{
+      margin:0;
+      font-size: 14px;
+      letter-spacing:.2px;
+    }
+    .cardHeader .meta{
+      font-size:12px;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+    .list{
+      padding: 10px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      max-height: 70vh;
+      overflow:auto;
+    }
+    .treeItem{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #f8fbff;
+      cursor:pointer;
+    }
+    .treeItem.active{
+      background:#e0f2fe;
+      border-color:#93c5fd;
+      box-shadow: 0 6px 18px rgba(37,99,235,.12);
+    }
+    .treeItem .name{
+      font-weight:700;
+      font-size: 14px;
+    }
+    .treeItem .tag{
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .main{
+      padding: 14px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      min-height: 360px;
+    }
+    .question{
+      font-size: 18px;
+      font-weight: 800;
+      line-height:1.25;
+      margin:0;
+    }
+    .sub{
+      margin:0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .answers{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top: 6px;
+    }
+    @media (max-width: 560px){
+      .answers{grid-template-columns: 1fr}
+    }
+    .answerBtn{
+      padding: 14px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      cursor:pointer;
+      font-weight:800;
+      font-size: 14px;
+      text-align:left;
+      box-shadow: 0 6px 16px rgba(15,23,42,.06);
+    }
+    .answerBtn.yes{ border-color:#86efac; background:#ecfdf5; }
+    .answerBtn.no{ border-color:#fecaca; background:#fff1f2; }
+    .footerActions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+    .note{
+      padding: 10px 12px;
+      border-radius: 14px;
+      border:1px dashed #c7d2fe;
+      background:#eef2ff;
+      color:#312e81;
+      font-size: 13px;
+    }
+    .kbd{
+      font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      font-size: 12px;
+      background: #0f172a;
+      color:#fff;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+  </style>
 </head>
+
 <body>
+<header>
+  <div class="bar">
+    <div class="brand" aria-label="Klik">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>Klik <span class="pill">UI v0.4</span></h1>
+      </div>
+    </div>
 
-<h1>Klik</h1>
-<p>Backup – stable version 0.3.0</p>
+    <div class="search">
+      <span class="kbd">⌕</span>
+      <input id="searchInput" type="text" placeholder="Hľadať strom (napr. Truma, voda, 12V)…">
+    </div>
 
-<p>Netlify test OK.</p>
+    <div class="topActions">
+      <button class="btn" id="adminBtn">Admin</button>
+      <button class="btn primary" id="exportBtn">Export</button>
+    </div>
+  </div>
+</header>
 
+<main class="wrap">
+  <!-- LEFT: Trees -->
+  <section class="card" aria-label="Stromy">
+    <div class="cardHeader">
+      <h2>Stromy</h2>
+      <div class="meta"><span id="treeCount">0</span> ks</div>
+    </div>
+    <div class="list" id="treeList">
+      <!-- filled by app.js -->
+    </div>
+  </section>
+
+  <!-- RIGHT: Main -->
+  <section class="card" aria-label="Diagnostika">
+    <div class="main">
+      <p class="sub">Vybraný strom: <b id="activeTreeName">–</b></p>
+      <h2 class="question" id="questionText">Vyber strom vľavo.</h2>
+      <p class="sub" id="hintText">Potom sa tu zobrazí prvá otázka a tlačidlá Áno / Nie.</p>
+
+      <div class="answers">
+        <button class="answerBtn yes" id="yesBtn">Áno</button>
+        <button class="answerBtn no" id="noBtn">Nie</button>
+      </div>
+
+      <div class="footerActions">
+        <button class="btn" id="backBtn">Krok späť</button>
+        <button class="btn danger" id="resetBtn">Reset</button>
+        <button class="btn success" id="shareBtn">Zdieľať link</button>
+      </div>
+
+      <div class="note" id="noteBox">
+        Toto je zatiaľ UI kostra. V ďalšom kroku sem napojíme tvoje hotové stromy (JSON) a logiku otázok.
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="./app.js"></script>
 </body>
 </html>
