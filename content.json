@@ -1,40 +1,33 @@
 {
-  "version": "content v1",
   "categories": [
+    { "id": "heating", "name": { "de": "Heizung", "sk": "Kúrenie" } },
+    { "id": "electric", "name": { "de": "Elektrik", "sk": "Elektrika" } },
+    { "id": "water", "name": { "de": "Wasser", "sk": "Voda" } }
+  ],
+  "trees": [
     {
-      "name": { "de": "Heizung", "sk": "Kúrenie" },
-      "trees": [
-        {
-          "id": "truma_gas",
-          "title": { "de": "Truma Gasheizung", "sk": "Truma Gasheizung" },
-          "desc": { "de": "Demo", "sk": "Demo" }
-        },
-        {
-          "id": "truma_diesel",
-          "title": { "de": "Truma Dieselheizung", "sk": "Truma Dieselheizung" },
-          "desc": { "de": "Demo", "sk": "Demo" }
-        }
-      ]
+      "id": "truma-gas",
+      "categoryId": "heating",
+      "title": { "de": "Truma Gasheizung", "sk": "Truma Gasheizung" },
+      "subtitle": { "de": "Demo", "sk": "Demo" }
     },
     {
-      "name": { "de": "Elektrik", "sk": "Elektrika" },
-      "trees": [
-        {
-          "id": "elektrik_12v",
-          "title": { "de": "12V Elektrik", "sk": "12V Elektrika" },
-          "desc": { "de": "Demo", "sk": "Demo" }
-        }
-      ]
+      "id": "truma-diesel",
+      "categoryId": "heating",
+      "title": { "de": "Truma Dieselheizung", "sk": "Truma Dieselheizung" },
+      "subtitle": { "de": "Demo", "sk": "Demo" }
     },
     {
-      "name": { "de": "Wasser", "sk": "Voda" },
-      "trees": [
-        {
-          "id": "wasser_undicht",
-          "title": { "de": "Wasser / Undichtigkeit", "sk": "Wasser / Undichtigkeit" },
-          "desc": { "de": "Demo", "sk": "Demo" }
-        }
-      ]
+      "id": "12v",
+      "categoryId": "electric",
+      "title": { "de": "12V Elektrik", "sk": "12V Elektrika" },
+      "subtitle": { "de": "Demo", "sk": "Demo" }
+    },
+    {
+      "id": "water-leak",
+      "categoryId": "water",
+      "title": { "de": "Wasser / Undichtigkeit", "sk": "Wasser / Undichtigkeit" },
+      "subtitle": { "de": "Demo", "sk": "Demo" }
     }
   ]
 }
