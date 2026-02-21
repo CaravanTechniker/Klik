@@ -1,296 +1,573 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#b7cffc">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Wohnmobil Diagnose</title>
+
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <meta name="theme-color" content="#cfe2ff" />
 
   <style>
     :root{
-      --bg:#9fbff7;
-      --bg2:#b7cffc;
-      --bg3:#d3e4ff;
+      --bg1:#d7e8ff;
+      --bg2:#c7dcff;
+      --bg3:#b6d0ff;
 
-      --card:#cfe1ff;
-      --card2:#dcedff;
-      --card3:#eaf3ff;
+      --card:#eaf3ff;
+      --card2:#dfeeff;
 
-      --text:#0b1220;
-      --muted:#2f3e5d;
-      --line:rgba(15,23,42,.12);
+      --text:#0b1b33;
+      --muted:#3b4b67;
 
-      --primary:#2563eb;
-      --yes:#10b981;
-      --no:#ef4444;
-      --warn:#f59e0b;
+      --accent:#2f6feb;
+      --accent2:#1f55c9;
 
-      --shadow: 0 12px 26px rgba(2,6,23,.12);
-      --radius: 18px;
-      --radius2: 14px;
+      --ok:#1c7c54;
+      --warn:#c48a00;
+
+      --border:rgba(20,40,80,.18);
+      --shadow:0 10px 30px rgba(10,30,70,.18);
+      --radius:18px;
     }
 
     *{box-sizing:border-box}
-    html,body{height:100%}
     body{
       margin:0;
-      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       color:var(--text);
-      background:
-        radial-gradient(1100px 520px at 20% -10%, rgba(37,99,235,.22), transparent 60%),
-        radial-gradient(900px 520px at 90% 0%, rgba(16,185,129,.12), transparent 55%),
-        linear-gradient(180deg, var(--bg), var(--bg2) 55%, var(--bg3));
+      background: linear-gradient(180deg, var(--bg1), var(--bg2), var(--bg3));
+      min-height:100vh;
     }
 
-    /* vypne "modré označovanie" textu pri tapnutí */
-    body, .btn, .treeItem, .catHead, .logoBox, .subBtn, .seg button{
+    /* zabráni dlhému stisku “kopírovať” */
+    .noSelect{
       -webkit-user-select:none;
       user-select:none;
-      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout:none;
+      touch-action: manipulation;
+    }
+
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 14px 14px 40px;
     }
 
     header{
-      position: sticky;
-      top:0;
-      z-index:10;
-      backdrop-filter: blur(10px);
-      background: rgba(233, 244, 255, .75);
-      border-bottom:1px solid var(--line);
-    }
-
-    .bar{
-      max-width: 1120px;
-      margin:0 auto;
-      padding: 10px 12px;
+      background: rgba(255,255,255,.55);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px;
       display:flex;
-      gap:10px;
-      flex-wrap:wrap;
+      gap: 12px;
       align-items:center;
+      justify-content:space-between;
+      backdrop-filter: blur(10px);
     }
 
     .brand{
       display:flex;
-      gap:10px;
+      gap: 10px;
       align-items:center;
-      flex:1 1 240px;
-      min-width:220px;
+      min-width: 0;
     }
 
-    .logoBox{
-      width:40px;height:40px;border-radius:14px;
-      background: radial-gradient(circle at 30% 30%, #93c5fd, #2563eb);
-      box-shadow: var(--shadow);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:900;
-      color:#fff;
-      cursor:pointer;
-    }
-
-    .titles{display:flex;flex-direction:column;gap:2px}
-    .appTitle{margin:0;font-size:16px;font-weight:950}
-
-    .subBtn{
-      border:none;
-      background:none;
+    /* LOGO = skrytý admin vstup (5 tapov) */
+    #logoAdminBtn{
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, #e9f2ff, #d8e9ff);
+      display:grid;
+      place-items:center;
+      overflow:hidden;
       padding:0;
-      font-size:12px;
-      font-weight:900;
       cursor:pointer;
-      color:var(--muted);
+    }
+    #logoAdminBtn img{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display:block;
+    }
+
+    .brandText{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      gap: 2px;
+    }
+    .title{
+      font-weight: 800;
+      font-size: 16px;
+      line-height: 1.1;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .subtitleBtn{
       text-align:left;
+      padding:0;
+      border:0;
+      background:transparent;
+      color: var(--accent2);
+      font-weight: 700;
+      font-size: 13px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      cursor:pointer;
     }
 
     .actions{
       display:flex;
-      gap:8px;
-      margin-left:auto;
-      flex-wrap:wrap;
+      gap: 10px;
       align-items:center;
+      flex-wrap: wrap;
+      justify-content:flex-end;
     }
 
-    .btn{
-      padding:9px 12px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:rgba(234,243,255,.92);
-      font-weight:900;
+    .btn, .select{
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.65);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 700;
+      color: var(--text);
+      box-shadow: 0 8px 18px rgba(10,30,70,.12);
       cursor:pointer;
     }
-    .btn.primary{background:var(--primary);color:#fff}
+    .btn:active{transform: translateY(1px)}
+    .btn.primary{
+      background: linear-gradient(180deg, #3a78ff, #2f6feb);
+      color: white;
+      border-color: rgba(255,255,255,.25);
+    }
 
-    .mobileTabs{
-      max-width:1120px;
-      margin:6px auto;
-      padding:0 12px;
+    .select{
+      padding: 10px 12px;
     }
-    .seg{
+
+    /* Tabs */
+    .tabs{
+      margin-top: 12px;
+      background: rgba(255,255,255,.55);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 8px;
       display:flex;
-      gap:6px;
-      background:rgba(234,243,255,.9);
-      border-radius:999px;
-      padding:6px;
+      gap: 8px;
     }
-    .seg button{
+    .tab{
       flex:1;
-      border:none;
-      background:none;
-      padding:10px;
-      border-radius:999px;
-      font-weight:900;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      padding: 12px 10px;
+      font-weight: 900;
       cursor:pointer;
+      background: rgba(255,255,255,.55);
+      color: var(--muted);
     }
-    .seg button.active{
-      background:rgba(37,99,235,.2);
-    }
-
-    .wrap{
-      max-width:1120px;
-      margin:0 auto;
-      padding:12px 12px 80px;
-      display:grid;
-      grid-template-columns:380px 1fr;
-      gap:12px;
+    .tab.active{
+      background: linear-gradient(180deg, #eaf3ff, #dbeaff);
+      border-color: var(--border);
+      color: var(--text);
     }
 
-    @media(max-width:980px){
-      .wrap{grid-template-columns:1fr}
-      .panelCats,.panelDiag{display:none}
-      .wrap[data-view="cats"] .panelCats{display:block}
-      .wrap[data-view="diag"] .panelDiag{display:block}
-    }
-
-    .card{
-      background:var(--card);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
+    /* Panels */
+    .panel{
+      margin-top: 12px;
+      background: rgba(255,255,255,.55);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px;
       overflow:hidden;
     }
 
-    .cardHeader{
-      padding:14px;
-      border-bottom:1px solid var(--line);
-      font-weight:900;
-    }
-
-    .cats{padding:10px;display:flex;flex-direction:column;gap:10px}
-
-    .cat{
-      background:var(--card3);
-      border-radius:var(--radius2);
-      overflow:hidden;
-    }
-    .catHead{
-      padding:12px;
+    .panelTitleRow{
       display:flex;
-      justify-content:space-between;
-      font-weight:900;
-      cursor:pointer;
-    }
-    .catBody{display:none;padding:0 10px 10px}
-    .cat.open .catBody{display:block}
-
-    .treeItem{
-      margin-top:10px;
-      padding:12px;
-      background:var(--card2);
-      border-radius:12px;
-      font-weight:900;
-      cursor:pointer;
-      display:flex;
-      justify-content:space-between;
       align-items:center;
-    }
-    .treeItem.active{
-      outline:2px solid var(--primary);
-      background:rgba(37,99,235,.15);
-    }
-
-    .panel{padding:14px;background:var(--card3);border-radius:var(--radius)}
-    .questionTitle{font-weight:950;margin:0 0 6px 0}
-    .questionSub{margin:0;color:var(--muted);font-weight:800}
-
-    .answers{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-    @media(max-width:560px){.answers{grid-template-columns:1fr}}
-
-    .statusbar{
-      position:fixed;
-      bottom:0;left:0;right:0;
-      background:rgba(233,244,255,.9);
-      border-top:1px solid var(--line);
-    }
-    .statusbar .inner{
-      max-width:1120px;
-      margin:0 auto;
-      padding:8px 12px;
-      display:flex;
       justify-content:space-between;
-      font-size:12px;
-      font-weight:900;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .panelTitle{
+      font-weight: 900;
+      font-size: 18px;
+    }
+    .count{
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    /* Accordion category cards */
+    .cat{
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      margin-bottom: 10px;
+      overflow:hidden;
+    }
+    .catHeader{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 12px 12px;
+      border:0;
+      background: transparent;
+      cursor:pointer;
+      font-weight: 900;
+      color: var(--text);
+    }
+    .catMeta{
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 12px;
+      margin-top: 2px;
+    }
+    .catHeaderLeft{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      gap: 2px;
+    }
+
+    .catBody{
+      padding: 0 12px 12px;
+      display:none;
+    }
+    .catBody.open{display:block}
+
+    .treeBtn{
+      width:100%;
+      text-align:left;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.65);
+      border-radius: 14px;
+      padding: 12px;
+      margin-top: 8px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+    .treeBtn .name{
+      font-weight: 900;
+    }
+    .treeBtn .desc{
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 12px;
+      margin-top: 2px;
+    }
+    .treeBtn .left{
+      display:flex;
+      flex-direction:column;
+      gap: 2px;
+      min-width:0;
+    }
+    .treeBtn .name, .treeBtn .desc{
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .treeBtn.selected{
+      outline: 3px solid rgba(47,111,235,.55);
+      background: rgba(231,243,255,.95);
+    }
+
+    .diagBox{
+      background: linear-gradient(180deg, #ffffffaa, #ffffff66);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+    }
+    .diagTop{
+      display:flex;
+      flex-direction:column;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    .diagHint{
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .qaButtons{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .qaButtons .btn{
+      flex:1;
+      min-width: 120px;
+    }
+    .btn.yes{
+      border-color: rgba(28,124,84,.35);
+      background: rgba(220,255,240,.7);
+    }
+    .btn.no{
+      border-color: rgba(140,30,30,.25);
+      background: rgba(255,230,230,.65);
+    }
+    .btn.back{
+      border-color: rgba(196,138,0,.4);
+      background: rgba(255,240,205,.75);
+    }
+
+    .footerBar{
+      margin-top: 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 12px;
+      opacity: .9;
+    }
+
+    /* Dropdown */
+    .dropdown{
+      position:relative;
+    }
+    .menu{
+      position:absolute;
+      right:0;
+      top: calc(100% + 8px);
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 6px;
+      min-width: 180px;
+      display:none;
+      z-index: 20;
+    }
+    .menu.open{display:block}
+    .menu button{
+      width:100%;
+      text-align:left;
+      border:0;
+      background:transparent;
+      padding: 10px 10px;
+      border-radius: 10px;
+      font-weight: 800;
+      cursor:pointer;
+    }
+    .menu button:hover{
+      background: rgba(47,111,235,.10);
+    }
+
+    /* Modal */
+    .modalOverlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.35);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      z-index: 50;
+    }
+    .modalOverlay.open{display:flex}
+    .modal{
+      width: min(560px, 100%);
+      background: rgba(255,255,255,.95);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+    .modal h3{
+      margin: 0 0 8px 0;
+      font-size: 18px;
+    }
+    .modal p{
+      margin: 6px 0;
+      color: var(--muted);
+      font-weight: 650;
+      line-height: 1.35;
+    }
+    .modal .row{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .modal input[type="password"], .modal input[type="text"]{
+      width:100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 12px;
+      font-size: 16px;
+      font-weight: 700;
+      background: rgba(255,255,255,.9);
+    }
+    .modal .hr{
+      height: 1px;
+      background: rgba(20,40,80,.15);
+      margin: 12px 0;
+    }
+
+    /* responsive tweaks */
+    @media (max-width: 520px){
+      header{padding: 10px}
+      .btn, .select{padding: 10px 12px}
+      .tabs{padding: 6px}
+      .tab{padding: 11px 10px}
     }
   </style>
 </head>
 
 <body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <button id="logoAdminBtn" class="noSelect" type="button" aria-label="Admin (hidden)">
+          <!-- dočasný obrázok, neskôr sem dáme tvoju fotku -->
+          <img src="./womo.png" alt="WOMO" />
+        </button>
 
-<header>
-  <div class="bar">
-    <div class="brand">
-      <div class="logoBox" id="logoBox">W</div>
-      <div class="titles">
-        <h1 class="appTitle">Wohnmobil Diagnose</h1>
-        <button class="subBtn" id="infoBtn">CaravanTechniker am Main</button>
+        <div class="brandText">
+          <div class="title" id="uiAppName">Wohnmobil Diagnose</div>
+          <button class="subtitleBtn" id="btnContact" type="button">CaravanTechniker am Main</button>
+        </div>
+      </div>
+
+      <div class="actions">
+        <select class="select" id="langSelect" aria-label="Language">
+          <option value="de">DE</option>
+          <option value="sk">SK</option>
+        </select>
+
+        <button class="btn" id="btnCollapseAll" type="button">Zbaliť</button>
+        <button class="btn" id="btnFeedback" type="button">Pripomienky</button>
+
+        <div class="dropdown">
+          <button class="btn primary" id="btnShare" type="button">Zdieľať ▾</button>
+          <div class="menu" id="shareMenu">
+            <button id="shareTxt" type="button">TXT export</button>
+            <button id="sharePdf" type="button">PDF (Print)</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <button class="tab active" id="tabIssues" type="button">Poruchy</button>
+      <button class="tab" id="tabDiag" type="button">Diagnostika</button>
+    </div>
+
+    <!-- PORUCHY -->
+    <section class="panel" id="panelIssues">
+      <div class="panelTitleRow">
+        <div class="panelTitle" id="uiCatsTitle">Kategórie</div>
+        <div class="count" id="uiTreeCount">—</div>
+      </div>
+      <div id="categories"></div>
+    </section>
+
+    <!-- DIAGNOSTIKA -->
+    <section class="panel" id="panelDiag" style="display:none;">
+      <div class="diagBox">
+        <div class="diagTop">
+          <div class="diagHint" id="uiSelectedTree">—</div>
+          <div style="font-weight:900; font-size:18px;" id="uiDiagHeadline">Pripravené.</div>
+          <div class="diagHint" id="uiDiagSub">Vyber strom v Poruchy a potom pokračuj.</div>
+        </div>
+
+        <div class="qaButtons">
+          <button class="btn yes" id="btnYes" type="button">Áno</button>
+          <button class="btn no" id="btnNo" type="button">Nie</button>
+          <button class="btn back" id="btnBack" type="button">Späť</button>
+          <button class="btn" id="btnReset" type="button">Reset</button>
+        </div>
+      </div>
+
+      <div class="footerBar">
+        <div>● Online <span id="uiVersion">UI v1.0</span></div>
+        <div id="uiStatus">Ready</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- CONTACT MODAL -->
+  <div class="modalOverlay" id="modalContact">
+    <div class="modal">
+      <h3 id="contactTitle">Kontakt</h3>
+      <p id="contactLine1"></p>
+      <p id="contactLine2"></p>
+      <div class="row">
+        <a class="btn primary" id="btnMail" href="#" style="text-decoration:none; display:inline-block;">Email</a>
+        <a class="btn" id="btnWhatsApp" href="#" style="text-decoration:none; display:inline-block;">WhatsApp správa</a>
+        <button class="btn" id="closeContact" type="button">Zavrieť</button>
       </div>
     </div>
-
-    <div class="actions">
-      <select id="langSelect" class="btn">
-        <option value="de">DE</option>
-        <option value="sk">SK</option>
-        <option value="en">EN</option>
-        <option value="fr">FR</option>
-        <option value="it">IT</option>
-        <option value="es">ES</option>
-      </select>
-      <button class="btn" id="collapseBtn">Zbaliť</button>
-    </div>
   </div>
 
-  <div class="mobileTabs">
-    <div class="seg">
-      <button id="tabCats" class="active">Poruchy</button>
-      <button id="tabDiag">Diagnostika</button>
-    </div>
-  </div>
-</header>
-
-<main class="wrap" id="wrap" data-view="cats">
-  <section class="card panelCats">
-    <div class="cardHeader">Kategórie</div>
-    <div class="cats" id="cats"></div>
-  </section>
-
-  <section class="card panelDiag">
-    <div class="panel">
-      <p class="questionTitle" id="qTitle">Vyber poruchu</p>
-      <p class="questionSub" id="qSub">Potom sa prepneš na diagnostiku.</p>
-
-      <div class="answers">
-        <button class="btn primary" id="btnYes">Áno</button>
-        <button class="btn" id="btnNo">Nie</button>
+  <!-- FEEDBACK MODAL -->
+  <div class="modalOverlay" id="modalFeedback">
+    <div class="modal">
+      <h3 id="fbTitle">Pripomienky k aplikácii</h3>
+      <p id="fbText"></p>
+      <div class="row">
+        <a class="btn primary" id="fbMail" href="#" style="text-decoration:none; display:inline-block;">Poslať email</a>
+        <a class="btn" id="fbWa" href="#" style="text-decoration:none; display:inline-block;">Poslať WhatsApp</a>
+        <button class="btn" id="closeFeedback" type="button">Zavrieť</button>
       </div>
     </div>
-  </section>
-</main>
-
-<div class="statusbar">
-  <div class="inner">
-    <div id="statusLeft">Ready</div>
-    <div>UI v1.1</div>
   </div>
-</div>
 
-<script src="app.js"></script>
+  <!-- ADMIN MODAL -->
+  <div class="modalOverlay" id="modalAdmin">
+    <div class="modal">
+      <h3 id="adminTitle">Admin</h3>
+
+      <div id="adminLocked">
+        <p id="adminHint">Zadaj heslo.</p>
+        <input id="adminPass" type="password" placeholder="Heslo" />
+        <div class="row">
+          <button class="btn primary" id="adminUnlock" type="button">Odomknúť</button>
+          <button class="btn" id="adminClose1" type="button">Zavrieť</button>
+        </div>
+      </div>
+
+      <div id="adminUnlocked" style="display:none;">
+        <p id="adminHint2">Importuj celé stromy naraz ako jeden JSON súbor.</p>
+        <div class="hr"></div>
+
+        <p style="margin:0; font-weight:900;">Import content.json</p>
+        <input id="adminFile" type="file" accept="application/json" />
+
+        <div class="row">
+          <button class="btn primary" id="adminImport" type="button">Importovať</button>
+          <button class="btn" id="adminExport" type="button">Exportovať JSON</button>
+          <button class="btn" id="adminClose2" type="button">Zavrieť</button>
+        </div>
+
+        <div class="hr"></div>
+        <p style="margin:0; font-weight:900;">Poznámka</p>
+        <p style="margin-top:6px;">Ak importuješ, prepíše to existujúce dáta v tomto zariadení (localStorage).</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+  <script>
+    // PWA SW (voliteľné)
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(()=>{});
+    }
+  </script>
 </body>
 </html>
