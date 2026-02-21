@@ -1,249 +1,385 @@
-/* ==========================================
-   CaravanTechniker – Stable Tree Engine (v0.3.4)
-   FIX: Cards are real <button> (mobile tap works)
-   ========================================== */
+/* CaravanTechniker am Main – stable base
+   - Works with content.json in SIMPLE mode (list only) or FULL mode (with nodes)
+   - No missing element crashes: all required IDs exist in index.html
+*/
 
-const DATA = [
-  {
-    id: "el_12v_tot",
-    category: "Elektrik",
-    title: "12V komplett ausgefallen (Aufbau tot)",
-    intro: "Kein Licht, keine Pumpe, Panel dunkel.",
-    tree: {
-      start: "q1",
-      nodes: {
-        q1: { type: "question", text: "Ist der Hauptschalter für den Aufbau eingeschaltet?", yes: "q2", no: "r1" },
-        q2: { type: "question", text: "Sind Aufbaubatterien angeschlossen und liegt die Spannung über 12,0 V?", yes: "r2", no: "r3" },
-        r1: { type: "result", title: "Aktion: Hauptschalter einschalten", text: "Schalte den Hauptschalter ein. Prüfe danach Licht/Pumpe/Panel erneut." },
-        r2: { type: "result", title: "Batteriespannung OK – Fehler weiter im Aufbau-System", text: "Aktion: EBL prüfen: Batteriespannung am Eingang, Hauptsicherung, Masseverbindung." },
-        r3: { type: "result", title: "Batterie / Anschluss / Spannung zu niedrig", text: "Aktion: Batterie laden, Polklemmen prüfen, Sicherungen prüfen, Spannung unter Last messen." }
-      }
-    }
-  },
-  {
-    id: "el_12v_partial",
-    category: "Elektrik",
-    title: "12V funktioniert teilweise",
-    intro: "Einige Verbraucher gehen, andere nicht.",
-    tree: {
-      start: "q1",
-      nodes: {
-        q1: { type: "question", text: "Fallen die gleichen Verbraucher immer aus?", yes: "q2", no: "r1" },
-        q2: { type: "question", text: "Sind die betroffenen Verbraucher auf dem gleichen Sicherungskreis?", yes: "r2", no: "r3" },
-        r1: { type: "result", title: "Aktion: Wackelkontakt / Masse / Übergangswiderstand", text: "Prüfe Massepunkte, Steckverbindungen, Klemmen, EBL-Ausgänge. Unter Last messen." },
-        r2: { type: "result", title: "Aktion: Sicherungskreis prüfen", text: "Sicherung prüfen/tauschen. Kontaktfedern prüfen. Ausgangsspannung am EBL messen." },
-        r3: { type: "result", title: "Aktion: Verbraucher einzeln prüfen", text: "Prüfe jeden Verbraucher direkt am Anschluss: Spannung, Masse, Stecker, Leitungsweg." }
-      }
-    }
-  },
-  {
-    id: "wa_pumpe_tot",
-    category: "Wasser",
-    title: "Wasserpumpe läuft nicht",
-    intro: "Kein Geräusch, kein Druck.",
-    tree: {
-      start: "q1",
-      nodes: {
-        q1: { type: "question", text: "Hörst du die Pumpe laufen?", yes: "q2", no: "q3" },
-        q2: { type: "question", text: "Kommt Wasser aus irgendeinem Hahn?", yes: "r1", no: "r2" },
-        q3: { type: "question", text: "Ist Wasseranlage am Bedienpanel eingeschaltet (Pumpenschalter)?", yes: "r3", no: "r4" },
-        r1: { type: "result", title: "Teilweise Durchfluss", text: "Aktion: Luft im System, Filter/Sieb, Rückschlagventil, Frostschaden prüfen." },
-        r2: { type: "result", title: "Pumpe läuft aber kein Druck", text: "Aktion: Ansaugseite und Filter prüfen, Schlauchklemmen, Tankentnahme, Leck, Ventile." },
-        r3: { type: "result", title: "Kein Pumpenlauf trotz EIN", text: "Aktion: Sicherung, Relais, Pumpenstecker, Masse, Spannung an Pumpe messen." },
-        r4: { type: "result", title: "Aktion: Pumpenschalter einschalten", text: "Schalte Wasseranlage/Pumpe am Panel ein und teste erneut." }
-      }
-    }
+const APP_VERSION = "0.3.4";
+
+/** ---------- helpers ---------- */
+const $ = (sel) => document.querySelector(sel);
+
+function nowLocal() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()}, ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+function isFullItem(item) {
+  return item && typeof item === "object" && item.nodes && item.start;
+}
+
+function t(itemOrObj, lang, fallback="") {
+  if (itemOrObj == null) return fallback;
+  if (typeof itemOrObj === "string") return itemOrObj;
+  if (typeof itemOrObj === "object") {
+    return itemOrObj[lang] || itemOrObj.de || itemOrObj.sk || fallback;
   }
-];
-
-/* ========= DOM ========= */
-const itemsEl = document.getElementById("items");
-const chipsEl = document.getElementById("chips");
-const searchEl = document.getElementById("searchInput");
-const versionEl = document.getElementById("versionLabel");
-
-const diagScreen = document.getElementById("diagScreen");
-const diagTitle = document.getElementById("diagTitle");
-const questionBox = document.getElementById("questionBox");
-const diagContent = document.getElementById("diagContent");
-const backBtn = document.getElementById("diagBackBtn");
-
-/* optional buttons (exist but may be unused) */
-const langBtn = document.getElementById("langBtn");
-const adminBtn = document.getElementById("adminBtn");
-const resetBtn = document.getElementById("resetBtn");
-
-/* ========= State ========= */
-let activeCategory = "Alle";
-let activeItem = null;
-let activeNodeId = null;
-let historyStack = [];
-
-/* ========= UI helpers ========= */
-function openDiag() {
-  diagScreen.style.display = "block";
-  document.body.style.overflow = "hidden";
-}
-function closeDiag() {
-  diagScreen.style.display = "none";
-  document.body.style.overflow = "";
+  return fallback;
 }
 
-backBtn.addEventListener("click", closeDiag);
-if (resetBtn) resetBtn.addEventListener("click", () => location.reload());
+function safeLower(s){ return (s || "").toString().toLowerCase(); }
 
-/* ========= Chips ========= */
-function renderChips() {
-  chipsEl.innerHTML = "";
-  const categories = ["Alle", ...new Set(DATA.map(d => d.category))];
+/** ---------- state ---------- */
+let LANG = localStorage.getItem("ct_lang") || "de";
+let ALL = [];
+let ACTIVE_CATEGORY = "Alle";
+let QUERY = "";
 
+let currentItem = null;         // selected item
+let currentNodeId = null;       // active node in tree
+let stack = [];                 // history of node ids for step-back
+let path = [];                  // protocol steps {q, a}
+
+/** ---------- elements ---------- */
+const versionLabel = $("#versionLabel");
+const langBtn = $("#langBtn");
+const resetBtn = $("#resetBtn");
+const adminBtn = $("#adminBtn");
+
+const listView = $("#listView");
+const diagView = $("#diagView");
+const adminView = $("#adminView");
+
+const adminBackBtn = $("#adminBackBtn");
+
+const searchInput = $("#searchInput");
+const chips = $("#chips");
+const itemsEl = $("#items");
+
+const backToListBtn = $("#backToListBtn");
+const diagTitle = $("#diagTitle");
+const selectedItemLabel = $("#selectedItemLabel");
+
+const questionBox = $("#questionBox");
+const yesBtn = $("#yesBtn");
+const noBtn = $("#noBtn");
+const stepBackBtn = $("#stepBackBtn");
+
+const protocolEl = $("#protocol");
+const copyBtn = $("#copyBtn");
+const clearPathBtn = $("#clearPathBtn");
+const pdfBtn = $("#pdfBtn");
+
+/** ---------- init ---------- */
+versionLabel.textContent = `v${APP_VERSION}`;
+document.documentElement.lang = LANG;
+langBtn.textContent = LANG.toUpperCase();
+
+async function loadContent() {
+  const res = await fetch("content.json", { cache: "no-store" });
+  if (!res.ok) throw new Error("content.json load failed");
+  const data = await res.json();
+  // data can be array
+  if (!Array.isArray(data)) throw new Error("content.json must be array");
+  return data;
+}
+
+function buildCategories(data) {
+  const set = new Set(["Alle"]);
+  data.forEach(it => set.add(it.category || "Andere"));
+  return Array.from(set);
+}
+
+function renderChips(categories) {
+  chips.innerHTML = "";
   categories.forEach(cat => {
     const b = document.createElement("button");
+    b.className = "pill" + (cat === ACTIVE_CATEGORY ? " pill--active" : "");
     b.type = "button";
-    b.className = "pill";
     b.textContent = cat;
-    if (cat === activeCategory) b.classList.add("active");
-
     b.addEventListener("click", () => {
-      activeCategory = cat;
-      renderChips();
-      renderList();
+      ACTIVE_CATEGORY = cat;
+      renderChips(categories);
+      renderItems();
     });
-
-    chipsEl.appendChild(b);
+    chips.appendChild(b);
   });
 }
 
-/* ========= List ========= */
-function renderList() {
-  itemsEl.innerHTML = "";
-  const q = (searchEl.value || "").toLowerCase().trim();
+function filterItems() {
+  return ALL.filter(it => {
+    const catOk = (ACTIVE_CATEGORY === "Alle") || ((it.category || "Andere") === ACTIVE_CATEGORY);
+    if (!catOk) return false;
 
-  const filtered = DATA.filter(d => {
-    const catOk = (activeCategory === "Alle" || d.category === activeCategory);
-    const searchOk = (!q || d.title.toLowerCase().includes(q) || d.intro.toLowerCase().includes(q));
-    return catOk && searchOk;
+    const title = safeLower(t(it.title, LANG, it.title));
+    const sub = safeLower(t(it.subtitle, LANG, it.subtitle));
+    const tags = Array.isArray(it.tags) ? it.tags.join(" ") : "";
+    const q = safeLower(QUERY);
+    if (!q) return true;
+    return title.includes(q) || sub.includes(q) || safeLower(tags).includes(q);
   });
+}
 
-  filtered.forEach(d => {
-    // IMPORTANT: real button => mobile tap works reliably
-    const card = document.createElement("button");
-    card.type = "button";
-    card.className = "card";
-    card.dataset.id = d.id;
+function renderItems() {
+  const list = filterItems();
+  itemsEl.innerHTML = "";
 
-    card.innerHTML = `
-      <div class="h1">${escapeHtml(d.title)}</div>
-      <div class="muted">${escapeHtml(d.intro)}</div>
-    `;
+  list.forEach(it => {
+    const card = document.createElement("div");
+    card.className = "item";
+    card.tabIndex = 0;
 
-    card.addEventListener("click", () => startDiagnosis(d));
+    const title = document.createElement("div");
+    title.className = "item__title";
+    title.textContent = t(it.title, LANG, it.title || "");
+
+    const sub = document.createElement("div");
+    sub.className = "item__sub";
+    sub.textContent = t(it.subtitle, LANG, it.subtitle || "");
+
+    card.appendChild(title);
+    card.appendChild(sub);
+
+    card.addEventListener("click", () => openItem(it));
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") openItem(it);
+    });
+
     itemsEl.appendChild(card);
   });
 }
 
-/* ========= Tree Engine ========= */
-function startDiagnosis(item) {
-  activeItem = item;
-  historyStack = [];
-  activeNodeId = item.tree.start;
+function show(view) {
+  listView.classList.add("hidden");
+  diagView.classList.add("hidden");
+  adminView.classList.add("hidden");
+  view.classList.remove("hidden");
+  window.scrollTo({ top: 0, behavior: "instant" });
+}
 
-  diagTitle.textContent = item.title;
-  openDiag();
-  renderNode();
+/** ---------- diagnose ---------- */
+function openItem(it) {
+  currentItem = it;
+  stack = [];
+  path = [];
+  protocolEl.textContent = "";
+  selectedItemLabel.textContent = `${t(it.title, LANG, it.title || "")} — ${t(it.subtitle, LANG, it.subtitle || "")}`;
+
+  if (isFullItem(it)) {
+    currentNodeId = it.start;
+    renderNode();
+    show(diagView);
+  } else {
+    // SIMPLE item: show placeholder (still no crash)
+    currentNodeId = null;
+    questionBox.textContent = (LANG === "de")
+      ? "Dieser Eintrag hat noch keinen Diagnose-Baum (nodes/start fehlen in content.json)."
+      : "Tento záznam ešte nemá diagnostický strom (chýba nodes/start v content.json).";
+    yesBtn.disabled = true;
+    noBtn.disabled = true;
+    stepBackBtn.disabled = true;
+    renderProtocol();
+    show(diagView);
+  }
+}
+
+function nodeById(id) {
+  if (!currentItem || !currentItem.nodes) return null;
+  return currentItem.nodes[id] || null;
 }
 
 function renderNode() {
-  if (!activeItem) return;
-
-  const node = activeItem.tree.nodes[activeNodeId];
-  questionBox.textContent = "";
-  diagContent.innerHTML = "";
-
+  const node = nodeById(currentNodeId);
   if (!node) {
-    questionBox.textContent = "Fehler: Node nicht gefunden.";
+    questionBox.textContent = (LANG === "de")
+      ? "Fehler: Node nicht gefunden."
+      : "Chyba: Node sa nenašiel.";
+    yesBtn.disabled = true;
+    noBtn.disabled = true;
+    stepBackBtn.disabled = stack.length === 0;
     return;
   }
 
+  yesBtn.disabled = false;
+  noBtn.disabled = false;
+  stepBackBtn.disabled = stack.length === 0;
+
   if (node.type === "question") {
-    questionBox.textContent = node.text;
-
-    const wrap = document.createElement("div");
-    wrap.className = "yn";
-
-    const yesBtn = document.createElement("button");
-    yesBtn.type = "button";
-    yesBtn.className = "btn btn-yes";
-    yesBtn.textContent = "JA";
-
-    const noBtn = document.createElement("button");
-    noBtn.type = "button";
-    noBtn.className = "btn btn-no";
-    noBtn.textContent = "NEIN";
-
-    yesBtn.addEventListener("click", () => {
-      historyStack.push(activeNodeId);
-      activeNodeId = node.yes;
-      renderNode();
-    });
-
-    noBtn.addEventListener("click", () => {
-      historyStack.push(activeNodeId);
-      activeNodeId = node.no;
-      renderNode();
-    });
-
-    wrap.appendChild(yesBtn);
-    wrap.appendChild(noBtn);
-    diagContent.appendChild(wrap);
-
-    const stepBack = document.createElement("button");
-    stepBack.type = "button";
-    stepBack.className = "btn btn-back";
-    stepBack.textContent = "← SCHRITT ZURÜCK";
-    stepBack.addEventListener("click", () => {
-      if (historyStack.length === 0) return;
-      activeNodeId = historyStack.pop();
-      renderNode();
-    });
-    diagContent.appendChild(stepBack);
-
+    questionBox.textContent = t(node.text, LANG, "");
   } else if (node.type === "result") {
-    const h = document.createElement("div");
-    h.className = "h1";
-    h.textContent = node.title;
-
-    const p = document.createElement("div");
-    p.className = "muted";
-    p.textContent = node.text;
-
-    diagContent.appendChild(h);
-    diagContent.appendChild(p);
-
-    const stepBack = document.createElement("button");
-    stepBack.type = "button";
-    stepBack.className = "btn btn-back";
-    stepBack.textContent = "← SCHRITT ZURÜCK";
-    stepBack.addEventListener("click", () => {
-      if (historyStack.length === 0) return;
-      activeNodeId = historyStack.pop();
-      renderNode();
-    });
-    diagContent.appendChild(stepBack);
+    // result screen – show combined info
+    const cause = t(node.cause, LANG, "");
+    const action = t(node.action, LANG, "");
+    questionBox.textContent = `${(LANG==="de" ? "Ergebnis:" : "Výsledok:")} ${cause}\n\n${(LANG==="de" ? "Aktion:" : "Akcia:")} ${action}`;
+    // on result we can disable yes/no to prevent nonsense clicks
+    yesBtn.disabled = true;
+    noBtn.disabled = true;
+  } else {
+    questionBox.textContent = (LANG === "de")
+      ? "Unbekannter Node-Typ."
+      : "Neznámy typ node.";
+    yesBtn.disabled = true;
+    noBtn.disabled = true;
   }
+
+  renderProtocol();
 }
 
-/* ========= Search ========= */
-searchEl.addEventListener("input", renderList);
+function answer(isYes) {
+  const node = nodeById(currentNodeId);
+  if (!node || node.type !== "question") return;
 
-/* ========= Utils ========= */
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, (c) => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[c]));
+  const qText = t(node.text, LANG, "");
+  const aText = isYes ? (LANG === "de" ? "JA" : "ÁNO") : (LANG === "de" ? "NEIN" : "NIE");
+
+  path.push({ q: qText, a: aText });
+
+  const next = isYes ? node.yes : node.no;
+  if (!next) {
+    renderProtocol();
+    return;
+  }
+
+  stack.push(currentNodeId);
+  currentNodeId = next;
+  renderNode();
 }
 
-/* ========= Init ========= */
-versionEl.textContent = "v0.3.4";
-renderChips();
-renderList();
+function stepBack() {
+  if (stack.length === 0) return;
+  // remove last answer too
+  if (path.length > 0) path.pop();
+  currentNodeId = stack.pop();
+  renderNode();
+}
+
+function renderProtocol() {
+  if (!currentItem) { protocolEl.textContent = ""; return; }
+
+  const title = t(currentItem.title, LANG, currentItem.title || "");
+  const tags = Array.isArray(currentItem.tags) ? currentItem.tags.join(", ") : "";
+  const lines = [];
+
+  lines.push(`Zeit: ${nowLocal()}`);
+  lines.push(`Sprache: ${LANG.toUpperCase()}`);
+  lines.push(`Störung: ${title}`);
+  if (tags) lines.push(`Tags: ${tags}`);
+  lines.push("");
+  lines.push("Schritte:");
+  if (path.length === 0) {
+    lines.push(LANG === "de" ? "- (noch keine Auswahl)" : "- (zatiaľ bez výberu)");
+  } else {
+    path.forEach((s, i) => {
+      lines.push(`${i+1}. ${s.q} [${s.a}]`);
+    });
+  }
+
+  protocolEl.textContent = lines.join("\n");
+}
+
+/** ---------- actions ---------- */
+langBtn.addEventListener("click", () => {
+  LANG = (LANG === "de") ? "sk" : "de";
+  localStorage.setItem("ct_lang", LANG);
+  document.documentElement.lang = LANG;
+  langBtn.textContent = LANG.toUpperCase();
+
+  // rerender list + current screen
+  renderItems();
+  renderChips(buildCategories(ALL));
+  if (!diagView.classList.contains("hidden") && currentItem) {
+    selectedItemLabel.textContent = `${t(currentItem.title, LANG, currentItem.title || "")} — ${t(currentItem.subtitle, LANG, currentItem.subtitle || "")}`;
+    if (isFullItem(currentItem) && currentNodeId) renderNode();
+    else renderProtocol();
+  }
+});
+
+resetBtn.addEventListener("click", () => {
+  // hard reset state, but keep language
+  ACTIVE_CATEGORY = "Alle";
+  QUERY = "";
+  searchInput.value = "";
+  currentItem = null;
+  currentNodeId = null;
+  stack = [];
+  path = [];
+  renderChips(buildCategories(ALL));
+  renderItems();
+  show(listView);
+});
+
+adminBtn.addEventListener("click", () => show(adminView));
+adminBackBtn.addEventListener("click", () => show(listView));
+
+searchInput.addEventListener("input", (e) => {
+  QUERY = e.target.value || "";
+  renderItems();
+});
+
+backToListBtn.addEventListener("click", () => show(listView));
+
+yesBtn.addEventListener("click", () => answer(true));
+noBtn.addEventListener("click", () => answer(false));
+stepBackBtn.addEventListener("click", () => stepBack());
+
+copyBtn.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(protocolEl.textContent || "");
+  } catch (e) {
+    // fallback
+    const ta = document.createElement("textarea");
+    ta.value = protocolEl.textContent || "";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    ta.remove();
+  }
+});
+
+clearPathBtn.addEventListener("click", () => {
+  stack = [];
+  path = [];
+  if (isFullItem(currentItem)) {
+    currentNodeId = currentItem.start;
+    renderNode();
+  } else {
+    renderProtocol();
+  }
+});
+
+pdfBtn.addEventListener("click", () => {
+  // simplest robust "PDF": print dialog -> Save as PDF works on Android/desktop, on iOS uses share/print
+  const w = window.open("", "_blank");
+  const safe = (s) => (s || "").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  w.document.write(`
+    <html><head><meta charset="utf-8"><title>Protokoll</title>
+    <style>
+      body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:24px;}
+      pre{white-space:pre-wrap;border:1px solid #ccc;border-radius:12px;padding:16px;}
+      h1{margin:0 0 12px 0;}
+    </style></head>
+    <body>
+      <h1>CaravanTechniker am Main – Protokoll</h1>
+      <pre>${safe(protocolEl.textContent || "")}</pre>
+      <script>window.onload=()=>window.print();</script>
+    </body></html>
+  `);
+  w.document.close();
+});
+
+/** ---------- service worker ---------- */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  });
+}
+
+/** ---------- boot ---------- */
+(async function boot(){
+  ALL = await loadContent();
+  const categories = buildCategories(ALL);
+  ACTIVE_CATEGORY = "Alle";
+  renderChips(categories);
+  renderItems();
+  show(listView);
+})();
