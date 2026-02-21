@@ -1,8 +1,6 @@
 /* ==========================================
-   CaravanTechniker – Stable Tree Engine (v0.3.3)
-   - Cards list -> fullscreen diagnosis
-   - YES/NO decision tree
-   - Safe base for future JSON + attachments
+   CaravanTechniker – Stable Tree Engine (v0.3.4)
+   FIX: Cards are real <button> (mobile tap works)
    ========================================== */
 
 const DATA = [
@@ -14,37 +12,14 @@ const DATA = [
     tree: {
       start: "q1",
       nodes: {
-        q1: {
-          type: "question",
-          text: "Ist der Hauptschalter für den Aufbau eingeschaltet?",
-          yes: "q2",
-          no: "r1"
-        },
-        q2: {
-          type: "question",
-          text: "Sind Aufbaubatterien angeschlossen und liegt die Spannung über 12,0 V?",
-          yes: "r2",
-          no: "r3"
-        },
-        r1: {
-          type: "result",
-          title: "Aktion: Hauptschalter einschalten",
-          text: "Schalte den Hauptschalter ein. Prüfe danach Licht/Pumpe/Panel erneut."
-        },
-        r2: {
-          type: "result",
-          title: "Batteriespannung OK – Fehler weiter im Aufbau-System",
-          text: "Aktion: EBL prüfen: Batteriespannung am Eingang, Hauptsicherung, Masseverbindung."
-        },
-        r3: {
-          type: "result",
-          title: "Batterie / Anschluss / Spannung zu niedrig",
-          text: "Aktion: Batterie laden, Polklemmen prüfen, Sicherungen prüfen, Spannung unter Last messen."
-        }
+        q1: { type: "question", text: "Ist der Hauptschalter für den Aufbau eingeschaltet?", yes: "q2", no: "r1" },
+        q2: { type: "question", text: "Sind Aufbaubatterien angeschlossen und liegt die Spannung über 12,0 V?", yes: "r2", no: "r3" },
+        r1: { type: "result", title: "Aktion: Hauptschalter einschalten", text: "Schalte den Hauptschalter ein. Prüfe danach Licht/Pumpe/Panel erneut." },
+        r2: { type: "result", title: "Batteriespannung OK – Fehler weiter im Aufbau-System", text: "Aktion: EBL prüfen: Batteriespannung am Eingang, Hauptsicherung, Masseverbindung." },
+        r3: { type: "result", title: "Batterie / Anschluss / Spannung zu niedrig", text: "Aktion: Batterie laden, Polklemmen prüfen, Sicherungen prüfen, Spannung unter Last messen." }
       }
     }
   },
-
   {
     id: "el_12v_partial",
     category: "Elektrik",
@@ -53,37 +28,14 @@ const DATA = [
     tree: {
       start: "q1",
       nodes: {
-        q1: {
-          type: "question",
-          text: "Fallen die gleichen Verbraucher immer aus?",
-          yes: "q2",
-          no: "r1"
-        },
-        q2: {
-          type: "question",
-          text: "Sind die betroffenen Verbraucher auf dem gleichen Sicherungskreis?",
-          yes: "r2",
-          no: "r3"
-        },
-        r1: {
-          type: "result",
-          title: "Aktion: Wackelkontakt / Masse / Übergangswiderstand",
-          text: "Prüfe Massepunkte, Steckverbindungen, Klemmen, EBL-Ausgänge. Unter Last messen."
-        },
-        r2: {
-          type: "result",
-          title: "Aktion: Sicherungskreis prüfen",
-          text: "Sicherung prüfen/tauschen. Kontaktfedern prüfen. Ausgangsspannung am EBL messen."
-        },
-        r3: {
-          type: "result",
-          title: "Aktion: Verbraucher einzeln prüfen",
-          text: "Prüfe jeden Verbraucher direkt am Anschluss: Spannung, Masse, Stecker, Leitungsweg."
-        }
+        q1: { type: "question", text: "Fallen die gleichen Verbraucher immer aus?", yes: "q2", no: "r1" },
+        q2: { type: "question", text: "Sind die betroffenen Verbraucher auf dem gleichen Sicherungskreis?", yes: "r2", no: "r3" },
+        r1: { type: "result", title: "Aktion: Wackelkontakt / Masse / Übergangswiderstand", text: "Prüfe Massepunkte, Steckverbindungen, Klemmen, EBL-Ausgänge. Unter Last messen." },
+        r2: { type: "result", title: "Aktion: Sicherungskreis prüfen", text: "Sicherung prüfen/tauschen. Kontaktfedern prüfen. Ausgangsspannung am EBL messen." },
+        r3: { type: "result", title: "Aktion: Verbraucher einzeln prüfen", text: "Prüfe jeden Verbraucher direkt am Anschluss: Spannung, Masse, Stecker, Leitungsweg." }
       }
     }
   },
-
   {
     id: "wa_pumpe_tot",
     category: "Wasser",
@@ -92,44 +44,13 @@ const DATA = [
     tree: {
       start: "q1",
       nodes: {
-        q1: {
-          type: "question",
-          text: "Hörst du die Pumpe laufen?",
-          yes: "q2",
-          no: "q3"
-        },
-        q2: {
-          type: "question",
-          text: "Kommt Wasser aus irgendeinem Hahn?",
-          yes: "r1",
-          no: "r2"
-        },
-        q3: {
-          type: "question",
-          text: "Ist Wasseranlage am Bedienpanel eingeschaltet (Pumpenschalter)?",
-          yes: "r3",
-          no: "r4"
-        },
-        r1: {
-          type: "result",
-          title: "Teilweise Durchfluss",
-          text: "Aktion: Luft im System, Filter/Sieb, Rückschlagventil, Frostschaden prüfen."
-        },
-        r2: {
-          type: "result",
-          title: "Pumpe läuft aber kein Druck",
-          text: "Aktion: Ansaugseite und Filter prüfen, Schlauchklemmen, Tankentnahme, Leck, Ventile."
-        },
-        r3: {
-          type: "result",
-          title: "Kein Pumpenlauf trotz EIN",
-          text: "Aktion: Sicherung, Relais, Pumpenstecker, Masse, Spannung an Pumpe messen."
-        },
-        r4: {
-          type: "result",
-          title: "Aktion: Pumpenschalter einschalten",
-          text: "Schalte Wasseranlage/Pumpe am Panel ein und teste erneut."
-        }
+        q1: { type: "question", text: "Hörst du die Pumpe laufen?", yes: "q2", no: "q3" },
+        q2: { type: "question", text: "Kommt Wasser aus irgendeinem Hahn?", yes: "r1", no: "r2" },
+        q3: { type: "question", text: "Ist Wasseranlage am Bedienpanel eingeschaltet (Pumpenschalter)?", yes: "r3", no: "r4" },
+        r1: { type: "result", title: "Teilweise Durchfluss", text: "Aktion: Luft im System, Filter/Sieb, Rückschlagventil, Frostschaden prüfen." },
+        r2: { type: "result", title: "Pumpe läuft aber kein Druck", text: "Aktion: Ansaugseite und Filter prüfen, Schlauchklemmen, Tankentnahme, Leck, Ventile." },
+        r3: { type: "result", title: "Kein Pumpenlauf trotz EIN", text: "Aktion: Sicherung, Relais, Pumpenstecker, Masse, Spannung an Pumpe messen." },
+        r4: { type: "result", title: "Aktion: Pumpenschalter einschalten", text: "Schalte Wasseranlage/Pumpe am Panel ein und teste erneut." }
       }
     }
   }
@@ -147,13 +68,18 @@ const questionBox = document.getElementById("questionBox");
 const diagContent = document.getElementById("diagContent");
 const backBtn = document.getElementById("diagBackBtn");
 
+/* optional buttons (exist but may be unused) */
+const langBtn = document.getElementById("langBtn");
+const adminBtn = document.getElementById("adminBtn");
+const resetBtn = document.getElementById("resetBtn");
+
 /* ========= State ========= */
 let activeCategory = "Alle";
 let activeItem = null;
 let activeNodeId = null;
 let historyStack = [];
 
-/* ========= Helpers ========= */
+/* ========= UI helpers ========= */
 function openDiag() {
   diagScreen.style.display = "block";
   document.body.style.overflow = "hidden";
@@ -163,7 +89,8 @@ function closeDiag() {
   document.body.style.overflow = "";
 }
 
-backBtn.onclick = closeDiag;
+backBtn.addEventListener("click", closeDiag);
+if (resetBtn) resetBtn.addEventListener("click", () => location.reload());
 
 /* ========= Chips ========= */
 function renderChips() {
@@ -172,15 +99,16 @@ function renderChips() {
 
   categories.forEach(cat => {
     const b = document.createElement("button");
+    b.type = "button";
     b.className = "pill";
     b.textContent = cat;
     if (cat === activeCategory) b.classList.add("active");
 
-    b.onclick = () => {
+    b.addEventListener("click", () => {
       activeCategory = cat;
       renderChips();
       renderList();
-    };
+    });
 
     chipsEl.appendChild(b);
   });
@@ -198,16 +126,18 @@ function renderList() {
   });
 
   filtered.forEach(d => {
-    const card = document.createElement("div");
+    // IMPORTANT: real button => mobile tap works reliably
+    const card = document.createElement("button");
+    card.type = "button";
     card.className = "card";
     card.dataset.id = d.id;
 
     card.innerHTML = `
-      <div class="h1">${d.title}</div>
-      <div class="muted">${d.intro}</div>
+      <div class="h1">${escapeHtml(d.title)}</div>
+      <div class="muted">${escapeHtml(d.intro)}</div>
     `;
 
-    card.onclick = () => startDiagnosis(d);
+    card.addEventListener("click", () => startDiagnosis(d));
     itemsEl.appendChild(card);
   });
 }
@@ -227,65 +157,55 @@ function renderNode() {
   if (!activeItem) return;
 
   const node = activeItem.tree.nodes[activeNodeId];
-  if (!node) {
-    questionBox.textContent = "Fehler: Node nicht gefunden.";
-    diagContent.innerHTML = "";
-    return;
-  }
-
-  // clear area
   questionBox.textContent = "";
   diagContent.innerHTML = "";
+
+  if (!node) {
+    questionBox.textContent = "Fehler: Node nicht gefunden.";
+    return;
+  }
 
   if (node.type === "question") {
     questionBox.textContent = node.text;
 
     const wrap = document.createElement("div");
-    wrap.style.display = "grid";
-    wrap.style.gridTemplateColumns = "1fr 1fr";
-    wrap.style.gap = "12px";
-    wrap.style.marginTop = "14px";
+    wrap.className = "yn";
 
     const yesBtn = document.createElement("button");
-    yesBtn.className = "pill";
-    yesBtn.style.padding = "18px 14px";
-    yesBtn.style.fontSize = "18px";
+    yesBtn.type = "button";
+    yesBtn.className = "btn btn-yes";
     yesBtn.textContent = "JA";
 
     const noBtn = document.createElement("button");
-    noBtn.className = "pill";
-    noBtn.style.padding = "18px 14px";
-    noBtn.style.fontSize = "18px";
+    noBtn.type = "button";
+    noBtn.className = "btn btn-no";
     noBtn.textContent = "NEIN";
 
-    yesBtn.onclick = () => {
+    yesBtn.addEventListener("click", () => {
       historyStack.push(activeNodeId);
       activeNodeId = node.yes;
       renderNode();
-    };
+    });
 
-    noBtn.onclick = () => {
+    noBtn.addEventListener("click", () => {
       historyStack.push(activeNodeId);
       activeNodeId = node.no;
       renderNode();
-    };
+    });
 
     wrap.appendChild(yesBtn);
     wrap.appendChild(noBtn);
-
     diagContent.appendChild(wrap);
 
-    // back step
     const stepBack = document.createElement("button");
-    stepBack.className = "pill";
-    stepBack.style.marginTop = "12px";
-    stepBack.style.padding = "16px 14px";
+    stepBack.type = "button";
+    stepBack.className = "btn btn-back";
     stepBack.textContent = "← SCHRITT ZURÜCK";
-    stepBack.onclick = () => {
+    stepBack.addEventListener("click", () => {
       if (historyStack.length === 0) return;
       activeNodeId = historyStack.pop();
       renderNode();
-    };
+    });
     diagContent.appendChild(stepBack);
 
   } else if (node.type === "result") {
@@ -295,30 +215,35 @@ function renderNode() {
 
     const p = document.createElement("div");
     p.className = "muted";
-    p.style.marginTop = "8px";
     p.textContent = node.text;
 
     diagContent.appendChild(h);
     diagContent.appendChild(p);
 
     const stepBack = document.createElement("button");
-    stepBack.className = "pill";
-    stepBack.style.marginTop = "14px";
-    stepBack.style.padding = "16px 14px";
+    stepBack.type = "button";
+    stepBack.className = "btn btn-back";
     stepBack.textContent = "← SCHRITT ZURÜCK";
-    stepBack.onclick = () => {
+    stepBack.addEventListener("click", () => {
       if (historyStack.length === 0) return;
       activeNodeId = historyStack.pop();
       renderNode();
-    };
+    });
     diagContent.appendChild(stepBack);
   }
 }
 
 /* ========= Search ========= */
-searchEl.oninput = renderList;
+searchEl.addEventListener("input", renderList);
+
+/* ========= Utils ========= */
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
 
 /* ========= Init ========= */
-versionEl.textContent = "v0.3.3";
+versionEl.textContent = "v0.3.4";
 renderChips();
 renderList();
