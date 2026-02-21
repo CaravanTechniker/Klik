@@ -1,4 +1,5 @@
-/* CaravanTechniker am Main - stable base (list + tree + offline-ready)
+// FORCE ADMIN UNLOCK (TEMP – STABLE BASE)
+localStorage.setItem("ct_admin_unlock_v1", "1");/* CaravanTechniker am Main - stable base (list + tree + offline-ready)
    Loads:
    1) localStorage override (admin import)
    2) repo file: content_full_with_fehlcodes_SK_DE.json (preferred)
