@@ -1,111 +1,254 @@
 {
   "meta": {
-    "version": "0.3.1",
-    "note": "Minimal verified content schema"
+    "app": "CaravanTechniker am Main",
+    "contentVersion": "0.1",
+    "updated": "2026-02-21",
+    "languages": ["de", "sk", "it"]
+  },
+  "ui": {
+    "title": {
+      "de": "CaravanTechniker am Main",
+      "sk": "CaravanTechniker am Main",
+      "it": "CaravanTechniker am Main"
+    },
+    "subtitle": {
+      "de": "Wohnmobil Diagnose",
+      "sk": "Diagnostika obytného auta",
+      "it": "Diagnosi camper"
+    },
+    "searchPlaceholder": {
+      "de": "Suche (Trittstufe, Wasserpumpe, 12V ...)",
+      "sk": "Hľadať (schodík, vodná pumpa, 12V ...)",
+      "it": "Cerca (gradino, pompa acqua, 12V ...)"
+    },
+    "chips": [
+      { "id": "all", "label": { "de": "Alle", "sk": "Všetko", "it": "Tutto" } },
+      { "id": "elektrik", "label": { "de": "Elektrik", "sk": "Elektrika", "it": "Elettrico" } },
+      { "id": "wasser", "label": { "de": "Wasser", "sk": "Voda", "it": "Acqua" } }
+    ]
   },
   "items": [
     {
-      "id": "e_12v_tot",
-      "category": "Elektrik",
-      "title": "12V komplett ausgefallen (Aufbau tot)",
-      "subtitle": "Kein Licht, keine Pumpe, Panel dunkel.",
-      "treeId": "tree_12v_tot"
+      "id": "12v_tot",
+      "chip": "elektrik",
+      "title": {
+        "de": "12V komplett ausgefallen (Aufbau tot)",
+        "sk": "12V úplne nefunguje (nadstavba mŕtva)",
+        "it": "12V completamente guasto (cellula spenta)"
+      },
+      "desc": {
+        "de": "Kein Licht, keine Pumpe, Panel dunkel.",
+        "sk": "Nesvieti, nejde pumpa, panel je tmavý.",
+        "it": "Niente luce, niente pompa, pannello spento."
+      },
+      "keywords": ["12v", "aufbau", "sicherung", "hauptschalter", "ebl", "panel"],
+      "tree": {
+        "start": "q1",
+        "nodes": {
+          "q1": {
+            "type": "q",
+            "text": {
+              "de": "Ist Landstrom (230V) verfügbar und eingeschaltet?",
+              "sk": "Je pripojených 230V (landstrom) a je zapnuté?",
+              "it": "La 230V è disponibile ed è attivata?"
+            },
+            "answers": [
+              {
+                "label": { "de": "Ja", "sk": "Áno", "it": "Sì" },
+                "next": "q2"
+              },
+              {
+                "label": { "de": "Nein", "sk": "Nie", "it": "No" },
+                "next": "q3"
+              }
+            ]
+          },
+          "q2": {
+            "type": "q",
+            "text": {
+              "de": "Zeigt das Bedienpanel / EBL eine Störung oder bleibt es komplett aus?",
+              "sk": "Panel/EBL hlási chybu alebo je úplne mŕtvy?",
+              "it": "Il pannello/EBL segnala errore o resta totalmente spento?"
+            },
+            "answers": [
+              {
+                "label": { "de": "Komplett aus", "sk": "Úplne mŕtvy", "it": "Totalmente spento" },
+                "next": "r1"
+              },
+              {
+                "label": { "de": "Störung/Fehler", "sk": "Chyba/hlásenie", "it": "Errore/segnalazione" },
+                "next": "r2"
+              }
+            ]
+          },
+          "q3": {
+            "type": "q",
+            "text": {
+              "de": "Ist der Aufbaubatterie-Hauptschalter (Master) sicher EIN?",
+              "sk": "Je hlavný vypínač nadstavby/batérie určite ZAPNUTÝ?",
+              "it": "L'interruttore principale della batteria servizi è sicuramente ON?"
+            },
+            "answers": [
+              {
+                "label": { "de": "Ja", "sk": "Áno", "it": "Sì" },
+                "next": "r3"
+              },
+              {
+                "label": { "de": "Nein / Unklar", "sk": "Nie / neviem", "it": "No / Non so" },
+                "next": "r4"
+              }
+            ]
+          },
+          "r1": {
+            "type": "r",
+            "text": {
+              "de": "Sehr wahrscheinlich: Hauptsicherung/Plus-Verteilung zur EBL unterbrochen (z. B. Batteriehauptsicherung, Shunt/Verteiler, Masseband). Prüfe zuerst: Batteriehauptsicherung nahe Batterie, Masseband, EBL-Eingang +12V.",
+              "sk": "Veľmi pravdepodobné: prerušené hlavné napájanie k EBL (hlavná poistka pri batérii, rozvod +, shunt/rozdeľovač, mínus pás). Skontroluj: hlavnú poistku pri batérii, mínus pás, vstup +12V do EBL.",
+              "it": "Probabile: interruzione alimentazione principale verso EBL (fusibile principale vicino batteria, distribuzione +, shunt, cavo massa). Controlla: fusibile principale, massa, ingresso +12V EBL."
+            }
+          },
+          "r2": {
+            "type": "r",
+            "text": {
+              "de": "Akku/EBL lebt, aber meldet Fehler: Prüfe Batteriespannung direkt an der Aufbaubatterie (unter Last), Sicherungen am EBL, und ob ein Unterspannungsschutz aktiv ist.",
+              "sk": "Batéria/EBL žije, ale hlási chybu: zmeraj napätie priamo na batérii (aj pod záťažou), skontroluj poistky na EBL a či nie je aktívna ochrana proti podpätiu.",
+              "it": "EBL attivo ma con errore: misura tensione batteria direttamente (anche sotto carico), controlla fusibili EBL e eventuale protezione sottotensione."
+            }
+          },
+          "r3": {
+            "type": "r",
+            "text": {
+              "de": "Bez 230V a Master ON: zameraj sa na batériu a rozvod. Zmeraj batériu (napätie a pokles pri zapnutí svetla), skontroluj hlavné poistky + mínus spoj, potom EBL vstup.",
+              "sk": "Bez 230V a Master ON: rieš batériu a rozvod. Zmeraj batériu (napätie a pokles pri zapnutí svetla), skontroluj hlavné poistky + mínus spoj, potom vstup do EBL.",
+              "it": "Senza 230V e Master ON: controlla batteria e distribuzione. Misura tensione e caduta sotto carico, controlla fusibili principali e massa, poi ingresso EBL."
+            }
+          },
+          "r4": {
+            "type": "r",
+            "text": {
+              "de": "Najprv zapni/over Master (Batterie-Hauptschalter). Ak po zapnutí nabehne panel, problém bol iba vypínač. Ak nie, pokračuj kontrolou hlavnej poistky pri batérii.",
+              "sk": "Najprv zapni/over Master (hlavný vypínač batérie). Ak po zapnutí nabehne panel, problém bol iba vypínač. Ak nie, pokračuj kontrolou hlavnej poistky pri batérii.",
+              "it": "Prima verifica/attiva il Master. Se il pannello torna, era solo l'interruttore. Se no, controlla il fusibile principale vicino batteria."
+            }
+          }
+        }
+      }
     },
     {
-      "id": "e_12v_part",
-      "category": "Elektrik",
-      "title": "12V funktioniert teilweise",
-      "subtitle": "Einige Verbraucher gehen, andere nicht.",
-      "treeId": "tree_12v_part"
+      "id": "12v_partial",
+      "chip": "elektrik",
+      "title": {
+        "de": "12V funktioniert teilweise",
+        "sk": "12V funguje len čiastočne",
+        "it": "12V funziona parzialmente"
+      },
+      "desc": {
+        "de": "Einige Verbraucher gehen, andere nicht.",
+        "sk": "Niektoré spotrebiče idú, iné nie.",
+        "it": "Alcuni consumi ok, altri no."
+      },
+      "keywords": ["12v", "sicherung", "verbraucher", "panel", "ebl"],
+      "tree": {
+        "start": "q1",
+        "nodes": {
+          "q1": {
+            "type": "q",
+            "text": {
+              "de": "Geht das Licht, aber z. B. Pumpe / Trittstufe nicht?",
+              "sk": "Ide svetlo, ale napr. pumpa/schodík nie?",
+              "it": "La luce funziona ma pompa/gradino no?"
+            },
+            "answers": [
+              { "label": { "de": "Ja", "sk": "Áno", "it": "Sì" }, "next": "r1" },
+              { "label": { "de": "Nein", "sk": "Nie", "it": "No" }, "next": "r2" }
+            ]
+          },
+          "r1": {
+            "type": "r",
+            "text": {
+              "de": "Typisch: Einzel-Sicherung/Relais/Schalterkreis. Prüfe zuerst: Sicherungen am EBL/Verteiler für Pumpe/Trittstufe, Pumpenschalter, Türkontakt (Trittstufe), Masse am Verbraucher.",
+              "sk": "Typické: jedna poistka/relé/okruh. Skontroluj: poistky na EBL/rozvode pre pumpu/schodík, vypínač pumpy, dverový kontakt (schodík), mínus pri spotrebiči.",
+              "it": "Tipico: fusibile/relè/circuito singolo. Controlla: fusibili EBL per pompa/gradino, interruttore pompa, contatto porta (gradino), massa utenza."
+            }
+          },
+          "r2": {
+            "type": "r",
+            "text": {
+              "de": "Ak sa správa chaoticky viac okruhov: zmeraj batériu pod záťažou (pokles), skontroluj hlavné mínus spojenia a prípadné uvoľnené svorky na EBL.",
+              "sk": "Ak sa správa chaoticky viac okruhov: zmeraj batériu pod záťažou (pokles), skontroluj hlavné mínus spoje a uvoľnené svorky na EBL.",
+              "it": "Se più circuiti sono instabili: misura batteria sotto carico, controlla masse principali e morsetti lenti su EBL."
+            }
+          }
+        }
+      }
     },
     {
-      "id": "w_pumpe",
-      "category": "Wasser",
-      "title": "Wasserpumpe läuft nicht",
-      "subtitle": "Kein Geräusch, kein Druck.",
-      "treeId": "tree_pumpe"
-    }
-  ],
-  "trees": {
-    "tree_12v_tot": {
-      "start": "q1",
-      "nodes": {
-        "q1": {
-          "q": "Ist Landstrom (230V) verfügbar und eingeschaltet?",
-          "yes": "q2",
-          "no": "r1"
-        },
-        "q2": {
-          "q": "Leuchtet das Bedienpanel oder zeigt es Fehlermeldungen?",
-          "yes": "q3",
-          "no": "r2"
-        },
-        "q3": {
-          "q": "Sind die Hauptsicherungen am EBL / Sicherungskasten in Ordnung?",
-          "yes": "r3",
-          "no": "r4"
-        },
-        "r1": {
-          "result": "Hinweis: Ohne Landstrom zuerst Batterie-Spannung messen (12.0–13.4V). Hauptschalter prüfen. Wenn unter 11.5V: Batterie leer oder defekt."
-        },
-        "r2": {
-          "result": "Panel tot: Prüfe Hauptschalter/12V Hauptsicherung am EBL, Masseverbindung, Batterietrennschalter und Batteriepolklemmen."
-        },
-        "r3": {
-          "result": "Wenn Sicherungen OK: Prüfe EBL-Ausgang 12V, D+ Signal (falls relevant), Stecker/Adapter (z.B. Truma iNet X Adapter) und Lasttest (Prüflampe)."
-        },
-        "r4": {
-          "result": "Defekte Sicherung gefunden: Ursache Kurzschluss/Überlast suchen. Verbraucher abklemmen, einzeln wieder zuschalten."
-        }
-      }
-    },
-    "tree_12v_part": {
-      "start": "q1",
-      "nodes": {
-        "q1": {
-          "q": "Fallen mehrere Verbraucher in einer Gruppe aus (z.B. Licht + Pumpe)?",
-          "yes": "q2",
-          "no": "r1"
-        },
-        "q2": {
-          "q": "Ist eine zugehörige Sicherung am EBL/Panel ausgelöst oder defekt?",
-          "yes": "r2",
-          "no": "r3"
-        },
-        "r1": {
-          "result": "Einzelverbraucher: Prüfe direkt am Verbraucher (Stecker, Masse, Schalter) und mache einen Lasttest am Kabel."
-        },
-        "r2": {
-          "result": "Sicherung defekt: Ursache finden (Kurzschluss/Überlast). Verbraucher abklemmen und schrittweise testen."
-        },
-        "r3": {
-          "result": "Keine Sicherung: Prüfe Relais/Schaltmodul, Kabelbruch, Übergangswiderstand, Massepunkt. Lasttest mit Prüflampe ist Pflicht."
-        }
-      }
-    },
-    "tree_pumpe": {
-      "start": "q1",
-      "nodes": {
-        "q1": {
-          "q": "Hörst du die Pumpe laufen, aber kein Druck?",
-          "yes": "r1",
-          "no": "q2"
-        },
-        "q2": {
-          "q": "Liegt 12V an der Pumpe an (unter Last getestet)?",
-          "yes": "r2",
-          "no": "r3"
-        },
-        "r1": {
-          "result": "Pumpe läuft ohne Druck: Tank leer, Luft im System, Filter verstopft, Rückschlagventil/Leitung undicht."
-        },
-        "r2": {
-          "result": "12V liegt an, Pumpe still: Pumpe mechanisch blockiert oder defekt. Test: direkt an Batterie (kurz) und Filter prüfen."
-        },
-        "r3": {
-          "result": "Kein 12V an Pumpe: Sicherung, Pumpenschalter, Druckschalter/Mikroschalter, Kabelbruch oder Massepunkt prüfen."
+      "id": "water_pump_no",
+      "chip": "wasser",
+      "title": {
+        "de": "Wasserpumpe läuft nicht",
+        "sk": "Vodná pumpa nejde",
+        "it": "Pompa acqua non parte"
+      },
+      "desc": {
+        "de": "Kein Geräusch, kein Druck.",
+        "sk": "Žiadny zvuk, žiadny tlak.",
+        "it": "Nessun rumore, nessuna pressione."
+      },
+      "keywords": ["wasser", "pumpe", "druck", "schalter", "sicherung"],
+      "tree": {
+        "start": "q1",
+        "nodes": {
+          "q1": {
+            "type": "q",
+            "text": {
+              "de": "Hörst du die Pumpe laufen, aber kein Druck?",
+              "sk": "Počuť pumpu bežať, ale nie je tlak?",
+              "it": "Senti la pompa girare ma non c'è pressione?"
+            },
+            "answers": [
+              { "label": { "de": "Ja", "sk": "Áno", "it": "Sì" }, "next": "r1" },
+              { "label": { "de": "Nein", "sk": "Nie", "it": "No" }, "next": "q2" }
+            ]
+          },
+          "q2": {
+            "type": "q",
+            "text": {
+              "de": "Ist der Pumpenschalter am Panel sicher EIN?",
+              "sk": "Je vypínač pumpy na paneli určite ZAPNUTÝ?",
+              "it": "L'interruttore pompa sul pannello è ON?"
+            },
+            "answers": [
+              { "label": { "de": "Ja", "sk": "Áno", "it": "Sì" }, "next": "r2" },
+              { "label": { "de": "Nein / Unklar", "sk": "Nie / neviem", "it": "No / Non so" }, "next": "r3" }
+            ]
+          },
+          "r1": {
+            "type": "r",
+            "text": {
+              "de": "Wenn Pumpe läuft aber kein Druck: typicky vzduch v systéme, prázdna nádrž, upchatý filter, spätný ventil alebo netesnosť na saní. Skontroluj hladinu, filter pri pumpe, všetky hadice na saní.",
+              "sk": "Ak pumpa beží, ale nie je tlak: typicky vzduch v systéme, prázdna nádrž, upchatý filter, spätný ventil alebo netesnosť na saní. Skontroluj hladinu, filter pri pumpe, sanie a spoje.",
+              "it": "Se la pompa gira ma niente pressione: aria nel circuito, serbatoio vuoto, filtro intasato, valvola di non ritorno o perdita in aspirazione. Controlla livello, filtro, tubi e giunzioni."
+            }
+          },
+          "r2": {
+            "type": "r",
+            "text": {
+              "de": "Ak je pumpa zapnutá a nejde: skontroluj poistku okruhu pumpy na EBL/rozvode, potom zmeraj 12V priamo na pumpe pri zapnutí.",
+              "sk": "Ak je pumpa zapnutá a nejde: skontroluj poistku okruhu pumpy na EBL/rozvode, potom zmeraj 12V priamo na pumpe pri zapnutí.",
+              "it": "Se pompa ON ma non parte: controlla fusibile circuito pompa su EBL/distributore, poi misura 12V direttamente sulla pompa durante ON."
+            }
+          },
+          "r3": {
+            "type": "r",
+            "text": {
+              "de": "Najprv zapni pumpu na paneli. Ak potom ide, problém bol iba vypnutie. Ak nie, pokračuj poistkou a meraním 12V na pumpe.",
+              "sk": "Najprv zapni pumpu na paneli. Ak potom ide, problém bol iba vypnutie. Ak nie, pokračuj poistkou a meraním 12V na pumpe.",
+              "it": "Prima attiva la pompa dal pannello. Se riparte era solo OFF. Se no, controlla fusibile e misura 12V sulla pompa."
+            }
+          }
         }
       }
     }
-  }
+  ]
 }
