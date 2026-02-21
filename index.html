@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="sk">
+<html lang="de">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -16,20 +16,62 @@
   <!-- Styles -->
   <link rel="stylesheet" href="app.css" />
 
-  <!-- (Voliteľné) ikona pre iOS – nechaj, aj keď zatiaľ nemáš súbor -->
-  <!-- <link rel="apple-touch-icon" href="icons/icon-192.png" /> -->
-
-  <!-- App -->
+  <!-- App logic -->
   <script src="app.js" defer></script>
 </head>
 
 <body>
-  <!-- Sem bude app.js renderovať UI -->
-  <div id="app"></div>
 
-  <!-- Fallback, ak by JS zlyhal -->
+  <!-- ===== TOP BAR ===== -->
+  <header class="topbar">
+    <div>
+      <div class="brandTitle">CaravanTechniker am Main</div>
+      <div class="brandSub">Wohnmobil Diagnose</div>
+    </div>
+
+    <div class="pills">
+      <!-- app.js TOTO VYŽADUJE -->
+      <button id="langBtn" class="pill">DE</button>
+      <button id="adminBtn" class="pill">ADMIN</button>
+      <button id="resetBtn" class="pill">RESET</button>
+    </div>
+  </header>
+
+  <!-- ===== MAIN APP CONTAINER ===== -->
+  <main id="app" class="container">
+    <!-- app.js sem renderuje obsah -->
+  </main>
+
+  <!-- ===== FULLSCREEN DIAGNOSTIKA ===== -->
+  <div id="diagScreen" class="fullscreen">
+    <div class="fsHeader">
+      <button id="diagBackBtn" class="pill">← Zurück</button>
+      <div id="diagTitle" class="fsTitle">Diagnose</div>
+      <div></div>
+    </div>
+
+    <div id="diagContent" class="fsContent">
+      <!-- otázky / výsledky -->
+    </div>
+  </div>
+
+  <!-- ===== PROTOKOLL ===== -->
+  <section id="protocolSection" class="container" style="display:none">
+    <div class="card">
+      <div class="h1">Protokoll</div>
+      <pre id="protocolOutput"></pre>
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <button id="copyProtocolBtn" class="pill">Kopieren</button>
+        <button id="clearProtocolBtn" class="pill">Löschen</button>
+        <button id="pdfProtocolBtn" class="pill">PDF</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FALLBACK ===== -->
   <noscript>
     Táto aplikácia vyžaduje zapnutý JavaScript.
   </noscript>
+
 </body>
 </html>
