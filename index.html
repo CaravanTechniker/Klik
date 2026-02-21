@@ -25,24 +25,15 @@
   </div>
 </header>
 
-<!-- VERSION -->
-<div id="versionLabel" style="padding:6px 14px;font-size:12px;opacity:.6">
-  v0.0.0
-</div>
+<div id="versionLabel" style="padding:6px 14px;font-size:12px;opacity:.6">v0.0.0</div>
 
 <main id="app" class="container">
-
-  <input
-    id="searchInput"
-    class="search"
-    type="text"
-    placeholder="Suche (Trittstufe, Wasserpumpe, 12V …)"
-  >
+  <input id="searchInput" class="search" type="text"
+         placeholder="Suche (Trittstufe, Wasserpumpe, 12V …)">
 
   <div id="chips" class="pills" style="margin-bottom:14px"></div>
 
   <div id="items"></div>
-
 </main>
 
 <div id="diagScreen" class="fullscreen">
@@ -51,6 +42,9 @@
     <div id="diagTitle" class="fsTitle">Diagnose</div>
     <div></div>
   </div>
+
+  <!-- app.js často čaká aj tieto kontajnery -->
+  <div id="questionBox"></div>
   <div id="diagContent" class="fsContent"></div>
 </div>
 
@@ -67,7 +61,39 @@
   </div>
 </section>
 
-<!-- APP JS MUSÍ BYŤ ÚPLNE NA KONCI -->
+<!-- ===== SHIM: automaticky doplní chýbajúce elementy, aby app.js nepadal ===== -->
+<script>
+(function () {
+  const orig = document.getElementById.bind(document);
+
+  function tagFor(id) {
+    const s = String(id || "");
+    if (/Input$/i.test(s) || /search/i.test(s)) return "input";
+    if (/Btn$/i.test(s) || /Button$/i.test(s)) return "button";
+    if (/Label$/i.test(s)) return "div";
+    if (/Output$/i.test(s) || /Log$/i.test(s)) return "pre";
+    return "div";
+  }
+
+  document.getElementById = function (id) {
+    let el = orig(id);
+    if (el) return el;
+
+    // vytvor chýbajúci element a schovaj ho (kým ho nepoužijeme v dizajne)
+    el = document.createElement(tagFor(id));
+    el.id = id;
+
+    // rozumné defaulty
+    if (el.tagName === "INPUT") el.type = "text";
+    el.style.display = "none";
+
+    document.body.appendChild(el);
+    return el;
+  };
+})();
+</script>
+
+<!-- app.js MUSÍ BYŤ NA KONCI -->
 <script src="app.js"></script>
 
 </body>
