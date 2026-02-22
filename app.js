@@ -7,7 +7,7 @@
   const CONTACT_EMAIL = "caravantechnikerammain@gmail.com";
   const CONTACT_PHONE = "+49 151 638 12 554";
   const CONTACT_WHATSAPP = "+49 151 638 12 554";
-  const CONTACT_PHONE_DIGITS = "4915163812554";
+  const CONTACT_PHONE_DIGITS = "4915163812554"; // bez + a medzier
 
   // ===== ADMIN =====
   const ADMIN_PASSWORD = "1";
@@ -25,13 +25,27 @@
       feedback: "Feedback",
       share: "Teilen",
       modalClose: "Schließen",
+
       contactTitle: "Kontakt",
-      contactBody:
-        `Telefon: ${CONTACT_PHONE}\n` +
-        `WhatsApp: ${CONTACT_WHATSAPP}\n` +
-        `E-Mail: ${CONTACT_EMAIL}\n\n` +
-        `Kontakt bitte bevorzugt per WhatsApp Nachricht oder E-Mail.`,
-      adminBody: "Passwort eingeben:",
+      contactHtml: `
+        <div>
+          <div><b>Telefon:</b> <a href="tel:${CONTACT_PHONE_DIGITS}">${CONTACT_PHONE}</a></div>
+          <div style="margin-top:6px"><b>WhatsApp:</b> <a href="https://wa.me/${CONTACT_PHONE_DIGITS}" target="_blank" rel="noopener">${CONTACT_WHATSAPP}</a></div>
+          <div style="margin-top:6px"><b>E-Mail:</b> <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></div>
+          <div style="margin-top:10px;font-weight:900">Kontakt bitte bevorzugt per WhatsApp Nachricht oder E-Mail.</div>
+        </div>
+      `,
+
+      feedbackTitle: "Feedback",
+      feedbackHtml: `
+        <div>
+          <div style="font-weight:900;margin-bottom:8px">Am schnellsten per WhatsApp oder E-Mail:</div>
+          <div><a href="https://wa.me/${CONTACT_PHONE_DIGITS}" target="_blank" rel="noopener">WhatsApp öffnen</a></div>
+          <div style="margin-top:6px"><a href="mailto:${CONTACT_EMAIL}?subject=Wohnmobil%20Diagnose%20Feedback">E-Mail senden</a></div>
+        </div>
+      `,
+
+      adminPrompt: "Passwort eingeben:",
       adminWrong: "Falsches Passwort.",
       adminOk: "Admin entsperrt.",
       loadedErr: "Inhalt konnte nicht geladen werden (content.json).",
@@ -51,13 +65,27 @@
       feedback: "Pripomienky",
       share: "Zdieľať",
       modalClose: "Zavrieť",
+
       contactTitle: "Kontakt",
-      contactBody:
-        `Telefón: ${CONTACT_PHONE}\n` +
-        `WhatsApp: ${CONTACT_WHATSAPP}\n` +
-        `E-mail: ${CONTACT_EMAIL}\n\n` +
-        `Kontakt bitte bevorzugt per WhatsApp Nachricht oder E-Mail.`,
-      adminBody: "Zadaj heslo:",
+      contactHtml: `
+        <div>
+          <div><b>Telefón:</b> <a href="tel:${CONTACT_PHONE_DIGITS}">${CONTACT_PHONE}</a></div>
+          <div style="margin-top:6px"><b>WhatsApp:</b> <a href="https://wa.me/${CONTACT_PHONE_DIGITS}" target="_blank" rel="noopener">${CONTACT_WHATSAPP}</a></div>
+          <div style="margin-top:6px"><b>E-mail:</b> <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></div>
+          <div style="margin-top:10px;font-weight:900">Kontakt bitte bevorzugt per WhatsApp Nachricht oder E-Mail.</div>
+        </div>
+      `,
+
+      feedbackTitle: "Pripomienky",
+      feedbackHtml: `
+        <div>
+          <div style="font-weight:900;margin-bottom:8px">Najrýchlejšie cez WhatsApp alebo e-mail:</div>
+          <div><a href="https://wa.me/${CONTACT_PHONE_DIGITS}" target="_blank" rel="noopener">Otvoriť WhatsApp</a></div>
+          <div style="margin-top:6px"><a href="mailto:${CONTACT_EMAIL}?subject=Diagnostika%20Feedback">Poslať e-mail</a></div>
+        </div>
+      `,
+
+      adminPrompt: "Zadaj heslo:",
       adminWrong: "Nesprávne heslo.",
       adminOk: "Admin odomknutý.",
       loadedErr: "Obsah sa nepodarilo načítať (content.json).",
@@ -73,17 +101,34 @@
   // ===== STATE =====
   let lang = localStorage.getItem("lang") || "de";
   let adminUnlocked = localStorage.getItem("adminUnlocked") === "1";
-  let activeTab = "categories";          // categories | diag
+  let activeTab = "categories"; // categories | diag
   let content = null;
-  let selectedTree = null;              // uloží vybraný strom po kliku
+  let selectedTree = null;
 
   // ===== DOM HELPERS =====
   const qs = (s) => document.querySelector(s);
+  const t = () => I18N[lang] || I18N.de;
 
-  function t() { return I18N[lang] || I18N.de; }
-  function setLang(newLang) { lang = newLang; localStorage.setItem("lang", lang); render(); }
+  function setLang(newLang) {
+    lang = newLang;
+    localStorage.setItem("lang", lang);
+    render();
+  }
 
-  // ===== MODAL (robustné) =====
+  // ===== TOAST (náhrada alert) =====
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  document.body.appendChild(toast);
+
+  let toastTimer = null;
+  function showToast(msg, ms = 1800) {
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), ms);
+  }
+
+  // ===== MODAL (HTML podporované) =====
   const modalOverlay = document.createElement("div");
   modalOverlay.className = "modalOverlay";
   modalOverlay.innerHTML = `
@@ -97,16 +142,13 @@
   `;
   document.body.appendChild(modalOverlay);
 
-  const openModal = (title, body) => {
-    const titleStr = (title ?? "").toString().trim();
-    const bodyStr  = (body  ?? "").toString().trim();
-
-    qs("#modalTitle").textContent = titleStr || "—";
-    qs("#modalBody").textContent = bodyStr || "—";
+  const openModalHtml = (title, html) => {
+    qs("#modalTitle").textContent = (title ?? "").toString().trim() || "—";
+    qs("#modalBody").innerHTML = (html ?? "").toString().trim() || "—";
     qs("#modalCloseBtn").textContent = t().modalClose;
-
     modalOverlay.classList.add("open");
   };
+
   const closeModal = () => modalOverlay.classList.remove("open");
   modalOverlay.addEventListener("click", (e) => { if (e.target === modalOverlay) closeModal(); });
   qs("#modalCloseBtn").addEventListener("click", closeModal);
@@ -136,20 +178,20 @@
       clearTimeout(clickTimer);
       clickTimer = null;
 
-      const pwd = prompt(t().adminBody);
+      const pwd = prompt(t().adminPrompt);
       if (pwd === null) return;
 
       if (pwd === ADMIN_PASSWORD) {
         adminUnlocked = true;
         localStorage.setItem("adminUnlocked", "1");
-        alert(t().adminOk);
+        showToast(t().adminOk); // BEZ alert OK okna
       } else {
-        alert(t().adminWrong);
+        showToast(t().adminWrong, 2200);
       }
     }
   }
 
-  // ===== UI BUILD =====
+  // ===== UI =====
   function buildHeader() {
     const app = qs("#app");
 
@@ -176,15 +218,27 @@
     `;
     app.appendChild(topbar);
 
+    // handlers
     qs("#adminBtn").addEventListener("click", onAdminLogoClick);
-    qs("#contactBtn").addEventListener("click", () => openModal(t().contactTitle, t().contactBody));
+
+    qs("#contactBtn").addEventListener("click", () => {
+      openModalHtml(t().contactTitle, t().contactHtml);
+    });
+
+    qs("#feedbackBtn").addEventListener("click", () => {
+      openModalHtml(t().feedbackTitle, t().feedbackHtml);
+    });
 
     const langSel = qs("#langSel");
     langSel.value = lang;
     langSel.addEventListener("change", (e) => setLang(e.target.value));
 
-    qs("#feedbackBtn").addEventListener("click", () => {
-      openModal(t().feedback, "WhatsApp je najrýchlejší. (Feature doplníme.)");
+    // Einklappen len v Kategórie, v Diagnose bude DISABLED
+    const collapseBtn = qs("#collapseBtn");
+    collapseBtn.disabled = (activeTab !== "categories");
+    collapseBtn.addEventListener("click", () => {
+      if (activeTab !== "categories") return;
+      document.querySelectorAll(".accordion.open").forEach((a) => a.classList.remove("open"));
     });
 
     qs("#shareBtn").addEventListener("click", () => {
@@ -194,12 +248,8 @@
         navigator.share({ title: t().appTitle, text: msg, url }).catch(() => {});
       } else {
         navigator.clipboard?.writeText(msg).catch(() => {});
-        openModal(t().share, msg);
+        openModalHtml(t().share, `<div style="font-weight:900;white-space:pre-line">${msg}</div>`);
       }
-    });
-
-    qs("#collapseBtn").addEventListener("click", () => {
-      document.querySelectorAll(".accordion.open").forEach((a) => a.classList.remove("open"));
     });
   }
 
@@ -269,7 +319,7 @@
           <div class="treeBtnSub">${sub}</div>
         `;
 
-        // FIX: klik na strom = uloží strom + prepne na Diagnostiku
+        // klik na strom -> prepne do Diagnostiky
         btn.addEventListener("click", () => {
           selectedTree = tr;
           activeTab = "diag";
@@ -318,13 +368,15 @@
       <div class="diagRow" id="diagRow"></div>
     `;
 
-    // demo tlačidlá farieb (nespúšťajú strom – stromové nody ešte v content.json nemáš)
     const row = section.querySelector("#diagRow");
     const btnYes = document.createElement("button"); btnYes.className = "diagBtn yes"; btnYes.textContent = t().yes;
     const btnNo  = document.createElement("button"); btnNo.className  = "diagBtn no";  btnNo.textContent  = t().no;
     const btnBack= document.createElement("button"); btnBack.className= "diagBtn back";btnBack.textContent= t().back;
 
-    // späť do kategórií
+    // zatiaľ demo (kým nemáš nodes v content.json)
+    btnYes.addEventListener("click", () => showToast("Demo: YES"));
+    btnNo.addEventListener("click", () => showToast("Demo: NO"));
+
     btnBack.addEventListener("click", () => { activeTab = "categories"; render(); });
 
     row.appendChild(btnYes);
