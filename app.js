@@ -1,408 +1,553 @@
 (() => {
   "use strict";
 
-  const APP_VERSION = "UI v1.0";
+  // ====== STATE ======
+  const state = {
+    lang: "de",
+    content: null,
+    categories: [],
+    selectedTree: null,
+    adminUnlocked: false,
+    adminTapCount: 0,
+    adminTapTimer: null,
+    collapsed: false,
+  };
 
-  // ===== CONTACT =====
-  const CONTACT_EMAIL = "caravantechnikerammain@gmail.com";
-  const CONTACT_PHONE = "+49 151 638 12 554";
-  const CONTACT_WHATSAPP = "+49 151 638 12 554";
-  const CONTACT_PHONE_DIGITS = "4915163812554"; // bez + a medzier
+  // ====== ELEMENTS ======
+  const $ = (id) => document.getElementById(id);
 
-  // ===== ADMIN =====
-  const ADMIN_PASSWORD = "1";
-  const ADMIN_CLICKS_REQUIRED = 5;
-  const ADMIN_CLICK_WINDOW_MS = 1800;
+  const el = {
+    adminBtn: $("adminBtn"),
+    contactBtn: $("contactBtn"),
+    statusLine: $("statusLine"),
 
-  // ===== i18n =====
-  const I18N = {
+    langBtn: $("langBtn"),
+    langLabel: $("langLabel"),
+    langMenu: $("langMenu"),
+
+    collapseBtn: $("collapseBtn"),
+    feedbackBtn: $("feedbackBtn"),
+    shareBtn: $("shareBtn"),
+
+    inlinePanels: $("inlinePanels"),
+    contactPanel: $("contactPanel"),
+    feedbackPanel: $("feedbackPanel"),
+    closePanelsBtn: $("closePanelsBtn"),
+    closePanelsBtn2: $("closePanelsBtn2"),
+
+    fbText: $("fbText"),
+    fbSend: $("fbSend"),
+    fbCopy: $("fbCopy"),
+
+    tabCategories: $("tabCategories"),
+    tabDiagnosis: $("tabDiagnosis"),
+
+    categoriesView: $("categoriesView"),
+    diagnosisView: $("diagnosisView"),
+    categoriesList: $("categoriesList"),
+    categoriesTitle: $("categoriesTitle"),
+    categoriesCount: $("categoriesCount"),
+
+    selectedTreeLine: $("selectedTreeLine"),
+    diagText: $("diagText"),
+    nodeCount: $("nodeCount"),
+
+    btnYes: $("btnYes"),
+    btnNo: $("btnNo"),
+    btnBack: $("btnBack"),
+
+    telLink: $("telLink"),
+    waLink: $("waLink"),
+    mailLink: $("mailLink"),
+    contactHint: $("contactHint"),
+
+    contactTitle: $("contactTitle"),
+    feedbackTitle: $("feedbackTitle"),
+    fbLabel: $("fbLabel"),
+    fbHint: $("fbHint"),
+    appTitle: $("appTitle"),
+  };
+
+  // ====== I18N ======
+  const T = {
     de: {
       appTitle: "Wohnmobil Diagnose",
-      subtitleBtn: "CaravanTechniker am Main",
-      tabCategories: "Kategorien",
-      tabDiag: "Diagnose",
-      collapseAll: "Einklappen",
+      brand: "CaravanTechniker am Main",
+      collapse: "Einklappen",
+      expand: "Ausklappen",
       feedback: "Feedback",
       share: "Teilen",
-      modalClose: "Schließen",
-
-      contactTitle: "Kontakt",
-      contactHtml: `
-        <div>
-          <div><b>Telefon:</b> <a href="tel:${CONTACT_PHONE_DIGITS}">${CONTACT_PHONE}</a></div>
-          <div style="margin-top:6px"><b>WhatsApp:</b> <a href="https://wa.me/${CONTACT_PHONE_DIGITS}" target="_blank" rel="noopener">${CONTACT_WHATSAPP}</a></div>
-          <div style="margin-top:6px"><b>E-Mail:</b> <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></div>
-          <div style="margin-top:10px;font-weight:900">Kontakt bitte bevorzugt per WhatsApp Nachricht oder E-Mail.</div>
-        </div>
-      `,
-
-      feedbackTitle: "Feedback",
-      feedbackHtml: `
-        <div>
-          <div style="font-weight:900;margin-bottom:8px">Am schnellsten per WhatsApp oder E-Mail:</div>
-          <div><a href="https://wa.me/${CONTACT_PHONE_DIGITS}" target="_blank" rel="noopener">WhatsApp öffnen</a></div>
-          <div style="margin-top:6px"><a href="mailto:${CONTACT_EMAIL}?subject=Wohnmobil%20Diagnose%20Feedback">E-Mail senden</a></div>
-        </div>
-      `,
-
-      adminPrompt: "Passwort eingeben:",
-      adminWrong: "Falsches Passwort.",
-      adminOk: "Admin entsperrt.",
-      loadedErr: "Inhalt konnte nicht geladen werden (content.json).",
-      diagHint: "Wähle einen Baum in Kategorien. Danach erscheint er hier.",
-      selectedTree: "Ausgewählter Baum",
-      demoNoNodes: "Demo: Dieser Baum hat noch keine Fragen/Nodes im content.json.",
-      yes: "Ja",
-      no: "Nein",
-      back: "Zurück"
+      categories: "Kategorien",
+      diagnosis: "Diagnose",
+      online: "Online",
+      contact: "Kontakt",
+      phone: "Telefon:",
+      whatsapp: "WhatsApp:",
+      email: "E-Mail:",
+      contactHint: "Kontakt bitte bevorzugt per WhatsApp Nachricht oder E-Mail.",
+      fbTitle: "Feedback",
+      fbLabel: "Dein Feedback",
+      fbSend: "Senden",
+      fbCopy: "Text kopieren",
+      fbHint: "Senden öffnet E-Mail (Fallback: kopieren).",
+      selectFirst: "Bitte zuerst links Kategorie/Baum auswählen.",
+      selectedTree: "Ausgewählter Baum:",
+      demoEmpty: "Demo: Dieser Baum hat noch keine Fragen/Nodes im content.json.",
+      adminLocked: "Admin gesperrt.",
+      adminUnlocked: "Admin entsperrt.",
+      adminPrompt: "Admin-Passwort",
+      wrongPass: "Falsches Passwort.",
+      copied: "Link kopiert.",
+      copiedText: "Text kopiert.",
+      openMailFail: "E-Mail konnte nicht geöffnet werden – Text kopieren.",
     },
     sk: {
       appTitle: "Diagnostika obytného auta",
-      subtitleBtn: "CaravanTechniker am Main",
-      tabCategories: "Kategórie",
-      tabDiag: "Diagnostika",
-      collapseAll: "Zbaliť",
+      brand: "CaravanTechniker am Main",
+      collapse: "Zbaliť",
+      expand: "Rozbaliť",
       feedback: "Pripomienky",
       share: "Zdieľať",
-      modalClose: "Zavrieť",
-
-      contactTitle: "Kontakt",
-      contactHtml: `
-        <div>
-          <div><b>Telefón:</b> <a href="tel:${CONTACT_PHONE_DIGITS}">${CONTACT_PHONE}</a></div>
-          <div style="margin-top:6px"><b>WhatsApp:</b> <a href="https://wa.me/${CONTACT_PHONE_DIGITS}" target="_blank" rel="noopener">${CONTACT_WHATSAPP}</a></div>
-          <div style="margin-top:6px"><b>E-mail:</b> <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></div>
-          <div style="margin-top:10px;font-weight:900">Kontakt bitte bevorzugt per WhatsApp Nachricht oder E-Mail.</div>
-        </div>
-      `,
-
-      feedbackTitle: "Pripomienky",
-      feedbackHtml: `
-        <div>
-          <div style="font-weight:900;margin-bottom:8px">Najrýchlejšie cez WhatsApp alebo e-mail:</div>
-          <div><a href="https://wa.me/${CONTACT_PHONE_DIGITS}" target="_blank" rel="noopener">Otvoriť WhatsApp</a></div>
-          <div style="margin-top:6px"><a href="mailto:${CONTACT_EMAIL}?subject=Diagnostika%20Feedback">Poslať e-mail</a></div>
-        </div>
-      `,
-
-      adminPrompt: "Zadaj heslo:",
-      adminWrong: "Nesprávne heslo.",
-      adminOk: "Admin odomknutý.",
-      loadedErr: "Obsah sa nepodarilo načítať (content.json).",
-      diagHint: "Vyber strom v Kategóriách. Potom sa zobrazí tu.",
-      selectedTree: "Vybraný strom",
-      demoNoNodes: "Demo: Tento strom ešte nemá otázky/nody v content.json.",
-      yes: "Áno",
-      no: "Nie",
-      back: "Späť"
-    }
+      categories: "Kategórie",
+      diagnosis: "Diagnostika",
+      online: "Online",
+      contact: "Kontakt",
+      phone: "Telefón:",
+      whatsapp: "WhatsApp:",
+      email: "E-mail:",
+      contactHint: "Kontakt prosím preferovane cez WhatsApp správu alebo E-mail.",
+      fbTitle: "Pripomienky",
+      fbLabel: "Tvoja správa",
+      fbSend: "Odoslať",
+      fbCopy: "Kopírovať text",
+      fbHint: "Odoslanie otvorí E-mail (ak nejde, skopíruj text).",
+      selectFirst: "Najprv vyber kategóriu a strom.",
+      selectedTree: "Vybraný strom:",
+      demoEmpty: "Demo: Tento strom ešte nemá otázky/nody v content.json.",
+      adminLocked: "Admin zamknutý.",
+      adminUnlocked: "Admin odomknutý.",
+      adminPrompt: "Admin heslo",
+      wrongPass: "Zlé heslo.",
+      copied: "Link skopírovaný.",
+      copiedText: "Text skopírovaný.",
+      openMailFail: "E-mail sa nepodarilo otvoriť – skopíruj text.",
+    },
   };
 
-  // ===== STATE =====
-  let lang = localStorage.getItem("lang") || "de";
-  let adminUnlocked = localStorage.getItem("adminUnlocked") === "1";
-  let activeTab = "categories"; // categories | diag
-  let content = null;
-  let selectedTree = null;
-
-  // ===== DOM HELPERS =====
-  const qs = (s) => document.querySelector(s);
-  const t = () => I18N[lang] || I18N.de;
-
-  function setLang(newLang) {
-    lang = newLang;
-    localStorage.setItem("lang", lang);
-    render();
+  function tr(key) {
+    return (T[state.lang] && T[state.lang][key]) || (T.de[key] || key);
   }
 
-  // ===== TOAST (náhrada alert) =====
-  const toast = document.createElement("div");
-  toast.className = "toast";
-  document.body.appendChild(toast);
+  function applyTexts() {
+    document.documentElement.lang = state.lang;
 
-  let toastTimer = null;
-  function showToast(msg, ms = 1800) {
-    toast.textContent = msg;
-    toast.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove("show"), ms);
+    el.appTitle.textContent = tr("appTitle");
+    el.contactBtn.textContent = tr("brand");
+
+    el.collapseBtn.textContent = state.collapsed ? tr("expand") : tr("collapse");
+    el.feedbackBtn.textContent = tr("feedback");
+    el.shareBtn.textContent = tr("share");
+
+    el.tabDiagnosis.textContent = tr("diagnosis");
+    // tabCategories sa doplní pri renderi (s počtom)
+
+    el.categoriesTitle.textContent = tr("categories");
+    el.diagnosisTitle.textContent = tr("diagnosis");
+
+    el.contactTitle.textContent = tr("contact");
+    el.feedbackTitle.textContent = tr("fbTitle");
+    el.fbLabel.textContent = tr("fbLabel");
+    el.fbSend.textContent = tr("fbSend");
+    el.fbCopy.textContent = tr("fbCopy");
+    el.fbHint.textContent = tr("fbHint");
+
+    el.contactHint.textContent = tr("contactHint");
+    el.selectedTreeLine.textContent = `${tr("selectedTree")} –`;
+
+    // status
+    el.statusLine.textContent = state.adminUnlocked ? tr("adminUnlocked") : tr("adminLocked");
   }
 
-  // ===== MODAL (HTML podporované) =====
-  const modalOverlay = document.createElement("div");
-  modalOverlay.className = "modalOverlay";
-  modalOverlay.innerHTML = `
-    <div class="modal" role="dialog" aria-modal="true">
-      <h3 class="modalTitle" id="modalTitle"></h3>
-      <div class="modalBody" id="modalBody"></div>
-      <div class="modalActions">
-        <button class="btn primary" id="modalCloseBtn"></button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modalOverlay);
+  // ====== HELPERS ======
+  function setStatus(msg) {
+    el.statusLine.textContent = msg;
+    // necháme tam poslednú správu (bez alertov)
+  }
 
-  const openModalHtml = (title, html) => {
-    qs("#modalTitle").textContent = (title ?? "").toString().trim() || "—";
-    qs("#modalBody").innerHTML = (html ?? "").toString().trim() || "—";
-    qs("#modalCloseBtn").textContent = t().modalClose;
-    modalOverlay.classList.add("open");
-  };
+  function toggle(elm, show) {
+    elm.classList.toggle("hidden", !show);
+  }
 
-  const closeModal = () => modalOverlay.classList.remove("open");
-  modalOverlay.addEventListener("click", (e) => { if (e.target === modalOverlay) closeModal(); });
-  qs("#modalCloseBtn").addEventListener("click", closeModal);
+  function closePanels() {
+    toggle(el.inlinePanels, false);
+    toggle(el.contactPanel, false);
+    toggle(el.feedbackPanel, false);
+  }
 
-  // ===== CONTENT =====
+  function openPanel(which) {
+    toggle(el.inlinePanels, true);
+    toggle(el.contactPanel, which === "contact");
+    toggle(el.feedbackPanel, which === "feedback");
+  }
+
+  function safeNumber(n, fallback = 0) {
+    const x = Number(n);
+    return Number.isFinite(x) ? x : fallback;
+  }
+
+  // ====== CONTENT LOADING ======
   async function loadContent() {
+    // Content musí fungovať aj na GitHub Pages aj Netlify: relatívna cesta
     const res = await fetch("content.json", { cache: "no-store" });
     if (!res.ok) throw new Error("content.json load failed");
-    content = await res.json();
+    const json = await res.json();
+    state.content = json;
+
+    // Normalizácia: podporíme viac formátov, aby si nemusel prerábať content.json
+    state.categories = normalizeCategories(json);
   }
 
-  // ===== ADMIN (WOMO 5x) =====
-  let clickCount = 0;
-  let clickTimer = null;
-
-  function onAdminLogoClick() {
-    if (!clickTimer) {
-      clickTimer = setTimeout(() => {
-        clickCount = 0;
-        clickTimer = null;
-      }, ADMIN_CLICK_WINDOW_MS);
+  function normalizeCategories(json) {
+    // Preferovaný: { categories: [{ id, title, title_de, title_sk, trees: [...] }] }
+    if (json && Array.isArray(json.categories)) {
+      return json.categories.map((c, idx) => ({
+        id: c.id || `cat_${idx}`,
+        title_de: c.title_de || c.title || c.name_de || c.name || `Kategorie ${idx + 1}`,
+        title_sk: c.title_sk || c.title_sk || c.name_sk || c.name || `Kategória ${idx + 1}`,
+        trees: Array.isArray(c.trees) ? c.trees : [],
+      }));
     }
-    clickCount += 1;
 
-    if (clickCount >= ADMIN_CLICKS_REQUIRED) {
-      clickCount = 0;
-      clearTimeout(clickTimer);
-      clickTimer = null;
-
-      const pwd = prompt(t().adminPrompt);
-      if (pwd === null) return;
-
-      if (pwd === ADMIN_PASSWORD) {
-        adminUnlocked = true;
-        localStorage.setItem("adminUnlocked", "1");
-        showToast(t().adminOk); // BEZ alert OK okna
-      } else {
-        showToast(t().adminWrong, 2200);
-      }
+    // Alternatíva: { trees: [...] } -> dáme do jednej kategórie
+    if (json && Array.isArray(json.trees)) {
+      return [{
+        id: "cat_default",
+        title_de: "Kategorien",
+        title_sk: "Kategórie",
+        trees: json.trees,
+      }];
     }
+
+    // Fallback prázdne
+    return [];
   }
 
-  // ===== UI =====
-  function buildHeader() {
-    const app = qs("#app");
-
-    const topbar = document.createElement("header");
-    topbar.className = "topbar";
-    topbar.innerHTML = `
-      <div class="brand">
-        <div id="adminBtn" class="logo">WOMO</div>
-        <div class="titles">
-          <h1 id="appTitle">${t().appTitle}</h1>
-          <button id="contactBtn" class="subtitle">${t().subtitleBtn}</button>
-        </div>
-      </div>
-
-      <div class="actions">
-        <select class="pill" id="langSel" aria-label="Language">
-          <option value="de">DE</option>
-          <option value="sk">SK</option>
-        </select>
-        <button class="pill" id="collapseBtn">${t().collapseAll}</button>
-        <button class="pill" id="feedbackBtn">${t().feedback}</button>
-        <button class="pill primary" id="shareBtn">${t().share}</button>
-      </div>
-    `;
-    app.appendChild(topbar);
-
-    // handlers
-    qs("#adminBtn").addEventListener("click", onAdminLogoClick);
-
-    qs("#contactBtn").addEventListener("click", () => {
-      openModalHtml(t().contactTitle, t().contactHtml);
-    });
-
-    qs("#feedbackBtn").addEventListener("click", () => {
-      openModalHtml(t().feedbackTitle, t().feedbackHtml);
-    });
-
-    const langSel = qs("#langSel");
-    langSel.value = lang;
-    langSel.addEventListener("change", (e) => setLang(e.target.value));
-
-    // Einklappen len v Kategórie, v Diagnose bude DISABLED
-    const collapseBtn = qs("#collapseBtn");
-    collapseBtn.disabled = (activeTab !== "categories");
-    collapseBtn.addEventListener("click", () => {
-      if (activeTab !== "categories") return;
-      document.querySelectorAll(".accordion.open").forEach((a) => a.classList.remove("open"));
-    });
-
-    qs("#shareBtn").addEventListener("click", () => {
-      const url = location.href;
-      const msg = `${t().appTitle}\n${url}`;
-      if (navigator.share) {
-        navigator.share({ title: t().appTitle, text: msg, url }).catch(() => {});
-      } else {
-        navigator.clipboard?.writeText(msg).catch(() => {});
-        openModalHtml(t().share, `<div style="font-weight:900;white-space:pre-line">${msg}</div>`);
-      }
-    });
+  function catTitle(cat) {
+    return state.lang === "sk" ? (cat.title_sk || cat.title_de) : (cat.title_de || cat.title_sk);
   }
 
-  function buildTabs() {
-    const app = qs("#app");
-    const categoriesCount = Array.isArray(content?.categories) ? content.categories.length : 0;
-
-    const tabs = document.createElement("div");
-    tabs.className = "tabs";
-    tabs.innerHTML = `
-      <button class="tab ${activeTab === "categories" ? "active" : ""}" id="tabCategories">
-        ${t().tabCategories} (${categoriesCount})
-      </button>
-      <button class="tab ${activeTab === "diag" ? "active" : ""}" id="tabDiag">
-        ${t().tabDiag}
-      </button>
-    `;
-    app.appendChild(tabs);
-
-    qs("#tabCategories").addEventListener("click", () => { activeTab = "categories"; render(); });
-    qs("#tabDiag").addEventListener("click", () => { activeTab = "diag"; render(); });
+  function treeTitle(tree) {
+    // tree: { title_de, title_sk, title } alebo { name_de, name_sk }
+    const de = tree.title_de || tree.title || tree.name_de || tree.name || "Baum";
+    const sk = tree.title_sk || tree.name_sk || tree.name || de;
+    return state.lang === "sk" ? sk : de;
   }
 
-  function buildCategoriesView() {
-    const app = qs("#app");
-    const section = document.createElement("section");
-    section.className = "section";
+  // ====== RENDER ======
+  function render() {
+    applyTexts();
+    renderTabs();
+    renderCategories();
+    renderDiagnosisButtonsState();
+  }
 
-    const cats = Array.isArray(content?.categories) ? content.categories : [];
-    const trees = Array.isArray(content?.trees) ? content.trees : [];
+  function renderTabs() {
+    el.tabCategories.classList.toggle("active", !el.categoriesView.classList.contains("hidden"));
+    el.tabDiagnosis.classList.toggle("active", !el.diagnosisView.classList.contains("hidden"));
 
-    section.innerHTML = `
-      <div class="sectionTitleRow">
-        <h2 class="sectionTitle">${t().tabCategories}</h2>
-        <div class="countBadge">${cats.length} ks</div>
-      </div>
-    `;
+    const catCount = state.categories.length;
+    el.tabCategories.textContent = `${tr("categories")} (${catCount})`;
+    el.categoriesCount.textContent = `${catCount} ks`;
+  }
 
-    cats.forEach((cat) => {
-      const catName = cat?.name?.[lang] || cat?.name?.de || cat?.id || "—";
-      const catTrees = trees.filter((tr) => tr.categoryId === cat.id);
+  function renderCategories() {
+    el.categoriesList.innerHTML = "";
 
-      const acc = document.createElement("div");
-      acc.className = "accordion";
-      acc.innerHTML = `
-        <button class="accHead" type="button">
-          <span>${catName}</span>
-          <span class="accRight">
-            <span class="accCount">${catTrees.length} ks</span>
-            <span class="chev">▾</span>
-          </span>
-        </button>
-        <div class="accBody"></div>
-      `;
-      acc.querySelector(".accHead").addEventListener("click", () => acc.classList.toggle("open"));
+    state.categories.forEach((cat) => {
+      const item = document.createElement("div");
+      item.className = "item";
 
-      const body = acc.querySelector(".accBody");
-      catTrees.forEach((tr) => {
-        const title = tr?.title?.[lang] || tr?.title?.de || tr.id || "—";
-        const sub = tr?.subtitle?.[lang] || tr?.subtitle?.de || "";
+      const left = document.createElement("div");
+      left.className = "itemTitle";
+      left.textContent = catTitle(cat);
 
-        const btn = document.createElement("button");
-        btn.className = "treeBtn";
-        btn.type = "button";
-        btn.innerHTML = `
-          <div class="treeBtnTitle">${title}</div>
-          <div class="treeBtnSub">${sub}</div>
-        `;
+      const right = document.createElement("div");
+      right.className = "itemRight";
 
-        // klik na strom -> prepne do Diagnostiky
-        btn.addEventListener("click", () => {
-          selectedTree = tr;
-          activeTab = "diag";
-          render();
-        });
+      const count = document.createElement("div");
+      count.className = "ksp";
+      count.textContent = `${safeNumber(cat.trees.length)} ks`;
 
-        body.appendChild(btn);
+      const btn = document.createElement("button");
+      btn.className = "dropBtn";
+      btn.type = "button";
+      btn.textContent = "▾";
+      btn.addEventListener("click", () => {
+        const open = !treeWrap.classList.contains("hidden");
+        toggle(treeWrap, !open);
+        btn.textContent = open ? "▾" : "▴";
       });
 
-      section.appendChild(acc);
+      right.appendChild(count);
+      right.appendChild(btn);
+
+      item.appendChild(left);
+      item.appendChild(right);
+
+      const treeWrap = document.createElement("div");
+      treeWrap.className = "treeList hidden";
+
+      cat.trees.forEach((tree) => {
+        const tb = document.createElement("button");
+        tb.className = "treeBtn";
+        tb.type = "button";
+        tb.textContent = treeTitle(tree);
+        tb.addEventListener("click", () => {
+          selectTree(tree);
+          showDiagnosis();
+          // po výbere stromu môžeš chcieť automaticky zavrieť list:
+          // toggle(treeWrap, false);
+        });
+        treeWrap.appendChild(tb);
+      });
+
+      el.categoriesList.appendChild(item);
+      el.categoriesList.appendChild(treeWrap);
+    });
+  }
+
+  function selectTree(tree) {
+    state.selectedTree = tree;
+
+    const name = treeTitle(tree);
+    el.selectedTreeLine.textContent = `${tr("selectedTree")} ${name}`;
+
+    // nodes: podporíme tree.nodes alebo content.nodesByTreeId
+    const nodes = getNodesForTree(tree);
+    const nodeLen = Array.isArray(nodes) ? nodes.length : 0;
+    el.nodeCount.textContent = String(nodeLen);
+
+    if (!nodeLen) {
+      el.diagText.textContent = tr("demoEmpty");
+      return;
+    }
+
+    // Zatiaľ základ: zobraz prvý node text (ak existuje)
+    const first = nodes[0];
+    const txt = (state.lang === "sk")
+      ? (first.text_sk || first.text || first.question_sk || first.question || "")
+      : (first.text_de || first.text || first.question_de || first.question || "");
+
+    el.diagText.textContent = txt || tr("demoEmpty");
+  }
+
+  function getNodesForTree(tree) {
+    if (!tree) return [];
+    if (Array.isArray(tree.nodes)) return tree.nodes;
+
+    // podpora: content.nodesByTreeId[tree.id]
+    const id = tree.id || tree.treeId || tree.key;
+    if (id && state.content && state.content.nodesByTreeId && Array.isArray(state.content.nodesByTreeId[id])) {
+      return state.content.nodesByTreeId[id];
+    }
+    return [];
+  }
+
+  function showCategories() {
+    toggle(el.categoriesView, true);
+    toggle(el.diagnosisView, false);
+    renderTabs();
+  }
+
+  function showDiagnosis() {
+    toggle(el.categoriesView, false);
+    toggle(el.diagnosisView, true);
+    renderTabs();
+  }
+
+  function renderDiagnosisButtonsState() {
+    const enabled = !!state.selectedTree;
+    el.btnYes.disabled = !enabled;
+    el.btnNo.disabled = !enabled;
+    el.btnBack.disabled = !enabled;
+  }
+
+  // ====== EVENTS ======
+  function bindEvents() {
+    // Tabs
+    el.tabCategories.addEventListener("click", showCategories);
+    el.tabDiagnosis.addEventListener("click", showDiagnosis);
+
+    // Language menu
+    el.langBtn.addEventListener("click", () => {
+      el.langMenu.classList.toggle("hidden");
+    });
+    el.langMenu.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-lang]");
+      if (!btn) return;
+      state.lang = btn.dataset.lang;
+      el.langLabel.textContent = state.lang.toUpperCase();
+      el.langMenu.classList.add("hidden");
+      render();
+      // aby sa prepočítali názvy v zozname:
+      renderCategories();
+      // a ak je vybraný strom, prepnúť text:
+      if (state.selectedTree) selectTree(state.selectedTree);
     });
 
-    const footer = document.createElement("div");
-    footer.className = "footerRow";
-    footer.innerHTML = `
-      <div><span class="onlineDot"></span>Online</div>
-      <div>${APP_VERSION}</div>
-    `;
-    section.appendChild(footer);
+    // Close language menu on outside click
+    document.addEventListener("click", (e) => {
+      if (e.target.closest(".langWrap")) return;
+      el.langMenu.classList.add("hidden");
+    });
 
-    app.appendChild(section);
+    // Collapse
+    el.collapseBtn.addEventListener("click", () => {
+      state.collapsed = !state.collapsed;
+      // skryjeme/ukážeme zoznam + diagnose (ponecháme header)
+      const hide = state.collapsed;
+      toggle(el.categoriesView, !hide && !el.categoriesView.classList.contains("hidden"));
+      toggle(el.diagnosisView, !hide && !el.diagnosisView.classList.contains("hidden"));
+      toggle(el.inlinePanels, !hide && !el.inlinePanels.classList.contains("hidden"));
+      el.collapseBtn.textContent = state.collapsed ? tr("expand") : tr("collapse");
+      if (hide) closePanels();
+    });
+
+    // Contact / Feedback inline
+    el.contactBtn.addEventListener("click", () => {
+      openPanel("contact");
+    });
+
+    el.feedbackBtn.addEventListener("click", () => {
+      openPanel("feedback");
+    });
+
+    el.closePanelsBtn.addEventListener("click", closePanels);
+    el.closePanelsBtn2.addEventListener("click", closePanels);
+
+    // Share
+    el.shareBtn.addEventListener("click", async () => {
+      const url = window.location.href;
+      try {
+        if (navigator.share) {
+          await navigator.share({ title: document.title, url });
+          return;
+        }
+      } catch (_) { /* ignore */ }
+
+      try {
+        await navigator.clipboard.writeText(url);
+        setStatus(tr("copied"));
+      } catch (_) {
+        // fallback prompt
+        window.prompt("Copy link:", url);
+      }
+    });
+
+    // Feedback send/copy
+    el.fbCopy.addEventListener("click", async () => {
+      const txt = (el.fbText.value || "").trim();
+      if (!txt) return;
+      try {
+        await navigator.clipboard.writeText(txt);
+        setStatus(tr("copiedText"));
+      } catch (_) {
+        window.prompt("Copy:", txt);
+      }
+    });
+
+    el.fbSend.addEventListener("click", () => {
+      const txt = (el.fbText.value || "").trim();
+      if (!txt) return;
+
+      const subject = encodeURIComponent("Wohnmobil Diagnose – Feedback");
+      const body = encodeURIComponent(txt);
+      const mailto = `mailto:caravantechnikerammain@gmail.com?subject=${subject}&body=${body}`;
+
+      // otvor mailto
+      try {
+        window.location.href = mailto;
+      } catch (_) {
+        setStatus(tr("openMailFail"));
+      }
+    });
+
+    // Admin: 5x tap on WOMO
+    el.adminBtn.addEventListener("click", () => {
+      state.adminTapCount += 1;
+
+      if (state.adminTapTimer) clearTimeout(state.adminTapTimer);
+      state.adminTapTimer = setTimeout(() => {
+        state.adminTapCount = 0;
+      }, 1100);
+
+      if (state.adminTapCount >= 5) {
+        state.adminTapCount = 0;
+        adminUnlockFlow();
+      }
+    });
+
+    // Diagnose buttons – zatiaľ placeholder (napojíme neskôr na nodes)
+    el.btnYes.addEventListener("click", () => {
+      if (!state.selectedTree) return;
+      setStatus("OK");
+    });
+    el.btnNo.addEventListener("click", () => {
+      if (!state.selectedTree) return;
+      setStatus("OK");
+    });
+    el.btnBack.addEventListener("click", () => {
+      if (!state.selectedTree) return;
+      setStatus("OK");
+    });
   }
 
-  function buildDiagView() {
-    const app = qs("#app");
-    const section = document.createElement("section");
-    section.className = "section";
+  function adminUnlockFlow() {
+    const pass = window.prompt(tr("adminPrompt"));
+    if (!pass) return;
 
-    const title = selectedTree
-      ? (selectedTree?.title?.[lang] || selectedTree?.title?.de || selectedTree.id || "—")
-      : null;
-
-    section.innerHTML = `
-      <div class="sectionTitleRow">
-        <h2 class="sectionTitle">${t().tabDiag}</h2>
-        <div class="countBadge">${selectedTree ? "1" : "0"}</div>
-      </div>
-
-      ${selectedTree ? `
-        <div style="margin-top:10px;font-weight:900">${t().selectedTree}: ${title}</div>
-        <div style="margin-top:8px;font-weight:800;opacity:.8">${t().demoNoNodes}</div>
-      ` : `
-        <div style="margin-top:10px;font-weight:900">${t().diagHint}</div>
-      `}
-
-      <div class="diagRow" id="diagRow"></div>
-    `;
-
-    const row = section.querySelector("#diagRow");
-    const btnYes = document.createElement("button"); btnYes.className = "diagBtn yes"; btnYes.textContent = t().yes;
-    const btnNo  = document.createElement("button"); btnNo.className  = "diagBtn no";  btnNo.textContent  = t().no;
-    const btnBack= document.createElement("button"); btnBack.className= "diagBtn back";btnBack.textContent= t().back;
-
-    // zatiaľ demo (kým nemáš nodes v content.json)
-    btnYes.addEventListener("click", () => showToast("Demo: YES"));
-    btnNo.addEventListener("click", () => showToast("Demo: NO"));
-
-    btnBack.addEventListener("click", () => { activeTab = "categories"; render(); });
-
-    row.appendChild(btnYes);
-    row.appendChild(btnNo);
-    row.appendChild(btnBack);
-
-    app.appendChild(section);
+    // jednoduché heslo zatiaľ – zmeníme neskôr (alebo presunieme do configu)
+    // Dôležité: bez alertu, iba status
+    if (pass === "128hz" || pass === "admin") {
+      state.adminUnlocked = true;
+      setStatus(tr("adminUnlocked"));
+    } else {
+      state.adminUnlocked = false;
+      setStatus(tr("wrongPass"));
+    }
   }
 
-  function render() {
-    const root = qs("#app");
-    root.innerHTML = "";
-    buildHeader();
-    buildTabs();
-    if (activeTab === "categories") buildCategoriesView();
-    else buildDiagView();
+  // WhatsApp link
+  function initContactLinks() {
+    const phone = "+4915163812554";
+    el.waLink.href = `https://wa.me/${phone.replace(/\+/g, "")}`;
   }
 
-  // ===== BOOT =====
-  (async function boot() {
+  // ====== INIT ======
+  async function init() {
+    initContactLinks();
+    bindEvents();
+
+    // service worker optional
+    if ("serviceWorker" in navigator) {
+      try {
+        await navigator.serviceWorker.register("sw.js");
+      } catch (_) { /* ignore */ }
+    }
+
     try {
       await loadContent();
-      render();
     } catch (e) {
-      const root = qs("#app");
-      root.innerHTML = `<div class="section"><h2 class="sectionTitle">Error</h2><div>${t().loadedErr}</div></div>`;
+      // ak content.json chýba alebo je rozbité
+      state.categories = [];
+      state.content = {};
     }
-  })();
+
+    el.langLabel.textContent = state.lang.toUpperCase();
+    render();
+    setStatus(tr("adminLocked"));
+    showCategories();
+  }
+
+  init();
 })();
