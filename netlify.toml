@@ -1,0 +1,9 @@
+[build]
+  publish = "."
+  command = ""
+
+# Anti-cache for UI files (helps when PWA/service worker shows old design)
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "no-store, max-age=0"

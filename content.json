@@ -1,0 +1,331 @@
+{
+  "version": "demo-2026-02-22",
+  "categories": [
+    {
+      "id": "cat_wasser",
+      "title_de": "Wasser",
+      "title_sk": "Voda",
+      "trees": [
+        {
+          "id": "tree_pumpe_keine",
+          "title_de": "Wasserpumpe läuft nicht",
+          "title_sk": "Vodná pumpa nejde",
+          "nodes": [
+            {
+              "id": "n1",
+              "type": "question",
+              "text_de": "Hörst du die Pumpe laufen, wenn du einen Wasserhahn öffnest?",
+              "text_sk": "Počuješ bežať pumpu, keď otvoríš kohútik?",
+              "yes": "n2",
+              "no": "n3"
+            },
+            {
+              "id": "n2",
+              "type": "question",
+              "text_de": "Kommt trotzdem kein Wasser (auch nicht kurz)?",
+              "text_sk": "Aj tak netečie voda (ani krátko)?",
+              "yes": "n4",
+              "no": "r_ok"
+            },
+            {
+              "id": "n3",
+              "type": "question",
+              "text_de": "Ist am Bedienpanel (Wasser/Pumpe) die Versorgung eingeschaltet?",
+              "text_sk": "Je na paneli zapnutá voda/pumpa?",
+              "yes": "n5",
+              "no": "r_panel"
+            },
+            {
+              "id": "n4",
+              "type": "question",
+              "text_de": "Ist der Frischwassertank ausreichend gefüllt und der Ansaugschlauch im Wasser?",
+              "text_sk": "Je nádrž plná a sacia hadica je vo vode?",
+              "yes": "n6",
+              "no": "r_tank"
+            },
+            {
+              "id": "n5",
+              "type": "question",
+              "text_de": "Sind Sicherung/Automat für die Pumpe OK (nicht ausgelöst)?",
+              "text_sk": "Je poistka/istič pumpy v poriadku (nie je vypnutý)?",
+              "yes": "n7",
+              "no": "r_fuse"
+            },
+            {
+              "id": "n6",
+              "type": "question",
+              "text_de": "Ist ein Filter/Strainer vor der Pumpe verstopft?",
+              "text_sk": "Nie je filter pred pumpou upchatý?",
+              "yes": "r_filter",
+              "no": "r_air"
+            },
+            {
+              "id": "n7",
+              "type": "question",
+              "text_de": "Liegt am Pumpenanschluss 12V an, wenn du den Hahn öffnest?",
+              "text_sk": "Je na pumpe 12 V, keď otvoríš kohútik?",
+              "yes": "r_pump_def",
+              "no": "r_switch"
+            },
+            {
+              "id": "r_ok",
+              "type": "result",
+              "text_de": "Ergebnis: System OK. Wenn der Druck passt, keine Maßnahme nötig.",
+              "text_sk": "Výsledok: Systém je OK. Ak je tlak v poriadku, netreba zásah."
+            },
+            {
+              "id": "r_panel",
+              "type": "result",
+              "text_de": "Ergebnis: Pumpe/Wasser am Panel einschalten und erneut testen.",
+              "text_sk": "Výsledok: Zapni pumpu/vodu na paneli a otestuj znova."
+            },
+            {
+              "id": "r_tank",
+              "type": "result",
+              "text_de": "Ergebnis: Tank füllen / Ansaugung korrekt positionieren.",
+              "text_sk": "Výsledok: Doplň nádrž / skontroluj správnu polohu sania."
+            },
+            {
+              "id": "r_fuse",
+              "type": "result",
+              "text_de": "Ergebnis: Sicherung/Automat für Pumpe wieder einschalten bzw. ersetzen.",
+              "text_sk": "Výsledok: Nahod’ istič / vymeň poistku pre pumpu."
+            },
+            {
+              "id": "r_filter",
+              "type": "result",
+              "text_de": "Ergebnis: Filter/Strainer reinigen (häufige Ursache).",
+              "text_sk": "Výsledok: Vyčisti filter (častá príčina)."
+            },
+            {
+              "id": "r_air",
+              "type": "result",
+              "text_de": "Ergebnis: Vermutlich Luft im System oder Undichtigkeit auf der Saugseite. Dichtheit prüfen, entlüften.",
+              "text_sk": "Výsledok: Pravdepodobne vzduch v systéme alebo netesnosť na saní. Skontroluj tesnosť, odvzdušni."
+            },
+            {
+              "id": "r_switch",
+              "type": "result",
+              "text_de": "Ergebnis: Kein 12V an der Pumpe → Mikroschalter im Hahn / Druckschalter / Verkabelung prüfen.",
+              "text_sk": "Výsledok: Na pumpe nie je 12 V → skontroluj mikrospínač v batérii / tlakový spínač / kabeláž."
+            },
+            {
+              "id": "r_pump_def",
+              "type": "result",
+              "text_de": "Ergebnis: 12V liegt an, Pumpe läuft nicht → Pumpe defekt oder blockiert (Impeller).",
+              "text_sk": "Výsledok: 12 V je prítomných, pumpa nejde → pumpa je chybná alebo zablokovaná."
+            }
+          ]
+        },
+        {
+          "id": "tree_wasser_leck",
+          "title_de": "Wasser im Fahrzeug (Feuchte)",
+          "title_sk": "Voda vo vozidle (vlhkosť)",
+          "nodes": [
+            {
+              "id": "a1",
+              "type": "question",
+              "text_de": "Siehst du Wasser/Feuchte eher im Bad/Küche oder eher an Fenster/Dach?",
+              "text_sk": "Vidíš vlhkosť skôr v kúpeľni/kuchyni alebo pri oknách/streche?",
+              "yes": "a2_innen",
+              "no": "a2_aussen"
+            },
+            {
+              "id": "a2_innen",
+              "type": "question",
+              "text_de": "Tritt es nur bei Nutzung von Wasserpumpe/Boiler auf?",
+              "text_sk": "Objaví sa to len pri používaní pumpy/bojlera?",
+              "yes": "a3_leitung",
+              "no": "a3_abwasser"
+            },
+            {
+              "id": "a2_aussen",
+              "type": "question",
+              "text_de": "Tritt es nach Regen/Waschanlage stärker auf?",
+              "text_sk": "Je to horšie po daždi/umývačke?",
+              "yes": "r_dach",
+              "no": "r_cond"
+            },
+            {
+              "id": "a3_leitung",
+              "type": "question",
+              "text_de": "Ist der Boiler-Sicherheitsablass (FrostControl) geschlossen und dicht?",
+              "text_sk": "Je FrostControl zatvorený a tesný?",
+              "yes": "r_leitung",
+              "no": "r_frost"
+            },
+            {
+              "id": "a3_abwasser",
+              "type": "question",
+              "text_de": "Riecht es eher nach Abwasser / Siphon?",
+              "text_sk": "Cítiť zápach odpadovej vody / sifónu?",
+              "yes": "r_siphon",
+              "no": "r_unklar"
+            },
+            {
+              "id": "r_dach",
+              "type": "result",
+              "text_de": "Ergebnis: Verdacht auf Undichtigkeit Dachhaube/Fenster/Serviceklappe. Dichtungen + Schraubpunkte prüfen.",
+              "text_sk": "Výsledok: Podozrenie na netesnosť strešné okno/okno/servisné dvierka. Skontroluj tesnenia a skrutky."
+            },
+            {
+              "id": "r_cond",
+              "type": "result",
+              "text_de": "Ergebnis: Möglich auch Kondenswasser (Winter). Lüftung/Isolationsstellen prüfen.",
+              "text_sk": "Výsledok: Môže ísť aj o kondenz (zima). Skontroluj vetranie a studené miesta."
+            },
+            {
+              "id": "r_frost",
+              "type": "result",
+              "text_de": "Ergebnis: FrostControl/Boiler-Ablass öffnet → Temperatur/Heizung prüfen, Ventil auf Dichtheit prüfen.",
+              "text_sk": "Výsledok: FrostControl vypúšťa → skontroluj teplotu/kúrenie a tesnosť ventilu."
+            },
+            {
+              "id": "r_leitung",
+              "type": "result",
+              "text_de": "Ergebnis: Leitungs-/Anschlussleck möglich. Alle Schlauchschellen/Steckverbinder bei Pumpe/Boiler/Armatur prüfen.",
+              "text_sk": "Výsledok: Možný únik na hadiciach/spojkách. Skontroluj spony a spojky pri pumpe/bojleri/batérii."
+            },
+            {
+              "id": "r_siphon",
+              "type": "result",
+              "text_de": "Ergebnis: Abwasser/Siphon prüfen, Schlauchverbindungen und Ablauf auf Dichtheit prüfen.",
+              "text_sk": "Výsledok: Skontroluj odpad/sifón, hadice a odtoky na tesnosť."
+            },
+            {
+              "id": "r_unklar",
+              "type": "result",
+              "text_de": "Ergebnis: Ursache unklar. Feuchte messen, Bereich eingrenzen (Papier/Handtuch-Test), dann gezielt prüfen.",
+              "text_sk": "Výsledok: Príčina nejasná. Zmeraj vlhkosť, zúž miesto (papierový test) a potom cielene kontroluj."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cat_elektro",
+      "title_de": "Elektrik",
+      "title_sk": "Elektrika",
+      "trees": [
+        {
+          "id": "tree_12v_ausfall",
+          "title_de": "12V komplett ausgefallen",
+          "title_sk": "12 V úplne nefunguje",
+          "nodes": [
+            {
+              "id": "e1",
+              "type": "question",
+              "text_de": "Funktioniert 230V Landstrom normal?",
+              "text_sk": "Funguje 230 V pripojenie normálne?",
+              "yes": "e2",
+              "no": "e2b"
+            },
+            {
+              "id": "e2",
+              "type": "question",
+              "text_de": "Sind Aufbau-Batterien vorhanden und nicht leer (Spannung > 12.0V)?",
+              "text_sk": "Sú palubné batérie a nie sú prázdne (napätie > 12,0 V)?",
+              "yes": "e3",
+              "no": "r_batt"
+            },
+            {
+              "id": "e2b",
+              "type": "question",
+              "text_de": "Ist der Hauptschalter/Panel überhaupt an?",
+              "text_sk": "Je hlavný vypínač/panel zapnutý?",
+              "yes": "e3",
+              "no": "r_panel_on"
+            },
+            {
+              "id": "e3",
+              "type": "question",
+              "text_de": "Sind Hauptsicherungen nahe Batterie/EBL OK (z.B. 50–150A)?",
+              "text_sk": "Sú hlavné poistky pri batérii/EBL v poriadku (napr. 50–150 A)?",
+              "yes": "e4",
+              "no": "r_mainfuse"
+            },
+            {
+              "id": "e4",
+              "type": "question",
+              "text_de": "Zeigt das Bedienpanel Fehlermeldungen oder bleibt es dunkel?",
+              "text_sk": "Zobrazuje panel chyby alebo je úplne tmavý?",
+              "yes": "r_panel_err",
+              "no": "r_check_ebl"
+            },
+            {
+              "id": "r_batt",
+              "type": "result",
+              "text_de": "Ergebnis: Aufbau-Batterie laden/prüfen (Unterspannung).",
+              "text_sk": "Výsledok: Nabíjaj/skontroluj palubnú batériu (podnapätie)."
+            },
+            {
+              "id": "r_panel_on",
+              "type": "result",
+              "text_de": "Ergebnis: Panel/Hauptschalter einschalten und 12V erneut prüfen.",
+              "text_sk": "Výsledok: Zapni panel/hlavný vypínač a skontroluj 12 V znova."
+            },
+            {
+              "id": "r_mainfuse",
+              "type": "result",
+              "text_de": "Ergebnis: Hlavná poistka je preč – nájsť príčinu (skrat) a vymeniť.",
+              "text_sk": "Výsledok: Hlavná poistka je preč – nájdi príčinu (skrat) a vymeň."
+            },
+            {
+              "id": "r_panel_err",
+              "type": "result",
+              "text_de": "Ergebnis: Panel zeigt Fehler → Fehlercode notieren, EBL/Panel-Verbindung und Sicherungen prüfen.",
+              "text_sk": "Výsledok: Panel hlási chybu → zapíš kód, skontroluj prepojenie EBL/panel a poistky."
+            },
+            {
+              "id": "r_check_ebl",
+              "type": "result",
+              "text_de": "Ergebnis: Panel ok, aber 12V tot → EBL-Ausgänge/Relais prüfen, Messung direkt am EBL.",
+              "text_sk": "Výsledok: Panel OK, ale 12 V nejde → skontroluj výstupy/relé EBL, zmeraj priamo na EBL."
+            }
+          ]
+        },
+        {
+          "id": "tree_usb_tot",
+          "title_de": "USB Steckdosen ohne Strom",
+          "title_sk": "USB zásuvky bez prúdu",
+          "nodes": [
+            {
+              "id": "u1",
+              "type": "question",
+              "text_de": "Sind andere 12V Verbraucher (Licht) noch OK?",
+              "text_sk": "Fungujú iné 12 V spotrebiče (svetlá)?",
+              "yes": "u2",
+              "no": "r_12v_global"
+            },
+            {
+              "id": "u2",
+              "type": "question",
+              "text_de": "Gibt es eine separate Sicherung für USB/Steckdose im Sicherungskasten?",
+              "text_sk": "Je samostatná poistka pre USB/zásuvku v poistkovej skrinke?",
+              "yes": "r_usb_fuse",
+              "no": "r_usb_wiring"
+            },
+            {
+              "id": "r_12v_global",
+              "type": "result",
+              "text_de": "Ergebnis: Nicht nur USB – 12V global prüfen (Hauptschalter/Sicherungen/Batterie).",
+              "text_sk": "Výsledok: Nie je to len USB – rieš 12 V globálne (hlavný vypínač/poistky/batéria)."
+            },
+            {
+              "id": "r_usb_fuse",
+              "type": "result",
+              "text_de": "Ergebnis: USB-Sicherung prüfen/ersetzen. Danach Spannungsmessung an USB-Modul.",
+              "text_sk": "Výsledok: Skontroluj/vymeň poistku USB. Potom zmeraj napätie na USB module."
+            },
+            {
+              "id": "r_usb_wiring",
+              "type": "result",
+              "text_de": "Ergebnis: Verdrahtung/Stecker am USB-Modul prüfen (lose Verbindung, Korrosion).",
+              "text_sk": "Výsledok: Skontroluj kabeláž/konektor pri USB module (uvoľnené, korózia)."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
