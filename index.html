@@ -12,6 +12,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#00BFFF" />
 </head>
+
 <body>
   <div id="app">
     <header class="topbar">
@@ -20,7 +21,11 @@
 
         <div class="titles">
           <h1 id="appTitle">Wohnmobil Diagnose</h1>
+
+          <!-- CaravanTechniker ako tlačidlo -->
           <button id="contactBtn" class="subtitle" type="button">CaravanTechniker am Main</button>
+
+          <!-- Toast správy (auto-hide) -->
           <div id="statusLine" class="statusLine" aria-live="polite"></div>
         </div>
       </div>
@@ -31,6 +36,7 @@
             <span id="langLabel">DE</span>
             <span class="caret">▾</span>
           </button>
+
           <div id="langMenu" class="menu hidden" role="menu" aria-label="Language menu">
             <button class="menuItem" type="button" data-lang="de">DE</button>
             <button class="menuItem" type="button" data-lang="sk">SK</button>
@@ -43,7 +49,7 @@
       </div>
     </header>
 
-    <!-- Inline panely (žiadny modal) -->
+    <!-- Inline panely (žiadny modal dole) -->
     <section id="inlinePanels" class="inlinePanels hidden">
       <div id="contactPanel" class="panel hidden">
         <div class="panelHeader">
@@ -52,9 +58,21 @@
         </div>
 
         <div class="panelBody">
-          <div class="contactRow"><span class="label">Telefon:</span> <a id="telLink" href="tel:+4915163812554">+49 151 638 12 554</a></div>
-          <div class="contactRow"><span class="label">WhatsApp:</span> <a id="waLink" href="#">+49 151 638 12 554</a></div>
-          <div class="contactRow"><span class="label">E-Mail:</span> <a id="mailLink" href="mailto:caravantechnikerammain@gmail.com">caravantechnikerammain@gmail.com</a></div>
+          <div class="contactRow">
+            <span class="label">Telefon:</span>
+            <a id="telLink" href="tel:+4915163812554">+49 151 638 12 554</a>
+          </div>
+
+          <div class="contactRow">
+            <span class="label">WhatsApp:</span>
+            <a id="waLink" href="#">+49 151 638 12 554</a>
+          </div>
+
+          <div class="contactRow">
+            <span class="label">E-Mail:</span>
+            <a id="mailLink" href="mailto:caravantechnikerammain@gmail.com">caravantechnikerammain@gmail.com</a>
+          </div>
+
           <div class="hint" id="contactHint">Kontakt bitte bevorzugt per WhatsApp Nachricht oder E-Mail.</div>
         </div>
       </div>
@@ -68,10 +86,12 @@
         <div class="panelBody">
           <label class="fieldLabel" for="fbText" id="fbLabel">Dein Feedback</label>
           <textarea id="fbText" class="textarea" rows="5" placeholder="Was fehlt, was ist unklar, welche Störung?"></textarea>
+
           <div class="panelActions">
             <button id="fbSend" class="btn primary" type="button">Senden</button>
             <button id="fbCopy" class="btn" type="button">Text kopieren</button>
           </div>
+
           <div class="hint" id="fbHint">Senden öffnet E-Mail (Fallback: kopieren).</div>
         </div>
       </div>
