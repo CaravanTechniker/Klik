@@ -1,9 +1,0 @@
-{
-  "name": "Wohnmobil Diagnose",
-  "short_name": "WOMO",
-  "start_url": "./",
-  "display": "standalone",
-  "background_color": "#00BFFF",
-  "theme_color": "#00BFFF",
-  "icons": []
-}
