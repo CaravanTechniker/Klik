@@ -5,14 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Wohnmobil Diagnose</title>
 
-  <!-- Dôležité pre GitHub Pages aj Netlify: relatívne cesty -->
   <base href="./" />
 
   <link rel="stylesheet" href="style.css" />
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#00BFFF" />
 </head>
-
 <body>
   <div id="app">
     <header class="topbar">
@@ -21,11 +19,9 @@
 
         <div class="titles">
           <h1 id="appTitle">Wohnmobil Diagnose</h1>
-
-          <!-- CaravanTechniker ako tlačidlo -->
           <button id="contactBtn" class="subtitle" type="button">CaravanTechniker am Main</button>
 
-          <!-- Toast správy (auto-hide) -->
+          <!-- status/toast line -->
           <div id="statusLine" class="statusLine" aria-live="polite"></div>
         </div>
       </div>
@@ -36,7 +32,6 @@
             <span id="langLabel">DE</span>
             <span class="caret">▾</span>
           </button>
-
           <div id="langMenu" class="menu hidden" role="menu" aria-label="Language menu">
             <button class="menuItem" type="button" data-lang="de">DE</button>
             <button class="menuItem" type="button" data-lang="sk">SK</button>
@@ -49,8 +44,9 @@
       </div>
     </header>
 
-    <!-- Inline panely (žiadny modal dole) -->
+    <!-- Inline panely (žiadny modal) -->
     <section id="inlinePanels" class="inlinePanels hidden">
+      <!-- CONTACT -->
       <div id="contactPanel" class="panel hidden">
         <div class="panelHeader">
           <h2 id="contactTitle">Kontakt</h2>
@@ -58,25 +54,14 @@
         </div>
 
         <div class="panelBody">
-          <div class="contactRow">
-            <span class="label">Telefon:</span>
-            <a id="telLink" href="tel:+4915163812554">+49 151 638 12 554</a>
-          </div>
-
-          <div class="contactRow">
-            <span class="label">WhatsApp:</span>
-            <a id="waLink" href="#">+49 151 638 12 554</a>
-          </div>
-
-          <div class="contactRow">
-            <span class="label">E-Mail:</span>
-            <a id="mailLink" href="mailto:caravantechnikerammain@gmail.com">caravantechnikerammain@gmail.com</a>
-          </div>
-
+          <div class="contactRow"><span class="label" id="lblPhone">Telefon:</span> <a id="telLink" href="tel:+4915163812554">+49 151 638 12 554</a></div>
+          <div class="contactRow"><span class="label" id="lblWa">WhatsApp:</span> <a id="waLink" href="#">+49 151 638 12 554</a></div>
+          <div class="contactRow"><span class="label" id="lblMail">E-Mail:</span> <a id="mailLink" href="mailto:caravantechnikerammain@gmail.com">caravantechnikerammain@gmail.com</a></div>
           <div class="hint" id="contactHint">Kontakt bitte bevorzugt per WhatsApp Nachricht oder E-Mail.</div>
         </div>
       </div>
 
+      <!-- FEEDBACK -->
       <div id="feedbackPanel" class="panel hidden">
         <div class="panelHeader">
           <h2 id="feedbackTitle">Feedback</h2>
@@ -85,14 +70,29 @@
 
         <div class="panelBody">
           <label class="fieldLabel" for="fbText" id="fbLabel">Dein Feedback</label>
-          <textarea id="fbText" class="textarea" rows="5" placeholder="Was fehlt, was ist unklar, welche Störung?"></textarea>
-
+          <textarea id="fbText" class="textarea" rows="5"></textarea>
           <div class="panelActions">
             <button id="fbSend" class="btn primary" type="button">Senden</button>
             <button id="fbCopy" class="btn" type="button">Text kopieren</button>
           </div>
-
           <div class="hint" id="fbHint">Senden öffnet E-Mail (Fallback: kopieren).</div>
+        </div>
+      </div>
+
+      <!-- ADMIN (len po odomknutí) -->
+      <div id="adminPanel" class="panel hidden">
+        <div class="panelHeader">
+          <h2 id="adminTitle">Admin</h2>
+          <button class="iconBtn" id="closePanelsBtn3" type="button" aria-label="Close">✕</button>
+        </div>
+
+        <div class="panelBody">
+          <div class="adminRow">
+            <button id="btnExportContent" class="btn primary" type="button">Export content.json</button>
+            <button id="btnImportContent" class="btn" type="button">Import content.json</button>
+            <input id="fileImport" class="hidden" type="file" accept="application/json" />
+          </div>
+          <div class="hint" id="adminHint">Import nahradí aktuálny obsah (ukladá sa do LocalStorage). Export stiahne aktuálnu verziu.</div>
         </div>
       </div>
     </section>
@@ -120,7 +120,18 @@
 
         <div id="diagnosisBody" class="diagBody">
           <div class="diagLine" id="selectedTreeLine">Ausgewählter Baum: –</div>
-          <div class="diagText" id="diagText">Bitte zuerst links Kategorie/Baum auswählen.</div>
+          <div class="diagText" id="diagText">Bitte zuerst links Kategorie/Problem auswählen.</div>
+
+          <!-- Ergebnis block -->
+          <div id="resultBox" class="resultBox hidden">
+            <div class="resultTitle" id="resultTitle">Ergebnis</div>
+            <pre id="resultText" class="resultText"></pre>
+            <div class="resultActions">
+              <button id="btnCopyResult" class="btn" type="button">Copy</button>
+              <button id="btnDownloadTxt" class="btn" type="button">TXT</button>
+              <button id="btnDownloadPdf" class="btn" type="button">PDF</button>
+            </div>
+          </div>
 
           <div class="diagActions">
             <button id="btnYes" class="btn yes" type="button">Ja</button>
