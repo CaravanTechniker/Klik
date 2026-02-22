@@ -3,7 +3,7 @@
   "short_name": "WOMO",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#eaf2ff",
-  "theme_color": "#eaf2ff",
+  "background_color": "#00BFFF",
+  "theme_color": "#00BFFF",
   "icons": []
 }
