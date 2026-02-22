@@ -47,7 +47,8 @@ body{
   user-select:none;
   cursor:pointer; /* vstup do admin (5x klik) */
 }
-.titles{display:flex; flex-direction:column; gap:4px}
+
+.titles{display:flex; flex-direction:column; gap:4px; min-width:0}
 #appTitle{margin:0; font-size:22px; line-height:1.1}
 .subtitle{
   background: transparent;
@@ -57,6 +58,9 @@ body{
   font-weight:700;
   color:#0b4ea8;
   cursor:pointer;
+  display:inline-block;
+  max-width:100%;
+  word-break:break-word;
 }
 
 .actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
@@ -178,6 +182,7 @@ body{
 }
 .onlineDot{width:10px;height:10px;border-radius:99px;background:#22c55e;display:inline-block;margin-right:8px}
 
+/* ===== MODAL (fix prázdny dojem) ===== */
 .modalOverlay{
   position:fixed; inset:0;
   background: rgba(0,0,0,.45);
@@ -187,15 +192,32 @@ body{
 }
 .modalOverlay.open{display:flex}
 .modal{
-  width:min(520px, 96vw);
+  width:min(560px, 96vw);
   background: #fff;
   border-radius: 18px;
   border: 1px solid var(--border);
   padding: 16px;
+  color: var(--text);
 }
-.modalTitle{margin:0 0 8px 0; font-size:20px; font-weight:900}
-.modalBody{white-space:pre-line; line-height:1.35}
-.modalActions{display:flex; gap:10px; justify-content:flex-end; margin-top:12px}
+.modalTitle{
+  margin:0 0 10px 0;
+  font-size:20px;
+  font-weight:900;
+}
+.modalBody{
+  white-space:pre-line;
+  line-height:1.35;
+  font-size:16px;
+  font-weight:700;
+  padding: 6px 0 0 0;
+  min-height: 24px; /* aby nevyzeral prázdny */
+}
+.modalActions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  margin-top:12px
+}
 .btn{
   border-radius: 999px;
   border: 1px solid var(--border);
@@ -221,8 +243,29 @@ body{
 .diagBtn.no{background: var(--no); color:#220707}
 .diagBtn.back{background: var(--back); color:#231600}
 
+/* ===== RESPONSIVE FIX ===== */
 @media (max-width: 720px){
   #app{padding:12px}
   .sectionTitle{font-size:28px}
-  .brand{min-width:0}
+}
+
+@media (max-width: 560px){
+  .topbar{
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .brand{
+    min-width:0;
+    width:100%;
+  }
+  .actions{
+    width:100%;
+    justify-content:flex-start;
+  }
+  .pill, .actions select.pill{
+    width:auto;
+  }
+  /* nech sa DE/SK a tlačidlá neprekrývajú */
+  .tabs{flex-direction:column}
+  .tab{width:100%}
 }
