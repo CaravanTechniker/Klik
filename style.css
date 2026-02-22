@@ -1,4 +1,401 @@
-/* Disabled stav (napr. Einklappen v Diagnose) */
+/* =========================
+   Base / Reset
+========================= */
+:root{
+  --bg: #00BFFF;            /* deepskyblue */
+  --card: rgba(255,255,255,.82);
+  --card2: rgba(255,255,255,.92);
+  --stroke: rgba(0,0,0,.10);
+  --text: #0b1b2b;
+
+  --active: #00FFFF;        /* tyrkysová */
+  --inactive: rgba(0,0,0,.14); /* bledo šedá */
+  --shadow: 0 14px 40px rgba(0,0,0,.18);
+
+  --radius-xl: 28px;
+  --radius-lg: 20px;
+  --radius-md: 16px;
+
+  --gap: 14px;
+
+  --yes: #21b34b;
+  --no: #e14141;
+  --back: #f2b300;
+}
+
+*{ box-sizing:border-box; }
+html, body{ height:100%; }
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  overflow-x:hidden;
+}
+
+button, input, select{
+  font: inherit;
+  color: inherit;
+}
+
+a{ color: inherit; }
+
+/* =========================
+   App container
+========================= */
+#app{
+  width: min(980px, calc(100vw - 24px));
+  margin: 14px auto 18px;
+}
+
+/* =========================
+   Topbar (header)
+========================= */
+.topbar{
+  background: rgba(255,255,255,.65);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-xl);
+  padding: 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: var(--gap);
+  box-shadow: var(--shadow);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.logo{
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.75);
+  border: 1px solid var(--stroke);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 1000;
+  letter-spacing: .8px;
+  user-select:none;
+  cursor:pointer;
+}
+
+.titles{
+  min-width: 0;
+  display:flex;
+  flex-direction:column;
+  gap: 6px;
+}
+
+#appTitle{
+  margin:0;
+  font-size: 26px;
+  line-height: 1.05;
+  font-weight: 1000;
+  letter-spacing: .2px;
+  white-space: nowrap;
+  overflow:hidden;
+  text-overflow: ellipsis;
+}
+
+.subtitle{
+  border:0;
+  background: transparent;
+  padding:0;
+  text-align:left;
+  font-weight: 950;
+  color: #0b4ea8;
+  cursor:pointer;
+  white-space: nowrap;
+  overflow:hidden;
+  text-overflow: ellipsis;
+}
+
+.actions{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content:flex-end;
+}
+
+/* Pills (right side buttons) */
+.pill{
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,.70);
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: 950;
+  cursor:pointer;
+  user-select:none;
+  min-height: 42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap: 8px;
+}
+.pill.primary{
+  background: var(--active);
+  border-color: rgba(0,0,0,.12);
+}
+.pill:hover{ filter: brightness(1.02); }
+
+/* =========================
+   Tabs
+========================= */
+.tabs{
+  margin-top: 12px;
+  background: rgba(255,255,255,.55);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-xl);
+  padding: 10px;
+  display:flex;
+  gap: 10px;
+  box-shadow: var(--shadow);
+}
+
+.tab{
+  flex: 1 1 0;
+  border: 1px solid var(--stroke);
+  border-radius: 999px;
+  padding: 12px 14px;
+  font-weight: 1000;
+  cursor:pointer;
+  background: var(--inactive); /* neaktívne */
+  min-height: 48px;
+}
+.tab.active{
+  background: var(--active);   /* aktívne */
+}
+
+/* =========================
+   Sections / Cards
+========================= */
+.section{
+  margin-top: 12px;
+  background: rgba(255,255,255,.62);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-xl);
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+.sectionTitleRow{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap: 10px;
+}
+
+.sectionTitle{
+  margin: 0;
+  font-size: 52px;
+  font-weight: 1100;
+  letter-spacing: .2px;
+  line-height: 1;
+}
+
+.countBadge{
+  font-weight: 1000;
+  opacity: .75;
+  font-size: 22px;
+  padding-bottom: 8px;
+}
+
+/* =========================
+   Accordion / Category items
+========================= */
+.accordion{
+  margin-top: 12px;
+  background: var(--card);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-lg);
+  overflow:hidden;
+}
+
+.accHead{
+  width:100%;
+  border:0;
+  background: transparent;
+  padding: 16px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  font-weight: 1100;
+  font-size: 28px;
+  cursor:pointer;
+}
+
+.accRight{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 1000;
+  opacity: .8;
+}
+
+.accCount{
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.7);
+  border: 1px solid var(--stroke);
+}
+
+.chev{
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.06);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition: transform .18s ease;
+}
+
+.accordion.open .chev{
+  transform: rotate(180deg);
+}
+
+.accBody{
+  display:none;
+  padding: 10px 12px 14px;
+  border-top: 1px solid var(--stroke);
+  background: rgba(255,255,255,.45);
+}
+.accordion.open .accBody{ display:block; }
+
+/* Tree button in accordion */
+.treeBtn{
+  width:100%;
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-md);
+  background: var(--card2);
+  padding: 14px 14px;
+  text-align:left;
+  cursor:pointer;
+  margin-top: 10px;
+  transition: transform .06s ease;
+}
+.treeBtn:active{ transform: scale(.99); }
+
+.treeBtnTitle{
+  font-weight: 1050;
+  font-size: 20px;
+}
+.treeBtnSub{
+  margin-top: 4px;
+  font-weight: 850;
+  opacity: .75;
+  font-size: 14px;
+}
+
+/* =========================
+   Footer row
+========================= */
+.footerRow{
+  margin-top: 14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-weight: 950;
+  opacity: .8;
+}
+
+.onlineDot{
+  display:inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #2dbb5a;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* =========================
+   Diagnose buttons
+========================= */
+.diagRow{
+  margin-top: 14px;
+  display:flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.diagBtn{
+  border: 1px solid rgba(0,0,0,.16);
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 1100;
+  cursor:pointer;
+  min-width: 110px;
+}
+.diagBtn.yes{ background: var(--yes); color:#05220d; }
+.diagBtn.no{ background: var(--no); color:#240505; }
+.diagBtn.back{ background: var(--back); color:#2a1d00; }
+
+/* =========================
+   Modal
+========================= */
+.modalOverlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding: 18px;
+  z-index: 9998;
+}
+.modalOverlay.open{ display:flex; }
+
+.modal{
+  width: min(760px, 92vw);
+  background: rgba(255,255,255,.95);
+  border: 1px solid rgba(0,0,0,.14);
+  border-radius: 22px;
+  box-shadow: 0 30px 90px rgba(0,0,0,.35);
+  padding: 16px;
+}
+
+.modalTitle{
+  margin: 2px 0 10px;
+  font-size: 18px;
+  font-weight: 1100;
+}
+
+.modalBody{
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.modalActions{
+  display:flex;
+  justify-content:flex-end;
+  margin-top: 14px;
+}
+
+.btn{
+  border: 1px solid rgba(0,0,0,.16);
+  background: rgba(0,0,0,.06);
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 1050;
+  cursor:pointer;
+}
+.btn.primary{
+  background: var(--active);
+}
+
+/* =========================
+   Disabled states
+========================= */
 .pill:disabled,
 .tab:disabled,
 .btn:disabled{
@@ -15,7 +412,9 @@
   word-break:break-word;
 }
 
-/* Toast (náhrada za alert OK okno) */
+/* =========================
+   Toast (náhrada alert OK okna)
+========================= */
 .toast{
   position:fixed;
   left:50%;
@@ -31,4 +430,80 @@
   max-width:min(560px, 92vw);
   display:none;
 }
-.toast.show{display:block}
+.toast.show{ display:block; }
+
+/* =========================
+   Responsive rules (hlavne mobil)
+========================= */
+@media (max-width: 780px){
+  #app{ width: calc(100vw - 18px); margin: 10px auto 16px; }
+
+  .topbar{
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .logo{
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+  }
+
+  #appTitle{
+    font-size: 22px;
+  }
+
+  .pill{
+    padding: 9px 12px;
+    min-height: 40px;
+  }
+
+  .tabs{
+    padding: 8px;
+  }
+
+  .tab{
+    min-height: 46px;
+  }
+
+  .sectionTitle{
+    font-size: 42px;
+  }
+
+  .accHead{
+    font-size: 22px;
+    padding: 14px 14px;
+  }
+
+  .accRight{
+    font-size: 16px;
+  }
+
+  .countBadge{
+    font-size: 18px;
+    padding-bottom: 6px;
+  }
+}
+
+@media (max-width: 520px){
+  .topbar{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actions{
+    justify-content:flex-start;
+  }
+
+  .tabs{
+    flex-direction: column;
+  }
+
+  .tab{
+    width:100%;
+  }
+
+  .sectionTitle{
+    font-size: 36px;
+  }
+}
