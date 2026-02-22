@@ -26,7 +26,7 @@
     {
       "id": "water-leak",
       "categoryId": "water",
-      "title": { "de": "Wasser / Undichtigkeit", "sk": "Wasser / Undichtigkeit" },
+      "title": { "de": "Wasser / Undichtigkeit", "sk": "Voda / Netesnosť" },
       "subtitle": { "de": "Demo", "sk": "Demo" }
     }
   ]
