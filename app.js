@@ -1,21 +1,20 @@
 (() => {
   "use strict";
 
-  // ====== VERSION ======
   const APP_VERSION = "UI v1.0";
 
-  // ====== CONTACT (podľa tvojich požiadaviek) ======
+  // ===== CONTACT =====
   const CONTACT_EMAIL = "caravantechnikerammain@gmail.com";
   const CONTACT_PHONE = "+49 151 638 12 554";
   const CONTACT_WHATSAPP = "+49 151 638 12 554";
-  const CONTACT_PHONE_DIGITS = "4915163812554"; // pre WhatsApp wa.me (bez + a medzier)
+  const CONTACT_PHONE_DIGITS = "4915163812554";
 
-  // ====== ADMIN ======
+  // ===== ADMIN =====
   const ADMIN_PASSWORD = "1";
   const ADMIN_CLICKS_REQUIRED = 5;
   const ADMIN_CLICK_WINDOW_MS = 1800;
 
-  // ====== i18n ======
+  // ===== i18n =====
   const I18N = {
     de: {
       appTitle: "Wohnmobil Diagnose",
@@ -25,10 +24,6 @@
       collapseAll: "Einklappen",
       feedback: "Feedback",
       share: "Teilen",
-      shareTxt: "TXT",
-      sharePdf: "PDF",
-      pickTree: "Wähle einen Baum im Bereich Kategorien.",
-      uiNote: "Aktuell UI. Baum-Logik folgt nach Stabilisierung der Inhalte.",
       modalClose: "Schließen",
       contactTitle: "Kontakt",
       contactBody:
@@ -36,11 +31,13 @@
         `WhatsApp: ${CONTACT_WHATSAPP}\n` +
         `E-Mail: ${CONTACT_EMAIL}\n\n` +
         `Kontakt bitte bevorzugt per WhatsApp Nachricht oder E-Mail.`,
-      adminTitle: "Admin",
       adminBody: "Passwort eingeben:",
       adminWrong: "Falsches Passwort.",
       adminOk: "Admin entsperrt.",
       loadedErr: "Inhalt konnte nicht geladen werden (content.json).",
+      diagHint: "Wähle einen Baum in Kategorien. Danach erscheint er hier.",
+      selectedTree: "Ausgewählter Baum",
+      demoNoNodes: "Demo: Dieser Baum hat noch keine Fragen/Nodes im content.json.",
       yes: "Ja",
       no: "Nein",
       back: "Zurück"
@@ -53,10 +50,6 @@
       collapseAll: "Zbaliť",
       feedback: "Pripomienky",
       share: "Zdieľať",
-      shareTxt: "TXT",
-      sharePdf: "PDF",
-      pickTree: "Vyber strom v časti Kategórie.",
-      uiNote: "Aktuálne UI. Stromová logika príde po stabilizácii obsahu.",
       modalClose: "Zavrieť",
       contactTitle: "Kontakt",
       contactBody:
@@ -64,27 +57,33 @@
         `WhatsApp: ${CONTACT_WHATSAPP}\n` +
         `E-mail: ${CONTACT_EMAIL}\n\n` +
         `Kontakt bitte bevorzugt per WhatsApp Nachricht oder E-Mail.`,
-      adminTitle: "Admin",
       adminBody: "Zadaj heslo:",
       adminWrong: "Nesprávne heslo.",
       adminOk: "Admin odomknutý.",
       loadedErr: "Obsah sa nepodarilo načítať (content.json).",
+      diagHint: "Vyber strom v Kategóriách. Potom sa zobrazí tu.",
+      selectedTree: "Vybraný strom",
+      demoNoNodes: "Demo: Tento strom ešte nemá otázky/nody v content.json.",
       yes: "Áno",
       no: "Nie",
       back: "Späť"
     }
   };
 
-  // ====== STATE ======
+  // ===== STATE =====
   let lang = localStorage.getItem("lang") || "de";
   let adminUnlocked = localStorage.getItem("adminUnlocked") === "1";
-  let activeTab = "categories"; // "categories" | "diag"
+  let activeTab = "categories";          // categories | diag
   let content = null;
+  let selectedTree = null;              // uloží vybraný strom po kliku
 
-  // ====== DOM ======
+  // ===== DOM HELPERS =====
   const qs = (s) => document.querySelector(s);
 
-  // Modal
+  function t() { return I18N[lang] || I18N.de; }
+  function setLang(newLang) { lang = newLang; localStorage.setItem("lang", lang); render(); }
+
+  // ===== MODAL (robustné) =====
   const modalOverlay = document.createElement("div");
   modalOverlay.className = "modalOverlay";
   modalOverlay.innerHTML = `
@@ -99,40 +98,31 @@
   document.body.appendChild(modalOverlay);
 
   const openModal = (title, body) => {
-    qs("#modalTitle").textContent = title;
-    qs("#modalBody").textContent = body;
+    const titleStr = (title ?? "").toString().trim();
+    const bodyStr  = (body  ?? "").toString().trim();
+
+    qs("#modalTitle").textContent = titleStr || "—";
+    qs("#modalBody").textContent = bodyStr || "—";
     qs("#modalCloseBtn").textContent = t().modalClose;
+
     modalOverlay.classList.add("open");
   };
   const closeModal = () => modalOverlay.classList.remove("open");
-  modalOverlay.addEventListener("click", (e) => {
-    if (e.target === modalOverlay) closeModal();
-  });
+  modalOverlay.addEventListener("click", (e) => { if (e.target === modalOverlay) closeModal(); });
   qs("#modalCloseBtn").addEventListener("click", closeModal);
 
-  // ====== HELPERS ======
-  function t() {
-    return I18N[lang] || I18N.de;
-  }
-
-  function setLang(newLang) {
-    lang = newLang;
-    localStorage.setItem("lang", lang);
-    render();
-  }
-
-  // ====== LOAD CONTENT ======
+  // ===== CONTENT =====
   async function loadContent() {
     const res = await fetch("content.json", { cache: "no-store" });
     if (!res.ok) throw new Error("content.json load failed");
     content = await res.json();
   }
 
-  // ====== ADMIN CLICK (WOMO 5x) ======
+  // ===== ADMIN (WOMO 5x) =====
   let clickCount = 0;
   let clickTimer = null;
+
   function onAdminLogoClick() {
-    // reset window
     if (!clickTimer) {
       clickTimer = setTimeout(() => {
         clickCount = 0;
@@ -148,20 +138,21 @@
 
       const pwd = prompt(t().adminBody);
       if (pwd === null) return;
+
       if (pwd === ADMIN_PASSWORD) {
         adminUnlocked = true;
         localStorage.setItem("adminUnlocked", "1");
         alert(t().adminOk);
-        // tu je miesto pre budúce admin funkcie
       } else {
         alert(t().adminWrong);
       }
     }
   }
 
-  // ====== UI BUILD ======
+  // ===== UI BUILD =====
   function buildHeader() {
     const app = qs("#app");
+
     const topbar = document.createElement("header");
     topbar.className = "topbar";
     topbar.innerHTML = `
@@ -214,7 +205,6 @@
 
   function buildTabs() {
     const app = qs("#app");
-
     const categoriesCount = Array.isArray(content?.categories) ? content.categories.length : 0;
 
     const tabs = document.createElement("div");
@@ -264,12 +254,11 @@
         </button>
         <div class="accBody"></div>
       `;
-
       acc.querySelector(".accHead").addEventListener("click", () => acc.classList.toggle("open"));
 
       const body = acc.querySelector(".accBody");
       catTrees.forEach((tr) => {
-        const title = tr?.title?.[lang] || tr?.title?.de || tr.id;
+        const title = tr?.title?.[lang] || tr?.title?.de || tr.id || "—";
         const sub = tr?.subtitle?.[lang] || tr?.subtitle?.de || "";
 
         const btn = document.createElement("button");
@@ -279,10 +268,14 @@
           <div class="treeBtnTitle">${title}</div>
           <div class="treeBtnSub">${sub}</div>
         `;
+
+        // FIX: klik na strom = uloží strom + prepne na Diagnostiku
         btn.addEventListener("click", () => {
-          // zatiaľ demo – stromová logika doplníme
-          openModal(title, t().uiNote);
+          selectedTree = tr;
+          activeTab = "diag";
+          render();
         });
+
         body.appendChild(btn);
       });
 
@@ -305,29 +298,34 @@
     const section = document.createElement("section");
     section.className = "section";
 
+    const title = selectedTree
+      ? (selectedTree?.title?.[lang] || selectedTree?.title?.de || selectedTree.id || "—")
+      : null;
+
     section.innerHTML = `
       <div class="sectionTitleRow">
         <h2 class="sectionTitle">${t().tabDiag}</h2>
-        <div class="countBadge">—</div>
+        <div class="countBadge">${selectedTree ? "1" : "0"}</div>
       </div>
-      <div style="margin-top:10px;font-weight:900">${t().pickTree}</div>
+
+      ${selectedTree ? `
+        <div style="margin-top:10px;font-weight:900">${t().selectedTree}: ${title}</div>
+        <div style="margin-top:8px;font-weight:800;opacity:.8">${t().demoNoNodes}</div>
+      ` : `
+        <div style="margin-top:10px;font-weight:900">${t().diagHint}</div>
+      `}
+
       <div class="diagRow" id="diagRow"></div>
     `;
 
-    // Demo tlačidlá aby si hneď videl farby (Áno/Nie/Späť)
+    // demo tlačidlá farieb (nespúšťajú strom – stromové nody ešte v content.json nemáš)
     const row = section.querySelector("#diagRow");
+    const btnYes = document.createElement("button"); btnYes.className = "diagBtn yes"; btnYes.textContent = t().yes;
+    const btnNo  = document.createElement("button"); btnNo.className  = "diagBtn no";  btnNo.textContent  = t().no;
+    const btnBack= document.createElement("button"); btnBack.className= "diagBtn back";btnBack.textContent= t().back;
 
-    const btnYes = document.createElement("button");
-    btnYes.className = "diagBtn yes";
-    btnYes.textContent = t().yes;
-
-    const btnNo = document.createElement("button");
-    btnNo.className = "diagBtn no";
-    btnNo.textContent = t().no;
-
-    const btnBack = document.createElement("button");
-    btnBack.className = "diagBtn back";
-    btnBack.textContent = t().back;
+    // späť do kategórií
+    btnBack.addEventListener("click", () => { activeTab = "categories"; render(); });
 
     row.appendChild(btnYes);
     row.appendChild(btnNo);
@@ -339,15 +337,13 @@
   function render() {
     const root = qs("#app");
     root.innerHTML = "";
-
     buildHeader();
     buildTabs();
-
     if (activeTab === "categories") buildCategoriesView();
     else buildDiagView();
   }
 
-  // ====== BOOT ======
+  // ===== BOOT =====
   (async function boot() {
     try {
       await loadContent();
