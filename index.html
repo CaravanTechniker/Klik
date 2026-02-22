@@ -20,8 +20,6 @@
         <div class="titles">
           <h1 id="appTitle">Wohnmobil Diagnose</h1>
           <button id="contactBtn" class="subtitle" type="button">CaravanTechniker am Main</button>
-
-          <!-- status/toast line -->
           <div id="statusLine" class="statusLine" aria-live="polite"></div>
         </div>
       </div>
@@ -44,9 +42,7 @@
       </div>
     </header>
 
-    <!-- Inline panely (žiadny modal) -->
     <section id="inlinePanels" class="inlinePanels hidden">
-      <!-- CONTACT -->
       <div id="contactPanel" class="panel hidden">
         <div class="panelHeader">
           <h2 id="contactTitle">Kontakt</h2>
@@ -61,7 +57,6 @@
         </div>
       </div>
 
-      <!-- FEEDBACK -->
       <div id="feedbackPanel" class="panel hidden">
         <div class="panelHeader">
           <h2 id="feedbackTitle">Feedback</h2>
@@ -79,7 +74,6 @@
         </div>
       </div>
 
-      <!-- ADMIN (len po odomknutí) -->
       <div id="adminPanel" class="panel hidden">
         <div class="panelHeader">
           <h2 id="adminTitle">Admin</h2>
@@ -90,9 +84,16 @@
           <div class="adminRow">
             <button id="btnExportContent" class="btn primary" type="button">Export content.json</button>
             <button id="btnImportContent" class="btn" type="button">Import content.json</button>
-            <input id="fileImport" class="hidden" type="file" accept="application/json" />
+            <input id="fileImport" class="hidden" type="file" accept="application/json,.json" />
           </div>
+
+          <div class="adminRow" style="margin-top:10px;">
+            <button id="btnResetLocal" class="btn" type="button">Reset local content</button>
+            <button id="btnReloadServer" class="btn" type="button">Reload from server</button>
+          </div>
+
           <div class="hint" id="adminHint">Import nahradí aktuálny obsah (ukladá sa do LocalStorage). Export stiahne aktuálnu verziu.</div>
+          <div class="hint" id="adminSource" style="margin-top:6px;"></div>
         </div>
       </div>
     </section>
@@ -119,10 +120,9 @@
         </div>
 
         <div id="diagnosisBody" class="diagBody">
-          <div class="diagLine" id="selectedTreeLine">Ausgewählter Baum: –</div>
+          <div class="diagLine" id="selectedTreeLine">Ausgewähltes Problem: –</div>
           <div class="diagText" id="diagText">Bitte zuerst links Kategorie/Problem auswählen.</div>
 
-          <!-- Ergebnis block -->
           <div id="resultBox" class="resultBox hidden">
             <div class="resultTitle" id="resultTitle">Ergebnis</div>
             <pre id="resultText" class="resultText"></pre>
