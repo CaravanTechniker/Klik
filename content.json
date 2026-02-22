@@ -1,33 +1,172 @@
 {
   "categories": [
-    { "id": "heating", "name": { "de": "Heizung", "sk": "Kúrenie" } },
-    { "id": "electric", "name": { "de": "Elektrik", "sk": "Elektrika" } },
-    { "id": "water", "name": { "de": "Wasser", "sk": "Voda" } }
-  ],
-  "trees": [
     {
-      "id": "truma-gas",
-      "categoryId": "heating",
-      "title": { "de": "Truma Gasheizung", "sk": "Truma Gasheizung" },
-      "subtitle": { "de": "Demo", "sk": "Demo" }
+      "id": "cat_electrics",
+      "title_de": "Elektrik",
+      "title_sk": "Elektrika",
+      "trees": [
+        {
+          "id": "tree_12v_dead",
+          "title_de": "12V komplett ausgefallen",
+          "title_sk": "12V úplne nefunkčné",
+          "start": "q1",
+          "nodes": [
+            {
+              "id": "q1",
+              "type": "question",
+              "q_de": "Leuchtet das Bedienpanel/Display (12V) noch?",
+              "q_sk": "Svieti ešte ovládací panel/displej (12V)?",
+              "yes": "q2",
+              "no": "q3"
+            },
+            {
+              "id": "q2",
+              "type": "question",
+              "q_de": "Sind Sicherungen am EBL/Bordnetz ok?",
+              "q_sk": "Sú poistky na EBL/12V rozvode v poriadku?",
+              "yes": "res1",
+              "no": "res2"
+            },
+            {
+              "id": "q3",
+              "type": "question",
+              "q_de": "Liegt Batteriespannung an (z.B. 12.0–13.5V)?",
+              "q_sk": "Je prítomné napätie batérie (napr. 12.0–13.5V)?",
+              "yes": "res3",
+              "no": "res4"
+            },
+            {
+              "id": "res1",
+              "type": "result",
+              "text_de": "Ergebnis:\n- Panel lebt und Sicherungen ok → sehr wahrscheinlich Unterspannung/Abschaltung oder ein Verbraucher/Abgang ist betroffen.\n- Prüfe: Hauptschalter, EBL Ausgang 12V, Massepunkte, Steckverbindungen.\n- Nächster Schritt: Spannung unter Last messen (Wasserpumpe/ Licht einschalten).",
+              "text_sk": "Výsledok:\n- Panel ide a poistky sú ok → veľmi pravdepodobne ide o podpätie/odpojenie alebo je chybný konkrétny okruh.\n- Skontroluj: hlavný vypínač, výstup 12V z EBL, kostry, konektory.\n- Ďalší krok: meraj napätie pod záťažou (zapni pumpu/svetlo)."
+            },
+            {
+              "id": "res2",
+              "type": "result",
+              "text_de": "Ergebnis:\n- Sicherung(en) defekt → ersetzen und Ursache finden.\n- Typisch: Kurzschluss Verbraucher, feuchte Steckverbindung, falsche Sicherungsgröße.\n- Nach Tausch: testen, ob erneut auslöst.",
+              "text_sk": "Výsledok:\n- Poistka/y sú zlé → vymeniť a nájsť príčinu.\n- Typické: skrat spotrebiča, vlhký konektor, zlá hodnota poistky.\n- Po výmene: otestovať či znovu nevyhodí."
+            },
+            {
+              "id": "res3",
+              "type": "result",
+              "text_de": "Ergebnis:\n- Batéria má napätie, ale panel nesvieti → pravdepodobne je prerušený prívod do EBL/panelu alebo hlavná poistka.\n- Skontroluj: hlavné poistky pri batérii, EBL vstup, konektor panelu, kostru.",
+              "text_sk": "Výsledok:\n- Batéria má napätie, ale panel nesvieti → pravdepodobne je prerušený prívod do EBL/panelu alebo hlavná poistka.\n- Skontroluj: hlavné poistky pri batérii, vstup do EBL, konektor panelu, kostru."
+            },
+            {
+              "id": "res4",
+              "type": "result",
+              "text_de": "Ergebnis:\n- Nie je napätie batérie → batéria vybitá/odpojená alebo hlavné poistky/káble.\n- Skontroluj: mínus kostru, odpojovač batérie, hlavné poistky, svorky, nabíjanie.\n- Ak LiFePO4: môže byť vypnutý BMS.",
+              "text_sk": "Výsledok:\n- Nie je napätie batérie → batéria vybitá/odpojená alebo problém v hlavných poistkách/kábloch.\n- Skontroluj: mínus kostru, odpojovač batérie, hlavné poistky, svorky, nabíjanie.\n- Ak LiFePO4: môže byť vypnutý BMS."
+            }
+          ]
+        },
+        {
+          "id": "tree_light_flicker",
+          "title_de": "Licht flackert",
+          "title_sk": "Svetlá blikajú",
+          "start": "q1",
+          "nodes": [
+            {
+              "id": "q1",
+              "type": "question",
+              "q_de": "Tritt Flackern nur bei hoher Last auf (Pumpe/Heizung/Lüfter)?",
+              "q_sk": "Blikanie nastáva len pri vyššej záťaži (pumpa/kúrenie/ventilátor)?",
+              "yes": "res1",
+              "no": "res2"
+            },
+            {
+              "id": "res1",
+              "type": "result",
+              "text_de": "Ergebnis:\n- Flackern unter Last → Spannungsabfall (Kabel, Masse, Sicherungshalter).\n- Prüfe: Massepunkte, Batterieklemmen, EBL Stecker, Sicherungshalter auf Wärme.",
+              "text_sk": "Výsledok:\n- Blikanie pod záťažou → úbytok napätia (káble, kostra, držiak poistky).\n- Skontroluj: kostry, svorky batérie, EBL konektory, držiaky poistiek (či sa nehrejú)."
+            },
+            {
+              "id": "res2",
+              "type": "result",
+              "text_de": "Ergebnis:\n- Flackern auch ohne Last → häufig LED Dimmer, defekter Wandler, schlechte Verbindung.\n- Test: andere Lampe/anderen Kreis probieren, Dimmer umgehen.",
+              "text_sk": "Výsledok:\n- Blikanie aj bez záťaže → často LED stmievač, chybný menič, zlý kontakt.\n- Test: skús inú lampu/iný okruh, obíď stmievač."
+            }
+          ]
+        }
+      ]
     },
     {
-      "id": "truma-diesel",
-      "categoryId": "heating",
-      "title": { "de": "Truma Dieselheizung", "sk": "Truma Dieselheizung" },
-      "subtitle": { "de": "Demo", "sk": "Demo" }
-    },
-    {
-      "id": "12v",
-      "categoryId": "electric",
-      "title": { "de": "12V Elektrik", "sk": "12V Elektrika" },
-      "subtitle": { "de": "Demo", "sk": "Demo" }
-    },
-    {
-      "id": "water-leak",
-      "categoryId": "water",
-      "title": { "de": "Wasser / Undichtigkeit", "sk": "Voda / Netesnosť" },
-      "subtitle": { "de": "Demo", "sk": "Demo" }
+      "id": "cat_water",
+      "title_de": "Wasser",
+      "title_sk": "Voda",
+      "trees": [
+        {
+          "id": "tree_pump_runs",
+          "title_de": "Wasserpumpe läuft dauernd",
+          "title_sk": "Vodná pumpa ide stále",
+          "start": "q1",
+          "nodes": [
+            {
+              "id": "q1",
+              "type": "question",
+              "q_de": "Ist irgendwo sichtbar Wasser/Leck?",
+              "q_sk": "Vidíš niekde vodu/únik?",
+              "yes": "res1",
+              "no": "q2"
+            },
+            {
+              "id": "q2",
+              "type": "question",
+              "q_de": "Stoppt die Pumpe, wenn du alle Hähne fest schließt?",
+              "q_sk": "Zastaví sa pumpa, keď pevne zavrieš všetky kohútiky?",
+              "yes": "res2",
+              "no": "res3"
+            },
+            {
+              "id": "res1",
+              "type": "result",
+              "text_de": "Ergebnis:\n- Sichtbares Leck → Leckstelle lokalisieren, Anschluss nachziehen/neu abdichten.\n- Prüfe auch Boiler-Sicherheitsventil und Außenanschlüsse.",
+              "text_sk": "Výsledok:\n- Viditeľný únik → lokalizuj miesto, dotiahni spoj alebo znovu utesni.\n- Skontroluj aj poistný ventil bojlera a vonkajšie prípojky."
+            },
+            {
+              "id": "res2",
+              "type": "result",
+              "text_de": "Ergebnis:\n- Pumpe stoppt bei geschlossenen Hähnen → sehr wahrscheinlich ein Hahn/Mischer tropft oder Mikro-Schalter.\n- Test: Hähne einzeln öffnen/schließen, Duschkopf prüfen.",
+              "text_sk": "Výsledok:\n- Pumpa sa zastaví pri zatvorených kohútikoch → pravdepodobne kvapká kohútik/miešač alebo mikrospínač.\n- Test: otváraj/zatváraj kohútiky po jednom, skontroluj sprchu."
+            },
+            {
+              "id": "res3",
+              "type": "result",
+              "text_de": "Ergebnis:\n- Pumpe stoppt nicht → pravdepodobne tlakový spínač/pumpa alebo únik v systéme bez viditeľnej vody.\n- Test: vypni pumpu, sleduj tlak (ak je), pozri filt. sítko, spojky, WC ventil.",
+              "text_sk": "Výsledok:\n- Pumpa sa nezastaví → pravdepodobne tlakový spínač/pumpa alebo skrytý únik.\n- Test: vypni pumpu, skontroluj sitko/filtre, spojky, ventil WC, spätné ventily."
+            }
+          ]
+        },
+        {
+          "id": "tree_no_water",
+          "title_de": "Kein Wasser aus Hahn",
+          "title_sk": "Nejde voda z kohútika",
+          "start": "q1",
+          "nodes": [
+            {
+              "id": "q1",
+              "type": "question",
+              "q_de": "Hörst du die Pumpe laufen, wenn du den Hahn öffnest?",
+              "q_sk": "Počuješ pumpu bežať, keď otvoríš kohútik?",
+              "yes": "res1",
+              "no": "res2"
+            },
+            {
+              "id": "res1",
+              "type": "result",
+              "text_de": "Ergebnis:\n- Pumpe läuft, aber kein Wasser → Tank leer, Filter verstopft, Luft im System.\n- Prüfe: Tankstand, Sieb/Filter, Ansaugschlauch, entlüften.",
+              "text_sk": "Výsledok:\n- Pumpa beží, ale nejde voda → prázdny tank, upchatý filter, vzduch v systéme.\n- Skontroluj: stav vody, sitko/filter, saciu hadicu, odvzdušni."
+            },
+            {
+              "id": "res2",
+              "type": "result",
+              "text_de": "Ergebnis:\n- Pumpe läuft nicht → Stromversorgung/Mikroschalter/Schalter an Panel.\n- Prüfe: Pumpenschalter am Panel, Sicherung, Stecker, 12V Versorgung.",
+              "text_sk": "Výsledok:\n- Pumpa nejde → napájanie/mikrospínač/vypínač na paneli.\n- Skontroluj: pump switch na paneli, poistku, konektor, 12V prívod."
+            }
+          ]
+        }
+      ]
     }
   ]
 }
