@@ -2,7 +2,6 @@
   publish = "."
   command = ""
 
-# Bez PWA cache – netlify headers (voliteľné, ale pomáha proti "starému dizajnu")
 [[headers]]
   for = "/*"
   [headers.values]
