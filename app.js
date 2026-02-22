@@ -1,302 +1,360 @@
 (() => {
   "use strict";
 
+  // ====== VERSION ======
   const APP_VERSION = "UI v1.0";
 
-  // CONTACT (podľa tvojich požiadaviek)
+  // ====== CONTACT (podľa tvojich požiadaviek) ======
   const CONTACT_EMAIL = "caravantechnikerammain@gmail.com";
   const CONTACT_PHONE = "+49 151 638 12 554";
-  const CONTACT_PHONE_DIGITS = "4915163812554";
+  const CONTACT_WHATSAPP = "+49 151 638 12 554";
+  const CONTACT_PHONE_DIGITS = "4915163812554"; // pre WhatsApp wa.me (bez + a medzier)
 
-  // i18n
+  // ====== ADMIN ======
+  const ADMIN_PASSWORD = "1";
+  const ADMIN_CLICKS_REQUIRED = 5;
+  const ADMIN_CLICK_WINDOW_MS = 1800;
+
+  // ====== i18n ======
   const I18N = {
     de: {
       appTitle: "Wohnmobil Diagnose",
-      tabFaults: "Störungen",
+      subtitleBtn: "CaravanTechniker am Main",
+      tabCategories: "Kategorien",
       tabDiag: "Diagnose",
-      categoriesTitle: "Kategorien",
       collapseAll: "Einklappen",
       feedback: "Feedback",
       share: "Teilen",
       shareTxt: "TXT",
       sharePdf: "PDF",
+      pickTree: "Wähle einen Baum im Bereich Kategorien.",
+      uiNote: "Aktuell UI. Baum-Logik folgt nach Stabilisierung der Inhalte.",
+      modalClose: "Schließen",
       contactTitle: "Kontakt",
       contactBody:
-        `Kontakt bitte bevorzugt per WhatsApp Nachricht oder E-Mail.\n\nE-Mail: ${CONTACT_EMAIL}\nWhatsApp: https://wa.me/${CONTACT_PHONE_DIGITS}\nTelefon: ${CONTACT_PHONE}`,
-      feedbackTitle: "Feedback zur App",
-      feedbackBody: "Schreibe mir bitte kurz per WhatsApp, was fehlt oder nicht passt.",
+        `Telefon: ${CONTACT_PHONE}\n` +
+        `WhatsApp: ${CONTACT_WHATSAPP}\n` +
+        `E-Mail: ${CONTACT_EMAIL}\n\n` +
+        `Kontakt bitte bevorzugt per WhatsApp Nachricht oder E-Mail.`,
+      adminTitle: "Admin",
+      adminBody: "Passwort eingeben:",
+      adminWrong: "Falsches Passwort.",
+      adminOk: "Admin entsperrt.",
       loadedErr: "Inhalt konnte nicht geladen werden (content.json).",
-      online: "Online"
+      yes: "Ja",
+      no: "Nein",
+      back: "Zurück"
     },
     sk: {
       appTitle: "Diagnostika obytného auta",
-      tabFaults: "Poruchy",
+      subtitleBtn: "CaravanTechniker am Main",
+      tabCategories: "Kategórie",
       tabDiag: "Diagnostika",
-      categoriesTitle: "Kategórie",
       collapseAll: "Zbaliť",
       feedback: "Pripomienky",
       share: "Zdieľať",
       shareTxt: "TXT",
       sharePdf: "PDF",
+      pickTree: "Vyber strom v časti Kategórie.",
+      uiNote: "Aktuálne UI. Stromová logika príde po stabilizácii obsahu.",
+      modalClose: "Zavrieť",
       contactTitle: "Kontakt",
       contactBody:
-        `Kontakt prosím ideálne cez WhatsApp alebo e-mail.\n\nE-mail: ${CONTACT_EMAIL}\nWhatsApp: https://wa.me/${CONTACT_PHONE_DIGITS}\nTelefón: ${CONTACT_PHONE}`,
-      feedbackTitle: "Pripomienky k appke",
-      feedbackBody: "Napíš mi stručne cez WhatsApp, čo chýba alebo čo nefunguje.",
+        `Telefón: ${CONTACT_PHONE}\n` +
+        `WhatsApp: ${CONTACT_WHATSAPP}\n` +
+        `E-mail: ${CONTACT_EMAIL}\n\n` +
+        `Kontakt bitte bevorzugt per WhatsApp Nachricht oder E-Mail.`,
+      adminTitle: "Admin",
+      adminBody: "Zadaj heslo:",
+      adminWrong: "Nesprávne heslo.",
+      adminOk: "Admin odomknutý.",
       loadedErr: "Obsah sa nepodarilo načítať (content.json).",
-      online: "Online"
+      yes: "Áno",
+      no: "Nie",
+      back: "Späť"
     }
   };
 
-  // DOM
-  const el = (id) => document.getElementById(id);
+  // ====== STATE ======
+  let lang = localStorage.getItem("lang") || "de";
+  let adminUnlocked = localStorage.getItem("adminUnlocked") === "1";
+  let activeTab = "categories"; // "categories" | "diag"
+  let content = null;
 
-  const ui = {
-    appTitle: el("appTitle"),
-    langSelect: el("langSelect"),
-    tabFaults: el("tabFaults"),
-    tabDiag: el("tabDiag"),
-    categoriesTitle: el("categoriesTitle"),
-    categoriesCount: el("categoriesCount"),
-    categories: el("categories"),
-    collapseAllBtn: el("collapseAllBtn"),
-    feedbackBtn: el("feedbackBtn"),
-    shareBtn: el("shareBtn"),
-    shareMenu: el("shareMenu"),
-    shareTxtBtn: el("shareTxtBtn"),
-    sharePdfBtn: el("sharePdfBtn"),
-    contactBtn: el("contactBtn"),
-    adminBtn: el("adminBtn"),
-    uiVersion: el("uiVersion"),
-    onlineLabel: el("onlineLabel"),
+  // ====== DOM ======
+  const qs = (s) => document.querySelector(s);
 
-    modalBackdrop: el("modalBackdrop"),
-    modal: el("modal"),
-    modalTitle: el("modalTitle"),
-    modalBody: el("modalBody"),
-    modalClose: el("modalClose"),
-    modalOk: el("modalOk")
+  // Modal
+  const modalOverlay = document.createElement("div");
+  modalOverlay.className = "modalOverlay";
+  modalOverlay.innerHTML = `
+    <div class="modal" role="dialog" aria-modal="true">
+      <h3 class="modalTitle" id="modalTitle"></h3>
+      <div class="modalBody" id="modalBody"></div>
+      <div class="modalActions">
+        <button class="btn primary" id="modalCloseBtn"></button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modalOverlay);
+
+  const openModal = (title, body) => {
+    qs("#modalTitle").textContent = title;
+    qs("#modalBody").textContent = body;
+    qs("#modalCloseBtn").textContent = t().modalClose;
+    modalOverlay.classList.add("open");
   };
+  const closeModal = () => modalOverlay.classList.remove("open");
+  modalOverlay.addEventListener("click", (e) => {
+    if (e.target === modalOverlay) closeModal();
+  });
+  qs("#modalCloseBtn").addEventListener("click", closeModal);
 
-  const state = {
-    lang: (localStorage.getItem("lang") || "de").toLowerCase() === "sk" ? "sk" : "de",
-    mode: "faults", // "faults" | "diag"
-    content: null
-  };
-
-  function t(key) {
-    return (I18N[state.lang] && I18N[state.lang][key]) || (I18N.de[key] || key);
+  // ====== HELPERS ======
+  function t() {
+    return I18N[lang] || I18N.de;
   }
 
-  function setTexts() {
-    document.documentElement.lang = state.lang;
-
-    ui.appTitle.textContent = t("appTitle");
-    ui.tabFaults.textContent = t("tabFaults");
-    ui.tabDiag.textContent = t("tabDiag");
-    ui.categoriesTitle.textContent = t("categoriesTitle");
-    ui.collapseAllBtn.textContent = t("collapseAll");
-    ui.feedbackBtn.textContent = t("feedback");
-    ui.shareBtn.textContent = t("share");
-    ui.shareTxtBtn.textContent = t("shareTxt");
-    ui.sharePdfBtn.textContent = t("sharePdf");
-    ui.uiVersion.textContent = APP_VERSION;
-    ui.onlineLabel.textContent = t("online");
-
-    if (ui.langSelect) ui.langSelect.value = state.lang;
+  function setLang(newLang) {
+    lang = newLang;
+    localStorage.setItem("lang", lang);
+    render();
   }
 
-  function openModal(title, bodyText) {
-    ui.modalTitle.textContent = title;
-    ui.modalBody.textContent = bodyText;
-    ui.modalBackdrop.classList.remove("hidden");
-    ui.modal.classList.remove("hidden");
+  // ====== LOAD CONTENT ======
+  async function loadContent() {
+    const res = await fetch("content.json", { cache: "no-store" });
+    if (!res.ok) throw new Error("content.json load failed");
+    content = await res.json();
   }
 
-  function closeModal() {
-    ui.modalBackdrop.classList.add("hidden");
-    ui.modal.classList.add("hidden");
+  // ====== ADMIN CLICK (WOMO 5x) ======
+  let clickCount = 0;
+  let clickTimer = null;
+  function onAdminLogoClick() {
+    // reset window
+    if (!clickTimer) {
+      clickTimer = setTimeout(() => {
+        clickCount = 0;
+        clickTimer = null;
+      }, ADMIN_CLICK_WINDOW_MS);
+    }
+    clickCount += 1;
+
+    if (clickCount >= ADMIN_CLICKS_REQUIRED) {
+      clickCount = 0;
+      clearTimeout(clickTimer);
+      clickTimer = null;
+
+      const pwd = prompt(t().adminBody);
+      if (pwd === null) return;
+      if (pwd === ADMIN_PASSWORD) {
+        adminUnlocked = true;
+        localStorage.setItem("adminUnlocked", "1");
+        alert(t().adminOk);
+        // tu je miesto pre budúce admin funkcie
+      } else {
+        alert(t().adminWrong);
+      }
+    }
   }
 
-  function toggleShareMenu(force) {
-    const isHidden = ui.shareMenu.classList.contains("hidden");
-    const show = typeof force === "boolean" ? force : isHidden;
-    ui.shareMenu.classList.toggle("hidden", !show);
-  }
+  // ====== UI BUILD ======
+  function buildHeader() {
+    const app = qs("#app");
+    const topbar = document.createElement("header");
+    topbar.className = "topbar";
+    topbar.innerHTML = `
+      <div class="brand">
+        <div id="adminBtn" class="logo">WOMO</div>
+        <div class="titles">
+          <h1 id="appTitle">${t().appTitle}</h1>
+          <button id="contactBtn" class="subtitle">${t().subtitleBtn}</button>
+        </div>
+      </div>
 
-  function setTab(mode) {
-    state.mode = mode;
-    ui.tabFaults.classList.toggle("active", mode === "faults");
-    ui.tabDiag.classList.toggle("active", mode === "diag");
-    // UI logika ostáva rovnaká (zatiaľ len prepínač)
-  }
+      <div class="actions">
+        <select class="pill" id="langSel" aria-label="Language">
+          <option value="de">DE</option>
+          <option value="sk">SK</option>
+        </select>
+        <button class="pill" id="collapseBtn">${t().collapseAll}</button>
+        <button class="pill" id="feedbackBtn">${t().feedback}</button>
+        <button class="pill primary" id="shareBtn">${t().share}</button>
+      </div>
+    `;
+    app.appendChild(topbar);
 
-  function render() {
-    if (!state.content) return;
+    qs("#adminBtn").addEventListener("click", onAdminLogoClick);
+    qs("#contactBtn").addEventListener("click", () => openModal(t().contactTitle, t().contactBody));
 
-    const categories = state.content.categories || [];
-    const trees = state.content.trees || [];
+    const langSel = qs("#langSel");
+    langSel.value = lang;
+    langSel.addEventListener("change", (e) => setLang(e.target.value));
 
-    ui.categoriesCount.textContent = `${categories.length} ks`;
-    ui.categories.innerHTML = "";
+    qs("#feedbackBtn").addEventListener("click", () => {
+      openModal(t().feedback, "WhatsApp je najrýchlejší. (Feature doplníme.)");
+    });
 
-    categories.forEach((cat) => {
-      const catName = (cat.name && cat.name[state.lang]) || (cat.name && cat.name.de) || cat.id;
+    qs("#shareBtn").addEventListener("click", () => {
+      const url = location.href;
+      const msg = `${t().appTitle}\n${url}`;
+      if (navigator.share) {
+        navigator.share({ title: t().appTitle, text: msg, url }).catch(() => {});
+      } else {
+        navigator.clipboard?.writeText(msg).catch(() => {});
+        openModal(t().share, msg);
+      }
+    });
 
-      const catTrees = trees.filter((tr) => tr.categoryId === cat.id);
-
-      const wrap = document.createElement("div");
-      wrap.className = "category";
-      wrap.dataset.cat = cat.id;
-
-      const row = document.createElement("div");
-      row.className = "categoryRow";
-
-      const left = document.createElement("div");
-      left.className = "categoryTitle";
-      left.textContent = catName;
-
-      const right = document.createElement("div");
-      right.style.display = "flex";
-      right.style.alignItems = "center";
-      right.style.gap = "10px";
-
-      const badge = document.createElement("span");
-      badge.className = "badge";
-      badge.textContent = `${catTrees.length} ks`;
-
-      const chev = document.createElement("button");
-      chev.className = "chev";
-      chev.type = "button";
-      chev.textContent = "▾";
-
-      right.appendChild(badge);
-      right.appendChild(chev);
-
-      row.appendChild(left);
-      row.appendChild(right);
-
-      const body = document.createElement("div");
-      body.className = "categoryBody";
-
-      catTrees.forEach((tr) => {
-        const title = (tr.title && tr.title[state.lang]) || (tr.title && tr.title.de) || tr.id;
-        const sub = (tr.subtitle && tr.subtitle[state.lang]) || (tr.subtitle && tr.subtitle.de) || "";
-
-        const item = document.createElement("div");
-        item.className = "treeItem";
-        item.dataset.tree = tr.id;
-
-        const colA = document.createElement("div");
-        const strong = document.createElement("strong");
-        strong.textContent = title;
-        const small = document.createElement("small");
-        small.textContent = sub;
-        colA.appendChild(strong);
-        colA.appendChild(document.createElement("br"));
-        colA.appendChild(small);
-
-        const arrow = document.createElement("div");
-        arrow.style.fontWeight = "900";
-        arrow.textContent = "›";
-
-        item.appendChild(colA);
-        item.appendChild(arrow);
-
-        item.onclick = () => {
-          openModal(title, "Demo strom. Ďalšie kroky doplníme do stromovej logiky.");
-        };
-
-        body.appendChild(item);
-      });
-
-      wrap.appendChild(row);
-      wrap.appendChild(body);
-
-      const toggle = () => wrap.classList.toggle("open");
-
-      row.onclick = toggle;
-      chev.onclick = (e) => {
-        e.stopPropagation();
-        toggle();
-      };
-
-      ui.categories.appendChild(wrap);
+    qs("#collapseBtn").addEventListener("click", () => {
+      document.querySelectorAll(".accordion.open").forEach((a) => a.classList.remove("open"));
     });
   }
 
-  async function loadContent() {
+  function buildTabs() {
+    const app = qs("#app");
+
+    const categoriesCount = Array.isArray(content?.categories) ? content.categories.length : 0;
+
+    const tabs = document.createElement("div");
+    tabs.className = "tabs";
+    tabs.innerHTML = `
+      <button class="tab ${activeTab === "categories" ? "active" : ""}" id="tabCategories">
+        ${t().tabCategories} (${categoriesCount})
+      </button>
+      <button class="tab ${activeTab === "diag" ? "active" : ""}" id="tabDiag">
+        ${t().tabDiag}
+      </button>
+    `;
+    app.appendChild(tabs);
+
+    qs("#tabCategories").addEventListener("click", () => { activeTab = "categories"; render(); });
+    qs("#tabDiag").addEventListener("click", () => { activeTab = "diag"; render(); });
+  }
+
+  function buildCategoriesView() {
+    const app = qs("#app");
+    const section = document.createElement("section");
+    section.className = "section";
+
+    const cats = Array.isArray(content?.categories) ? content.categories : [];
+    const trees = Array.isArray(content?.trees) ? content.trees : [];
+
+    section.innerHTML = `
+      <div class="sectionTitleRow">
+        <h2 class="sectionTitle">${t().tabCategories}</h2>
+        <div class="countBadge">${cats.length} ks</div>
+      </div>
+    `;
+
+    cats.forEach((cat) => {
+      const catName = cat?.name?.[lang] || cat?.name?.de || cat?.id || "—";
+      const catTrees = trees.filter((tr) => tr.categoryId === cat.id);
+
+      const acc = document.createElement("div");
+      acc.className = "accordion";
+      acc.innerHTML = `
+        <button class="accHead" type="button">
+          <span>${catName}</span>
+          <span class="accRight">
+            <span class="accCount">${catTrees.length} ks</span>
+            <span class="chev">▾</span>
+          </span>
+        </button>
+        <div class="accBody"></div>
+      `;
+
+      acc.querySelector(".accHead").addEventListener("click", () => acc.classList.toggle("open"));
+
+      const body = acc.querySelector(".accBody");
+      catTrees.forEach((tr) => {
+        const title = tr?.title?.[lang] || tr?.title?.de || tr.id;
+        const sub = tr?.subtitle?.[lang] || tr?.subtitle?.de || "";
+
+        const btn = document.createElement("button");
+        btn.className = "treeBtn";
+        btn.type = "button";
+        btn.innerHTML = `
+          <div class="treeBtnTitle">${title}</div>
+          <div class="treeBtnSub">${sub}</div>
+        `;
+        btn.addEventListener("click", () => {
+          // zatiaľ demo – stromová logika doplníme
+          openModal(title, t().uiNote);
+        });
+        body.appendChild(btn);
+      });
+
+      section.appendChild(acc);
+    });
+
+    const footer = document.createElement("div");
+    footer.className = "footerRow";
+    footer.innerHTML = `
+      <div><span class="onlineDot"></span>Online</div>
+      <div>${APP_VERSION}</div>
+    `;
+    section.appendChild(footer);
+
+    app.appendChild(section);
+  }
+
+  function buildDiagView() {
+    const app = qs("#app");
+    const section = document.createElement("section");
+    section.className = "section";
+
+    section.innerHTML = `
+      <div class="sectionTitleRow">
+        <h2 class="sectionTitle">${t().tabDiag}</h2>
+        <div class="countBadge">—</div>
+      </div>
+      <div style="margin-top:10px;font-weight:900">${t().pickTree}</div>
+      <div class="diagRow" id="diagRow"></div>
+    `;
+
+    // Demo tlačidlá aby si hneď videl farby (Áno/Nie/Späť)
+    const row = section.querySelector("#diagRow");
+
+    const btnYes = document.createElement("button");
+    btnYes.className = "diagBtn yes";
+    btnYes.textContent = t().yes;
+
+    const btnNo = document.createElement("button");
+    btnNo.className = "diagBtn no";
+    btnNo.textContent = t().no;
+
+    const btnBack = document.createElement("button");
+    btnBack.className = "diagBtn back";
+    btnBack.textContent = t().back;
+
+    row.appendChild(btnYes);
+    row.appendChild(btnNo);
+    row.appendChild(btnBack);
+
+    app.appendChild(section);
+  }
+
+  function render() {
+    const root = qs("#app");
+    root.innerHTML = "";
+
+    buildHeader();
+    buildTabs();
+
+    if (activeTab === "categories") buildCategoriesView();
+    else buildDiagView();
+  }
+
+  // ====== BOOT ======
+  (async function boot() {
     try {
-      const res = await fetch("content.json", { cache: "no-store" });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      state.content = await res.json();
+      await loadContent();
       render();
     } catch (e) {
-      openModal("Error", t("loadedErr"));
+      const root = qs("#app");
+      root.innerHTML = `<div class="section"><h2 class="sectionTitle">Error</h2><div>${t().loadedErr}</div></div>`;
     }
-  }
-
-  function bind() {
-    ui.langSelect.onchange = (e) => {
-      state.lang = e.target.value === "sk" ? "sk" : "de";
-      localStorage.setItem("lang", state.lang);
-      setTexts();
-      render();
-    };
-
-    ui.tabFaults.onclick = () => setTab("faults");
-    ui.tabDiag.onclick = () => setTab("diag");
-
-    ui.collapseAllBtn.onclick = () => {
-      document.querySelectorAll(".category.open").forEach((c) => c.classList.remove("open"));
-    };
-
-    ui.feedbackBtn.onclick = () => openModal(t("feedbackTitle"), t("feedbackBody"));
-
-    ui.contactBtn.onclick = () => openModal(t("contactTitle"), t("contactBody"));
-
-    ui.shareBtn.onclick = (e) => {
-      e.stopPropagation();
-      toggleShareMenu();
-    };
-
-    ui.shareTxtBtn.onclick = async () => {
-      toggleShareMenu(false);
-      const text = `${t("appTitle")} - CaravanTechniker am Main\n${location.href}`;
-      try {
-        if (navigator.share) {
-          await navigator.share({ title: t("appTitle"), text, url: location.href });
-        } else {
-          await navigator.clipboard.writeText(text);
-          openModal("OK", "Skopírované do schránky.");
-        }
-      } catch (_) {}
-    };
-
-    ui.sharePdfBtn.onclick = () => {
-      toggleShareMenu(false);
-      openModal("PDF", "PDF export doplníme neskôr. Zatiaľ používaj TXT.");
-    };
-
-    ui.modalClose.onclick = closeModal;
-    ui.modalOk.onclick = closeModal;
-    ui.modalBackdrop.onclick = closeModal;
-
-    document.addEventListener("click", () => toggleShareMenu(false));
-  }
-
-  async function setupPWA() {
-    try {
-      if ("serviceWorker" in navigator) {
-        await navigator.serviceWorker.register("sw.js");
-      }
-    } catch (_) {}
-  }
-
-  document.addEventListener("DOMContentLoaded", async () => {
-    setTexts();
-    bind();
-    await loadContent();
-    await setupPWA();
-  });
+  })();
 })();
